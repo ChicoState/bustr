@@ -1,29 +1,73 @@
 package com.bustr.activities;
 
-import com.bustr.R;
-import com.bustr.R.id;
-import com.bustr.R.layout;
-import com.bustr.R.menu;
-
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity {
+import com.bustr.R;
 
+public class MainActivity extends ActionBarActivity implements OnClickListener {
+
+	// Private fields ----------------------------------------------------------
+	private static final String LOGTAG = "BUSTR";	
+	
+	// GUI Components ----------------------------------------------------------
+	private Button button1, button2;
+	private TextView banner;
+	Typeface fontopo;	
+	
+	// OnCreate ----------------------------------------------------------------
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		// Log onCreate event for life-cycle debugging
+		Log.d(LOGTAG, "OnCreate()");
+		
+		// GUI Component wiring
+		banner = (TextView)findViewById(R.id.banner1);		
+		button1 = (Button)findViewById(R.id.button1);
+		button2 = (Button)findViewById(R.id.button2);
+		
+		// Load type-face resources and apply
+		fontopo = Typeface.createFromAsset (
+			getBaseContext().getAssets(), "fontopo.ttf"
+		);
+		banner.setTypeface(fontopo);
+		button1.setTypeface(fontopo);
+		button2.setTypeface(fontopo);
+		
+		// Register views that listen for clicks
+		button1.setOnClickListener(this);
+		button2.setOnClickListener(this);
+		
 	}
 
+	// onClick event handler ---------------------------------------------------
+	@Override
+	public void onClick(View view) {
+		switch(view.getId()) {		
+			case R.id.button1:
+				Toast.makeText(this, "button1 clicked...", Toast.LENGTH_SHORT)
+				.show();
+				break;
+			case R.id.button2:
+				Toast.makeText(this, "button2 clicked...", Toast.LENGTH_SHORT)
+				.show();
+				break;
+		}
+		
+	}	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
