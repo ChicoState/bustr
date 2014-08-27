@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bustr.CameraActivity;
 import com.bustr.R;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {

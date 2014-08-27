@@ -23,8 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:screenOrientation="landscape"
-            android:name="com.bustr.CameraActivity"
+            android:name="com.bustr.activities.CameraActivity"
             android:label="@string/title_activity_camera" >
         </activity>
     </application>
