@@ -1,5 +1,6 @@
 package com.bustr.activities;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bustr.CameraActivity;
 import com.bustr.R;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
@@ -59,6 +61,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 			case R.id.button1:
 				Toast.makeText(this, "button1 clicked...", Toast.LENGTH_SHORT)
 				.show();
+				startActivity(new Intent(this, CameraActivity.class));
 				break;
 			case R.id.button2:
 				Toast.makeText(this, "button2 clicked...", Toast.LENGTH_SHORT)
