@@ -11,6 +11,6 @@ Ryan Stevenson - Hi my name is Ryan I have been going to chico state for two yea
 
 Michael Sawyer - CSCI Student, last year at Chico State, Software Engineering Intern @ HP.
 
-Michael Tostenson
+Michael Tostenson - CSCI Senior, Software developer intern at EXL Landa, Android enthusiast.
 
 Sterling Baldwin - CSCI Student, interested in real time systems and robotic programming
