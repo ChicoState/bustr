@@ -14,3 +14,5 @@ Michael Sawyer - CSCI Student, last year at Chico State, Software Engineering In
 Michael Tostenson - CSCI Senior, Software developer intern at EXL Landa, Android enthusiast.
 
 Sterling Baldwin - CSCI Student, interested in real time systems and robotic programming
+
+Bradley Rudolph - CSCI Student, interested in mobile & web developement. 
