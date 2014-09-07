@@ -18,7 +18,7 @@
         android:id="@+id/lat_long_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Large Text"
+        android:text="@string/title_activity_camera"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFFFFF" />
 

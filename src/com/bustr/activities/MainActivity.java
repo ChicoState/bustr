@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 
@@ -40,9 +41,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		button2 = (Button)findViewById(R.id.button2);
 		
 		// Load type-face resources and apply
-		fontopo = Typeface.createFromAsset (
-			getBaseContext().getAssets(), "fontopo.ttf"
-		);
+		fontopo = ResourceProvider.instance(getBaseContext()).getFont();		
 		banner.setTypeface(fontopo);
 		button1.setTypeface(fontopo);
 		button2.setTypeface(fontopo);
