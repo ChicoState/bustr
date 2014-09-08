@@ -1,6 +1,7 @@
 package com.bustr.activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.location.Location;
@@ -8,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.bustr.R;
 import com.bustr.utilities.CameraPreview;
 
-public class CameraActivity extends ActionBarActivity implements
+public class CameraActivity extends Activity implements
       LocationListener {
 
    private final static String LOGTAG = "BUSTR";
