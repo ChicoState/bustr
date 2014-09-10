@@ -92,6 +92,9 @@ implements SurfaceHolder.Callback{
             result = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(result);
+        Camera.Parameters params = camera.getParameters();
+        params.setRotation(rotation);
+        camera.setParameters(params);
     }
 
 }
