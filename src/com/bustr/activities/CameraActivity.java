@@ -7,9 +7,10 @@ import java.io.IOException;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
@@ -41,12 +42,13 @@ public class CameraActivity extends Activity implements LocationListener {
    private CameraPreview mPreview;
    private ShutterCallback shutterCallback;
    private PictureCallback pictureCallbackJPG;
-
    private LocationManager locationManager;
 
    // GUI elements -------------------------------------------------------------
    private TextView lat_long_view;
    private Button btn_snap;
+   private Button btn_keep;
+   private Button btn_discard;
 
    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
    @Override
@@ -59,10 +61,15 @@ public class CameraActivity extends Activity implements LocationListener {
             0, this);
 
       // Wire GUI elements -----------------------------------------------------
+      Typeface tf = ResourceProvider.instance(getApplicationContext())
+            .getFont();
       lat_long_view = (TextView) findViewById(R.id.lat_long_view);
       btn_snap = (Button) findViewById(R.id.btn_snap);
-      btn_snap.setTypeface(ResourceProvider.instance(getApplicationContext())
-            .getFont());
+      btn_keep = (Button) findViewById(R.id.btn_keep);
+      btn_discard = (Button) findViewById(R.id.btn_discard);
+      btn_snap.setTypeface(tf);
+      btn_keep.setTypeface(tf);
+      btn_discard.setTypeface(tf);
 
       mCamera = getCameraInstance();
       mPreview = new CameraPreview(this, mCamera);
@@ -82,23 +89,46 @@ public class CameraActivity extends Activity implements LocationListener {
 
       pictureCallbackJPG = new PictureCallback() {
          @Override
-         public void onPictureTaken(byte[] bytes, Camera cam) {
-//            Bitmap bitmapPicture = BitmapFactory.decodeByteArray(bytes, 0,
-//                  bytes.length);
-            String root = Environment.getExternalStorageDirectory().toString();
-            File myDir = new File(root + "/saved_images");
-            myDir.mkdirs();
-            File file = new File(myDir, "bustr_image.jpg");
-            
-            try {
-               BufferedOutputStream bos = new BufferedOutputStream(
-                     new FileOutputStream(file));
-               bos.write(bytes);
-               bos.flush();
-               bos.close();
-            } catch (IOException ioe) {
-               Log.d(LOGTAG, ioe.toString());
-            }
+         public void onPictureTaken(final byte[] bytes, Camera cam) {
+
+            btn_keep.setVisibility(View.VISIBLE);
+            btn_discard.setVisibility(View.VISIBLE);
+            btn_snap.setVisibility(View.GONE);
+            OnClickListener listener = new OnClickListener() {
+
+               @Override
+               public void onClick(View v) {
+                  if (v.getId() == R.id.btn_keep) {
+                     String root = Environment.getExternalStorageDirectory()
+                           .toString();
+                     File myDir = new File(root + "/saved_images");
+                     myDir.mkdirs();
+                     File file = new File(myDir, "bustr_image.jpg");
+                     try {
+                        BufferedOutputStream bos = new BufferedOutputStream(
+                              new FileOutputStream(file));
+                        bos.write(bytes);
+                        bos.flush();
+                        bos.close();
+                     } catch (IOException ioe) {
+                        Log.d(LOGTAG, ioe.toString());
+                     }
+                     finish();
+                  }
+                  else if (v.getId() == R.id.btn_discard) {
+                     btn_keep.setVisibility(View.GONE);
+                     btn_discard.setVisibility(View.GONE);
+                     btn_snap.setVisibility(View.VISIBLE);
+                     mCamera.startPreview();
+                  }
+
+               }
+            };
+            btn_keep.setOnClickListener(listener);
+            btn_discard.setOnClickListener(listener);
+            // Bitmap bitmapPicture = BitmapFactory.decodeByteArray(bytes, 0,
+            // bytes.length);
+
          }
       };
 
