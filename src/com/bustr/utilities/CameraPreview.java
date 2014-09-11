@@ -1,15 +1,19 @@
 package com.bustr.utilities;
 
 import java.io.IOException;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.bustr.activities.CameraActivity;
 
 public class CameraPreview 
 extends SurfaceView 
@@ -96,5 +100,12 @@ implements SurfaceHolder.Callback{
         params.setRotation(result);
         camera.setParameters(params);
     }
-
+    
+    public void stopEverything() {
+       mCamera.stopPreview();
+       mCamera.setPreviewCallback(null);
+       mCamera.release();
+       mCamera = null;
+       mHolder.removeCallback(CameraPreview.this);       
+    }
 }

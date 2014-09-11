@@ -7,9 +7,9 @@ import java.io.IOException;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
@@ -20,6 +20,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,9 @@ import com.bustr.utilities.ResourceProvider;
 public class CameraActivity extends Activity implements LocationListener {
 
    private final static String LOGTAG = "BUSTR";
+   private SharedPreferences sharedPrefs;
+   private SharedPreferences.Editor prefEditor;
+   private int cam;
 
    private Camera mCamera;
    private CameraPreview mPreview;
@@ -47,6 +51,7 @@ public class CameraActivity extends Activity implements LocationListener {
    // GUI elements -------------------------------------------------------------
    private TextView lat_long_view;
    private Button btn_snap;
+   private Button btn_flip;
    private Button btn_keep;
    private Button btn_discard;
 
@@ -55,6 +60,11 @@ public class CameraActivity extends Activity implements LocationListener {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_camera);
+
+      sharedPrefs = PreferenceManager
+            .getDefaultSharedPreferences(getBaseContext());
+      prefEditor = sharedPrefs.edit();
+      cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
 
       locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
       locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
@@ -65,17 +75,17 @@ public class CameraActivity extends Activity implements LocationListener {
             .getFont();
       lat_long_view = (TextView) findViewById(R.id.lat_long_view);
       btn_snap = (Button) findViewById(R.id.btn_snap);
+      btn_flip = (Button) findViewById(R.id.btn_flip);
       btn_keep = (Button) findViewById(R.id.btn_keep);
       btn_discard = (Button) findViewById(R.id.btn_discard);
       btn_snap.setTypeface(tf);
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
 
-      mCamera = getCameraInstance();
+      mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-      CameraPreview.setCameraDisplayOrientation(this,
-            Camera.CameraInfo.CAMERA_FACING_FRONT, mCamera);
+      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
       preview.addView(mPreview);
 
       // Camera callback -------------------------------------------------------
@@ -114,8 +124,7 @@ public class CameraActivity extends Activity implements LocationListener {
                         Log.d(LOGTAG, ioe.toString());
                      }
                      finish();
-                  }
-                  else if (v.getId() == R.id.btn_discard) {
+                  } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
@@ -139,6 +148,27 @@ public class CameraActivity extends Activity implements LocationListener {
             mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
          }
       });
+
+      btn_flip.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            switchCamera();
+         }
+      });
+
+   }
+
+   public void switchCamera() {
+      mPreview.stopEverything();
+      if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
+         prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
+               .commit();
+      } else {
+         prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
+         .commit();
+      }
+      startActivity(new Intent(this, CameraActivity.class));
+      finish();
    }
 
    @Override
