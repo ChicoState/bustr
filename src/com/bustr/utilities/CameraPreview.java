@@ -85,20 +85,21 @@ implements SurfaceHolder.Callback{
             case Surface.ROTATION_0: degrees = 0; break;
             case Surface.ROTATION_90: degrees = 90; break;
             case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
+            case Surface.ROTATION_270: degrees = 90; break;
         }
 
         int result;
+        Camera.Parameters params = camera.getParameters();
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360;
             result = (360 - result) % 360;  // compensate the mirror
+            params.setRotation(result+180);
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
+            params.setRotation(result);
         }
-        camera.setDisplayOrientation(result);
-        Camera.Parameters params = camera.getParameters();
-        params.setRotation(result);
         camera.setParameters(params);
+        camera.setDisplayOrientation(result);
     }
     
     public void stopEverything() {
