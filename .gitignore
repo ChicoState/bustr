@@ -1,2 +1,17 @@
-.idea/*
+*.dex
+*.class
 
+# Generated files
+bin/
+gen/
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# Intellij project files
+.idea/*
+*.iml
+*.ipr
+*.iws
