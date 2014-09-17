@@ -2,10 +2,12 @@ package com.bustr.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -69,6 +71,18 @@ public class MainActivity extends Activity implements OnClickListener {
          startActivity(new Intent(this, CameraActivity.class));
          break;
       case R.id.button2:
+         int picsNum = 10;
+         String contentText = String.format("There are %s picture here",
+               picsNum);
+         Notification.Builder notifiBuilder = new Notification.Builder(this)
+               .setSmallIcon(R.drawable.bustr_logo)
+               .setContentTitle("New Location!").setContentText(contentText);
+
+         NotificationManager mNotificationManager = 
+           (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+         mNotificationManager.notify(1033, notifiBuilder.build());
+
          Toast.makeText(this, "button2 clicked...", Toast.LENGTH_SHORT).show();
          break;
       }
