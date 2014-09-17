@@ -1,9 +1,10 @@
 package com.bustr.activities;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -19,7 +20,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.bustr.R;
 import com.bustr.utilities.CameraPreview;
+import com.bustr.utilities.ImagePacket;
 import com.bustr.utilities.ResourceProvider;
 
 public class CameraActivity extends Activity implements LocationListener {
@@ -109,20 +110,31 @@ public class CameraActivity extends Activity implements LocationListener {
                @Override
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
-                     String root = Environment.getExternalStorageDirectory()
-                           .toString();
-                     File myDir = new File(root + "/saved_images");
-                     myDir.mkdirs();
-                     File file = new File(myDir, "bustr_image.jpg");
-                     try {
-                        BufferedOutputStream bos = new BufferedOutputStream(
-                              new FileOutputStream(file));
-                        bos.write(bytes);
-                        bos.flush();
-                        bos.close();
-                     } catch (IOException ioe) {
-                        Log.d(LOGTAG, ioe.toString());
-                     }
+                     Thread thread = new Thread() {
+                        @Override
+                        public void run() {
+                           try {
+                              Socket socket = new Socket(
+                                    InetAddress.getByName("50.173.32.127"),
+                                    8000);
+                              ObjectOutputStream output = new ObjectOutputStream(
+                                    socket.getOutputStream());
+                              ObjectInputStream input = new ObjectInputStream(
+                                    socket.getInputStream());
+                              Random rand = new Random();
+                              String randomName = Long
+                                    .toString(rand.nextLong()) + ".jpg";
+                              output.writeObject(new ImagePacket(randomName,
+                                    bytes));
+                           } catch (Exception e) {
+                              Toast.makeText(getBaseContext(),
+                                    "Upload failed...", Toast.LENGTH_LONG)
+                                    .show();
+                              e.printStackTrace();
+                           }
+                        }
+                     };
+                     thread.start();
                      finish();
                   } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
@@ -165,7 +177,7 @@ public class CameraActivity extends Activity implements LocationListener {
                .commit();
       } else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
-         .commit();
+               .commit();
       }
       startActivity(new Intent(this, CameraActivity.class));
       finish();
