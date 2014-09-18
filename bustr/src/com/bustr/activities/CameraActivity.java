@@ -165,7 +165,7 @@ public class CameraActivity extends Activity implements LocationListener {
    }
 
    public void switchCamera() {
-      mPreview.stopEverything();
+//      mPreview.stopEverything();
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
