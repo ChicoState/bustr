@@ -60,7 +60,6 @@ public class MainActivity extends Activity implements OnClickListener {
       // Register views that listen for clicks
       button1.setOnClickListener(this);
       button2.setOnClickListener(this);
-
    }
 
    // onClick event handler ---------------------------------------------------

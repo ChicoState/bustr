@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.utilities.BustrMath;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ImagePacket;
 import com.bustr.utilities.ResourceProvider;
@@ -99,6 +100,10 @@ public class CameraActivity extends Activity implements LocationListener {
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
+            Location loc = locationManager
+                  .getLastKnownLocation(locationManager.GPS_PROVIDER);
+            final float lat = BustrMath.gridDimension(loc.getLatitude());
+            final float lng = BustrMath.gridDimension(loc.getLongitude());
             OnClickListener listener = new OnClickListener() {
 
                @Override
@@ -119,11 +124,8 @@ public class CameraActivity extends Activity implements LocationListener {
                               String randomName = Long
                                     .toString(rand.nextLong()) + ".jpg";
                               output.writeObject(new ImagePacket(randomName,
-                                    bytes));
+                                    bytes, lat, lng));
                            } catch (Exception e) {
-                              Toast.makeText(getBaseContext(),
-                                    "Upload failed...", Toast.LENGTH_LONG)
-                                    .show();
                               e.printStackTrace();
                            }
                         }
@@ -165,7 +167,7 @@ public class CameraActivity extends Activity implements LocationListener {
    }
 
    public void switchCamera() {
-//      mPreview.stopEverything();
+      // mPreview.stopEverything();
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
@@ -188,7 +190,7 @@ public class CameraActivity extends Activity implements LocationListener {
    @Override
    protected void onStop() {
       super.onStop();
-//      mCamera.release();
+      // mCamera.release();
    }
 
    @Override
@@ -227,7 +229,7 @@ public class CameraActivity extends Activity implements LocationListener {
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
       preview.addView(mPreview);
-      
+
    }
 
    @Override
