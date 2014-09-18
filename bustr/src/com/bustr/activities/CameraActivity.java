@@ -83,12 +83,6 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
 
-      mCamera = Camera.open(cam);
-      mPreview = new CameraPreview(this, mCamera);
-      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
-      preview.addView(mPreview);
-
       // Camera callback -------------------------------------------------------
       shutterCallback = new ShutterCallback() {
          @Override
@@ -194,7 +188,7 @@ public class CameraActivity extends Activity implements LocationListener {
    @Override
    protected void onStop() {
       super.onStop();
-      mCamera.release();
+//      mCamera.release();
    }
 
    @Override
@@ -217,6 +211,23 @@ public class CameraActivity extends Activity implements LocationListener {
          Log.d(LOGTAG, e.toString());
       }
       return c;
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
+      mPreview.stopEverything();
+   }
+
+   @Override
+   protected void onResume() {
+      super.onResume();
+      mCamera = Camera.open(cam);
+      mPreview = new CameraPreview(this, mCamera);
+      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
+      preview.addView(mPreview);
+      
    }
 
    @Override
