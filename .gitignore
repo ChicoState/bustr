@@ -2,8 +2,8 @@
 *.class
 
 # Generated files
-bustr/bin/*
-bustr/gen/*
+bustr/bin/
+bustr/gen/
 bustr/local.properties
 
 # Eclipse project files
@@ -11,7 +11,7 @@ bustr/.classpath
 bustr/.project
 
 # Intellij project files
-/bustr/.idea/*
+bustr/.idea/*
 *.iml
 *.ipr
 *.iws
