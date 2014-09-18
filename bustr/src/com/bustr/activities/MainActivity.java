@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bustr.R;
 import com.bustr.utilities.ResourceProvider;
@@ -77,30 +76,14 @@ public class MainActivity extends Activity implements OnClickListener {
                picsNum);
          Notification.Builder notifiBuilder = new Notification.Builder(this)
                .setSmallIcon(R.drawable.bustr_logo)
-               .setContentTitle("New Location!")
-               .setContentText(contentText)
-               .setAutoCancel(true);
+               .setContentTitle("New Location!").setContentText(contentText);
 
-       // Creates an explicit intent for an Activity in your app
-       Intent resultIntent = new Intent(this, MainActivity.class);
-
-       // This ensures that navigating backward from the Activity leads out of
-       // your application to the Home screen.
-       TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-       // Adds the back stack for the Intent (but not the Intent itself)
-       stackBuilder.addParentStack(MainActivity.class);
-       // Adds the Intent that starts the Activity to the top of the stack
-       stackBuilder.addNextIntent(resultIntent);
-       PendingIntent resultPendingIntent =
-               stackBuilder.getPendingIntent(
-                   0,
-                   PendingIntent.FLAG_UPDATE_CURRENT
-               );
-       notifiBuilder.setContentIntent(resultPendingIntent);
-       NotificationManager mNotificationManager =
+         NotificationManager mNotificationManager = 
            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-       // 1033 allows you to update the notification later on.
-       mNotificationManager.notify(1033, notifiBuilder.build());
+
+         mNotificationManager.notify(1033, notifiBuilder.build());
+
+         Toast.makeText(this, "button2 clicked...", Toast.LENGTH_SHORT).show();
          break;
       }
 
