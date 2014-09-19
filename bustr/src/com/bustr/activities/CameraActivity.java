@@ -1,5 +1,6 @@
 package com.bustr.activities;
 
+import java.io.DataInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -140,6 +141,7 @@ public class CameraActivity extends Activity implements LocationListener {
       });
    }
 
+   // Asynchronous image upload class ------------------------------------------
    private class Uploader extends AsyncTask<Void, Void, Integer> {
 
       private byte[] bytes;
@@ -153,6 +155,7 @@ public class CameraActivity extends Activity implements LocationListener {
 
       @Override
       protected Integer doInBackground(Void... params) {
+         int returnCode;
          try {
             Socket socket = new Socket(InetAddress.getByName("50.173.32.127"),
                   8000);
@@ -163,18 +166,28 @@ public class CameraActivity extends Activity implements LocationListener {
             Random rand = new Random();
             String randomName = Long.toString(rand.nextLong()) + ".jpg";
             output.writeObject(new ImagePacket(randomName, bytes, lat, lng));
+            DataInputStream dataIn = new DataInputStream(
+                  socket.getInputStream());
+            returnCode = dataIn.readInt();
+            dataIn.close();
+            output.flush();
+            output.close();
          } catch (Exception e) {
-            e.printStackTrace();
+            returnCode = 0;
          }
-         return 42;
+         return returnCode;
       }
 
       @Override
       protected void onPostExecute(Integer result) {
-         if (result == 42) {
-            Toast.makeText(getBaseContext(), "Upload successfull",
-                  Toast.LENGTH_LONG).show();
+         String result_message;
+         if (result == 1) {
+            result_message = "Upload Success";
+         } else {
+            result_message = "Upload Failed";
          }
+         Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
+               .show();
       }
    }
 
