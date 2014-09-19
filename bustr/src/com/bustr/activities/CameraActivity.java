@@ -18,6 +18,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -100,45 +101,19 @@ public class CameraActivity extends Activity implements LocationListener {
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
-            Location loc = locationManager
+            final Location loc = locationManager
                   .getLastKnownLocation(locationManager.GPS_PROVIDER);
-            final float lat = BustrMath.gridDimension(loc.getLatitude());
-            final float lng = BustrMath.gridDimension(loc.getLongitude());
             OnClickListener listener = new OnClickListener() {
-
                @Override
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
-                     Thread thread = new Thread() {
-                        @Override
-                        public void run() {
-                           try {
-                              Socket socket = new Socket(
-                                    InetAddress.getByName("50.173.32.127"),
-                                    8000);
-                              ObjectOutputStream output = new ObjectOutputStream(
-                                    socket.getOutputStream());
-                              ObjectInputStream input = new ObjectInputStream(
-                                    socket.getInputStream());
-                              Random rand = new Random();
-                              String randomName = Long
-                                    .toString(rand.nextLong()) + ".jpg";
-                              output.writeObject(new ImagePacket(randomName,
-                                    bytes, lat, lng));
-                           } catch (Exception e) {
-                              e.printStackTrace();
-                           }
-                        }
-                     };
-                     thread.start();
-                     finish();
+                     new Uploader(bytes, loc).execute();
                   } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
                      mCamera.startPreview();
                   }
-
                }
             };
             btn_keep.setOnClickListener(listener);
@@ -163,7 +138,44 @@ public class CameraActivity extends Activity implements LocationListener {
             switchCamera();
          }
       });
+   }
 
+   private class Uploader extends AsyncTask<Void, Void, Integer> {
+
+      private byte[] bytes;
+      private float lat, lng;
+
+      public Uploader(byte[] pBytes, Location pLoc) {
+         bytes = pBytes;
+         lat = BustrMath.gridDimension(pLoc.getLatitude());
+         lng = BustrMath.gridDimension(pLoc.getLongitude());
+      }
+
+      @Override
+      protected Integer doInBackground(Void... params) {
+         try {
+            Socket socket = new Socket(InetAddress.getByName("50.173.32.127"),
+                  8000);
+            ObjectOutputStream output = new ObjectOutputStream(
+                  socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(
+                  socket.getInputStream());
+            Random rand = new Random();
+            String randomName = Long.toString(rand.nextLong()) + ".jpg";
+            output.writeObject(new ImagePacket(randomName, bytes, lat, lng));
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+         return 42;
+      }
+
+      @Override
+      protected void onPostExecute(Integer result) {
+         if (result == 42) {
+            Toast.makeText(getBaseContext(), "Upload successfull",
+                  Toast.LENGTH_LONG).show();
+         }
+      }
    }
 
    public void switchCamera() {
