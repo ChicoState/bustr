@@ -1,13 +1,13 @@
 package com.bustr.activities;
 
-import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -22,7 +22,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -36,22 +35,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.packets.BustrSignal;
+import com.bustr.packets.ImagePacket;
+import com.bustr.packets.SignalPacket;
 import com.bustr.utilities.BustrMath;
 import com.bustr.utilities.CameraPreview;
-import com.bustr.utilities.ImagePacket;
 import com.bustr.utilities.ResourceProvider;
 
 public class CameraActivity extends Activity implements LocationListener {
 
+   // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
+
+   // Shared preferences reference
    private SharedPreferences sharedPrefs;
+
+   // Shared preferences editor
    private SharedPreferences.Editor prefEditor;
+
+   // Corresponds to front or rear camera
    private int cam;
 
+   // Reference to hardware camera
    private Camera mCamera;
+
+   // CameraPreview that renders to View
    private CameraPreview mPreview;
+
+   // ShutterCallback instance handles taking picture
    private ShutterCallback shutterCallback;
+
+   // PictureCallback handles jpg byte[]
    private PictureCallback pictureCallbackJPG;
+
+   // LocationManager object to access GPS
    private LocationManager locationManager;
 
    // GUI elements -------------------------------------------------------------
@@ -61,17 +78,16 @@ public class CameraActivity extends Activity implements LocationListener {
    private Button btn_keep;
    private Button btn_discard;
 
-   @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+   // Initializes camera instance and location manager -------------------------
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      Log.d(LOGTAG, "OnCreate");
       setContentView(R.layout.activity_camera);
-
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
       cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
-
       locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
       locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
             0, this);
@@ -97,15 +113,15 @@ public class CameraActivity extends Activity implements LocationListener {
          }
       };
 
+      // After JPG created callback --------------------------------------------
       pictureCallbackJPG = new PictureCallback() {
          @Override
          public void onPictureTaken(final byte[] bytes, Camera cam) {
-
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
             final Location loc = locationManager
-                  .getLastKnownLocation(locationManager.GPS_PROVIDER);
+                  .getLastKnownLocation(LocationManager.GPS_PROVIDER);
             OnClickListener listener = new OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -121,9 +137,6 @@ public class CameraActivity extends Activity implements LocationListener {
             };
             btn_keep.setOnClickListener(listener);
             btn_discard.setOnClickListener(listener);
-            // Bitmap bitmapPicture = BitmapFactory.decodeByteArray(bytes, 0,
-            // bytes.length);
-
          }
       };
 
@@ -139,6 +152,7 @@ public class CameraActivity extends Activity implements LocationListener {
          }
       });
 
+      // Setup flip button -----------------------------------------------------
       btn_flip.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
@@ -148,48 +162,51 @@ public class CameraActivity extends Activity implements LocationListener {
    }
 
    // Asynchronous image upload class ------------------------------------------
-   private class Uploader extends AsyncTask<Void, Void, Integer> {
+   private class Uploader extends AsyncTask<Void, Void, BustrSignal> {
 
+      // Image data to be uploaded
       private byte[] bytes;
+
+      // Grid location of image
       private float lat, lng;
 
+      // Caluclates grid dimensions
       public Uploader(byte[] pBytes, Location pLoc) {
          bytes = pBytes;
          lat = BustrMath.gridDimension(pLoc.getLatitude());
          lng = BustrMath.gridDimension(pLoc.getLongitude());
       }
 
+      // Uploades image to server asynchronously -------------------------------
       @Override
-      protected Integer doInBackground(Void... params) {
-         int returnCode;
+      protected BustrSignal doInBackground(Void... params) {
+         Socket socket = null;
+         BustrSignal returnCode = null;
+         ObjectOutputStream output;
+         ObjectInputStream input;
+         String randomName = Long.toString(new Random().nextLong()) + ".jpg";
          try {
-            Socket socket = new Socket(InetAddress.getByName("50.173.32.127"),
-                  8000);
-            ObjectOutputStream output = new ObjectOutputStream(
-                  socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(
-                  socket.getInputStream());
-            Random rand = new Random();
-            String randomName = Long.toString(rand.nextLong()) + ".jpg";
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            output = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
             output.writeObject(new ImagePacket(randomName, bytes, lat, lng));
-            DataInputStream dataIn = new DataInputStream(
-                  socket.getInputStream());
-            returnCode = dataIn.readInt();
-            dataIn.close();
-            output.flush();
+            returnCode = ((SignalPacket) input.readObject()).getSignal();
             output.close();
+            input.close();
+            socket.close();
          } catch (Exception e) {
-            returnCode = 0;
+            returnCode = BustrSignal.TRANSFER_FAIL;
          }
          return returnCode;
       }
 
+      // Displays return code message after attempting upload ------------------
       @Override
-      protected void onPostExecute(Integer result) {
-         String result_message;
-         if (result == 1) {
+      protected void onPostExecute(BustrSignal result) {
+         String result_message = "Unexpected signal returned";
+         if (result == BustrSignal.TRANSFER_SUCCESS) {
             result_message = "Upload Successful";
-         } else {
+         } else if (result == BustrSignal.TRANSFER_FAIL) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -197,8 +214,8 @@ public class CameraActivity extends Activity implements LocationListener {
       }
    }
 
+   // Toggles active camera and saves to shared preferences --------------------
    public void switchCamera() {
-      // mPreview.stopEverything();
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
@@ -212,7 +229,6 @@ public class CameraActivity extends Activity implements LocationListener {
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
-
       // Inflate the menu; this adds items to the action bar if it is present.
       getMenuInflater().inflate(R.menu.camera, menu);
       return true;
@@ -221,14 +237,14 @@ public class CameraActivity extends Activity implements LocationListener {
    @Override
    protected void onStop() {
       super.onStop();
-      // mCamera.release();
+      Log.d(LOGTAG, "onStop");
    }
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       // Handle action bar item clicks here. The action bar will
       // automatically handle clicks on the Home/Up button, so long
-      // as you specify a parent activity in AndroidManifest.xml.
+      // as you specify a parent activity in AndroidManifest.xml. --------------
       int id = item.getItemId();
       if (id == R.id.action_settings) {
          return true;
@@ -236,6 +252,7 @@ public class CameraActivity extends Activity implements LocationListener {
       return super.onOptionsItemSelected(item);
    }
 
+   // Returns camera instance, returns null if not available -------------------
    public static Camera getCameraInstance() {
       Camera c = null;
       try {
@@ -246,21 +263,25 @@ public class CameraActivity extends Activity implements LocationListener {
       return c;
    }
 
+   // Stops camera and camera preview when activity is paused ------------------
    @Override
    protected void onPause() {
       super.onPause();
+      Log.d(LOGTAG, "onPause");
       mPreview.stopEverything();
    }
 
+   // Re-initializes camera and checks if GPS is enabled -----------------------
    @Override
    protected void onResume() {
       super.onResume();
+      Log.d(LOGTAG, "OnResume");
       mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
       preview.addView(mPreview);
-      if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+      if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
          promptEnableGPS();
       }
    }
@@ -281,6 +302,7 @@ public class CameraActivity extends Activity implements LocationListener {
             .setIcon(android.R.drawable.ic_dialog_alert).show();
    }
 
+   // GPS location update callback ---------------------------------------------
    @Override
    public void onLocationChanged(Location loc) {
       String lat_long = "lat: " + loc.getLatitude() + "\nlong: "
@@ -292,19 +314,16 @@ public class CameraActivity extends Activity implements LocationListener {
    @Override
    public void onProviderDisabled(String arg0) {
       // TODO Auto-generated method stub
-
    }
 
    @Override
    public void onProviderEnabled(String arg0) {
       // TODO Auto-generated method stub
-
    }
 
    @Override
    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
       // TODO Auto-generated method stub
-
    }
 
 }

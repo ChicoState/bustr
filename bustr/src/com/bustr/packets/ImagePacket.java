@@ -1,8 +1,6 @@
-package com.bustr.utilities;
+package com.bustr.packets;
 
-import java.io.Serializable;
-
-public class ImagePacket implements Serializable {
+public class ImagePacket extends BustrPacket {
 
    /**
     * 
