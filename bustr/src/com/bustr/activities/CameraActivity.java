@@ -9,7 +9,9 @@ import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -129,7 +131,11 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+               mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
+            } else {
+               promptEnableGPS();
+            }
          }
       });
 
@@ -182,7 +188,7 @@ public class CameraActivity extends Activity implements LocationListener {
       protected void onPostExecute(Integer result) {
          String result_message;
          if (result == 1) {
-            result_message = "Upload Success";
+            result_message = "Upload Successful";
          } else {
             result_message = "Upload Failed";
          }
@@ -254,7 +260,25 @@ public class CameraActivity extends Activity implements LocationListener {
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
       preview.addView(mPreview);
+      if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+         promptEnableGPS();
+      }
+   }
 
+   // Requests that user enable GPS service ------------------------------------
+   private void promptEnableGPS() {
+      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface dialog, int which) {
+            Intent gpsOptionsIntent = new Intent(
+                  android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(gpsOptionsIntent);
+         }
+      };
+      new AlertDialog.Builder(this).setTitle("GPS Required")
+            .setMessage("Please enable GPS location")
+            .setNegativeButton("Ok", listener).setCancelable(false)
+            .setIcon(android.R.drawable.ic_dialog_alert).show();
    }
 
    @Override
