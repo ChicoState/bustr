@@ -1,11 +1,9 @@
 package com.bustr.activities;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Random;
 
 import android.app.Activity;
@@ -30,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +70,15 @@ public class CameraActivity extends Activity implements LocationListener {
    // LocationManager object to access GPS
    private LocationManager locationManager;
 
+   // Byte[] to store image data
+   private byte[] bytes;
+
+   // Location to store current coordinates
+   private Location loc;
+
+   // Caption to be attached to the image
+   private String caption = "";
+
    // GUI elements -------------------------------------------------------------
    private TextView lat_long_view;
    private Button btn_snap;
@@ -108,25 +116,25 @@ public class CameraActivity extends Activity implements LocationListener {
       shutterCallback = new ShutterCallback() {
          @Override
          public void onShutter() {
-            Toast.makeText(getBaseContext(), "CLICK", Toast.LENGTH_SHORT)
-                  .show();
+            // Currently unused
          }
       };
 
       // After JPG created callback --------------------------------------------
       pictureCallbackJPG = new PictureCallback() {
          @Override
-         public void onPictureTaken(final byte[] bytes, Camera cam) {
+         public void onPictureTaken(final byte[] pBytes, Camera cam) {
+            bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
-            final Location loc = locationManager
+            loc = locationManager
                   .getLastKnownLocation(LocationManager.GPS_PROVIDER);
             OnClickListener listener = new OnClickListener() {
                @Override
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
-                     new Uploader(bytes, loc).execute();
+                     getCaptionFromUser();
                   } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
@@ -164,17 +172,13 @@ public class CameraActivity extends Activity implements LocationListener {
    // Asynchronous image upload class ------------------------------------------
    private class Uploader extends AsyncTask<Void, Void, BustrSignal> {
 
-      // Image data to be uploaded
-      private byte[] bytes;
-
       // Grid location of image
       private float lat, lng;
 
       // Caluclates grid dimensions
-      public Uploader(byte[] pBytes, Location pLoc) {
-         bytes = pBytes;
-         lat = BustrMath.gridDimension(pLoc.getLatitude());
-         lng = BustrMath.gridDimension(pLoc.getLongitude());
+      public Uploader() {
+         lat = BustrMath.gridDimension(loc.getLatitude());
+         lng = BustrMath.gridDimension(loc.getLongitude());
       }
 
       // Uploades image to server asynchronously -------------------------------
@@ -189,7 +193,8 @@ public class CameraActivity extends Activity implements LocationListener {
             socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
-            output.writeObject(new ImagePacket(randomName, bytes, lat, lng));
+            output.writeObject(new ImagePacket(randomName, bytes, lat, lng,
+                  caption));
             returnCode = ((SignalPacket) input.readObject()).getSignal();
             output.close();
             input.close();
@@ -298,8 +303,23 @@ public class CameraActivity extends Activity implements LocationListener {
       };
       new AlertDialog.Builder(this).setTitle("GPS Required")
             .setMessage("Please enable GPS location")
-            .setNegativeButton("Ok", listener).setCancelable(false)
+            .setNeutralButton("Ok", listener).setCancelable(false)
             .setIcon(android.R.drawable.ic_dialog_alert).show();
+   }
+
+   // Prompt user to provide image caption -------------------------------------
+   private void getCaptionFromUser() {
+      final EditText captionInput = new EditText(this);
+      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+         @Override
+         public void onClick(DialogInterface arg0, int arg1) {
+            caption = captionInput.getText().toString();
+            new Uploader().execute();
+         }
+      };
+      new AlertDialog.Builder(this).setTitle("Add a caption?")
+            .setView(captionInput).setNeutralButton("Ok", listener)
+            .setIcon(android.R.drawable.ic_input_get).show();
    }
 
    // GPS location update callback ---------------------------------------------

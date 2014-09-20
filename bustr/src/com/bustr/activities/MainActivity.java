@@ -25,16 +25,16 @@ import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-   // Private fields ----------------------------------------------------------
+   // Private fields -----------------------------------------------------------
    private static final String LOGTAG = "BUSTR";
    private SharedPreferences sharedPrefs;
 
-   // GUI Components ----------------------------------------------------------
+   // GUI Components -----------------------------------------------------------
    private Button button1, button2;
    private TextView banner;
    Typeface fontopo;
 
-   // OnCreate ----------------------------------------------------------------
+   // OnCreate -----------------------------------------------------------------
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -62,7 +62,7 @@ public class MainActivity extends Activity implements OnClickListener {
       button2.setOnClickListener(this);
    }
 
-   // onClick event handler ---------------------------------------------------
+   // onClick event handler ----------------------------------------------------
    @SuppressLint("InlinedApi")
    @Override
    public void onClick(View view) {
