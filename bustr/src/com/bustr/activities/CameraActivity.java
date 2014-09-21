@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.location.Location;
@@ -28,8 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -70,6 +69,9 @@ public class CameraActivity extends Activity implements LocationListener {
    // PictureCallback handles jpg byte[]
    private PictureCallback pictureCallbackJPG;
 
+   // Auto focus callback
+   private AutoFocusCallback autoFocusCallback;
+
    // LocationManager object to access GPS
    private LocationManager locMgr;
 
@@ -81,9 +83,11 @@ public class CameraActivity extends Activity implements LocationListener {
 
    // Caption to be attached to the image
    private String caption = "";
+   
+   // Boolean value to track when picture is taking
+   private boolean takingPicture = false;
 
    // GUI elements -------------------------------------------------------------
-   private TextView lat_long_view;
    private ToggleButton btn_flash;
    private Button btn_discard;
    private Button btn_snap;
@@ -101,13 +105,11 @@ public class CameraActivity extends Activity implements LocationListener {
       prefEditor = sharedPrefs.edit();
       cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-            0, this);
+      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
             .getFont();
-      lat_long_view = (TextView) findViewById(R.id.lat_long_view);
       btn_snap = (Button) findViewById(R.id.btn_snap);
       btn_flip = (Button) findViewById(R.id.btn_flip);
       btn_keep = (Button) findViewById(R.id.btn_keep);
@@ -130,15 +132,13 @@ public class CameraActivity extends Activity implements LocationListener {
          @Override
          public void onPictureTaken(final byte[] pBytes, Camera cam) {
             Camera.Parameters params = cam.getParameters();
-            btn_flash.setChecked(false);
             params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
             cam.setParameters(params);
             bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
-            loc = locMgr
-                  .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            loc = locMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             OnClickListener listener = new OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -158,12 +158,29 @@ public class CameraActivity extends Activity implements LocationListener {
          }
       };
 
+      autoFocusCallback = new AutoFocusCallback() {
+         @Override
+         public void onAutoFocus(boolean focused, Camera pCam) {
+            Log.d(LOGTAG, "Auto focus callback");
+            if(takingPicture && focused == true) {
+               mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
+               takingPicture = false;
+            }
+         }
+      };
+
       // Setup snap button -----------------------------------------------------
       btn_snap.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-               mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
+            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {               
+               if (btn_flash.isChecked()) {
+                  Camera.Parameters params = mCamera.getParameters();
+                  params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);                  
+                  mCamera.setParameters(params);
+               }
+               takingPicture = true;
+               mCamera.autoFocus(autoFocusCallback);               
             }
             else {
                promptEnableGPS();
@@ -176,21 +193,6 @@ public class CameraActivity extends Activity implements LocationListener {
          @Override
          public void onClick(View v) {
             switchCamera();
-         }
-      });
-
-      // Setup flash button ----------------------------------------------------
-      btn_flash.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-         @Override
-         public void onCheckedChanged(CompoundButton button, boolean checked) {
-            Camera.Parameters params = mCamera.getParameters();
-            if (checked) {
-               params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            }
-            else {
-               params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            }
-            mCamera.setParameters(params);
          }
       });
    }
@@ -354,10 +356,7 @@ public class CameraActivity extends Activity implements LocationListener {
    // GPS location update callback ---------------------------------------------
    @Override
    public void onLocationChanged(Location loc) {
-      String lat_long = "lat: " + loc.getLatitude() + "\nlong: "
-            + loc.getLongitude();
-      Log.d(LOGTAG, lat_long);
-      lat_long_view.setText(lat_long);
+      // Not used
    }
 
    @Override
@@ -367,12 +366,12 @@ public class CameraActivity extends Activity implements LocationListener {
 
    @Override
    public void onProviderEnabled(String arg0) {
-      // TODO Auto-generated method stub
+      // Not used
    }
 
    @Override
    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-      // TODO Auto-generated method stub
+      // Not used
    }
 
 }
