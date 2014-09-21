@@ -71,7 +71,7 @@ public class CameraActivity extends Activity implements LocationListener {
    private PictureCallback pictureCallbackJPG;
 
    // LocationManager object to access GPS
-   private LocationManager locationManager;
+   private LocationManager locMgr;
 
    // Byte[] to store image data
    private byte[] bytes;
@@ -87,7 +87,7 @@ public class CameraActivity extends Activity implements LocationListener {
    private ToggleButton btn_flash;
    private Button btn_discard;
    private Button btn_snap;
-   private Button btn_flip;   
+   private Button btn_flip;
    private Button btn_keep;
 
    // Initializes camera instance and location manager -------------------------
@@ -100,8 +100,8 @@ public class CameraActivity extends Activity implements LocationListener {
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
       cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
-      locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+      locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
             0, this);
 
       // Wire GUI elements -----------------------------------------------------
@@ -137,7 +137,7 @@ public class CameraActivity extends Activity implements LocationListener {
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
-            loc = locationManager
+            loc = locMgr
                   .getLastKnownLocation(LocationManager.GPS_PROVIDER);
             OnClickListener listener = new OnClickListener() {
                @Override
@@ -162,7 +162,7 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
             }
             else {
@@ -178,20 +178,20 @@ public class CameraActivity extends Activity implements LocationListener {
             switchCamera();
          }
       });
-      
+
       // Setup flash button ----------------------------------------------------
-      btn_flash.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+      btn_flash.setOnCheckedChangeListener(new OnCheckedChangeListener() {
          @Override
          public void onCheckedChanged(CompoundButton button, boolean checked) {
             Camera.Parameters params = mCamera.getParameters();
-            if(checked){
+            if (checked) {
                params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
             }
             else {
                params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
             }
             mCamera.setParameters(params);
-         }         
+         }
       });
    }
 
@@ -201,13 +201,13 @@ public class CameraActivity extends Activity implements LocationListener {
       // Grid location of image
       private float lat, lng;
 
-      // Caluclates grid dimensions
+      // Calculates grid dimensions
       public Uploader() {
          lat = BustrMath.gridDimension(loc.getLatitude());
          lng = BustrMath.gridDimension(loc.getLongitude());
       }
 
-      // Uploades image to server asynchronously -------------------------------
+      // Uploads image to server asynchronously --------------------------------
       @Override
       protected BustrSignal doInBackground(Void... params) {
          Socket socket = null;
@@ -262,7 +262,7 @@ public class CameraActivity extends Activity implements LocationListener {
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
-      // Inflate the menu; this adds items to the action bar if it is present.
+      // Inflate the menu; this adds items to the action bar if it is present. -
       getMenuInflater().inflate(R.menu.camera, menu);
       return true;
    }
@@ -309,13 +309,13 @@ public class CameraActivity extends Activity implements LocationListener {
    protected void onResume() {
       super.onResume();
       Log.d(LOGTAG, "OnResume");
-      btn_flash.setChecked(false);
       mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
+      btn_flash.setChecked(false);
       preview.addView(mPreview);
-      if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+      if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
          promptEnableGPS();
       }
    }
@@ -362,7 +362,7 @@ public class CameraActivity extends Activity implements LocationListener {
 
    @Override
    public void onProviderDisabled(String arg0) {
-      // TODO Auto-generated method stub
+      promptEnableGPS();
    }
 
    @Override
