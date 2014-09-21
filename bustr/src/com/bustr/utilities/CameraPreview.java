@@ -17,7 +17,7 @@ import com.bustr.activities.CameraActivity;
 
 public class CameraPreview 
 extends SurfaceView 
-implements SurfaceHolder.Callback{
+implements SurfaceHolder.Callback {
 
     private final String LOGTAG = "BUSTR";
     
@@ -64,6 +64,7 @@ implements SurfaceHolder.Callback{
         catch(Exception e) {}
         
         try {
+            Log.d("camera", "SURFACE CHANGED");
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
         }
@@ -71,8 +72,7 @@ implements SurfaceHolder.Callback{
             Log.d(LOGTAG, e.toString());
         }
     }
-    
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+
     public static void setCameraDisplayOrientation(Activity activity,
             int cameraId, android.hardware.Camera camera) {
         android.hardware.Camera.CameraInfo info =
@@ -98,7 +98,8 @@ implements SurfaceHolder.Callback{
             result = (info.orientation - degrees + 360) % 360;
             params.setRotation(result);
         }
-        camera.setParameters(params);
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        camera.setParameters(params);        
         camera.setDisplayOrientation(result);
     }
     

@@ -57,4 +57,11 @@
         android:textSize="30sp" 
         android:visibility="gone" />
 
+    <ToggleButton
+        android:id="@+id/btn_flash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:text="Flash" />
+
 </FrameLayout>

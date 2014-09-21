@@ -28,10 +28,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.bustr.R;
 import com.bustr.packets.BustrSignal;
@@ -81,10 +84,11 @@ public class CameraActivity extends Activity implements LocationListener {
 
    // GUI elements -------------------------------------------------------------
    private TextView lat_long_view;
-   private Button btn_snap;
-   private Button btn_flip;
-   private Button btn_keep;
+   private ToggleButton btn_flash;
    private Button btn_discard;
+   private Button btn_snap;
+   private Button btn_flip;   
+   private Button btn_keep;
 
    // Initializes camera instance and location manager -------------------------
    @Override
@@ -108,6 +112,7 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_flip = (Button) findViewById(R.id.btn_flip);
       btn_keep = (Button) findViewById(R.id.btn_keep);
       btn_discard = (Button) findViewById(R.id.btn_discard);
+      btn_flash = (ToggleButton) findViewById(R.id.btn_flash);
       btn_snap.setTypeface(tf);
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
@@ -124,6 +129,10 @@ public class CameraActivity extends Activity implements LocationListener {
       pictureCallbackJPG = new PictureCallback() {
          @Override
          public void onPictureTaken(final byte[] pBytes, Camera cam) {
+            Camera.Parameters params = cam.getParameters();
+            btn_flash.setChecked(false);
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            cam.setParameters(params);
             bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
@@ -135,7 +144,8 @@ public class CameraActivity extends Activity implements LocationListener {
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
                      getCaptionFromUser();
-                  } else if (v.getId() == R.id.btn_discard) {
+                  }
+                  else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
@@ -154,7 +164,8 @@ public class CameraActivity extends Activity implements LocationListener {
          public void onClick(View v) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
-            } else {
+            }
+            else {
                promptEnableGPS();
             }
          }
@@ -166,6 +177,21 @@ public class CameraActivity extends Activity implements LocationListener {
          public void onClick(View v) {
             switchCamera();
          }
+      });
+      
+      // Setup flash button ----------------------------------------------------
+      btn_flash.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+         @Override
+         public void onCheckedChanged(CompoundButton button, boolean checked) {
+            Camera.Parameters params = mCamera.getParameters();
+            if(checked){
+               params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            }
+            else {
+               params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            }
+            mCamera.setParameters(params);
+         }         
       });
    }
 
@@ -211,7 +237,8 @@ public class CameraActivity extends Activity implements LocationListener {
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.TRANSFER_SUCCESS) {
             result_message = "Upload Successful";
-         } else if (result == BustrSignal.TRANSFER_FAIL) {
+         }
+         else if (result == BustrSignal.TRANSFER_FAIL) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -224,7 +251,8 @@ public class CameraActivity extends Activity implements LocationListener {
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
-      } else {
+      }
+      else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
                .commit();
       }
@@ -281,6 +309,7 @@ public class CameraActivity extends Activity implements LocationListener {
    protected void onResume() {
       super.onResume();
       Log.d(LOGTAG, "OnResume");
+      btn_flash.setChecked(false);
       mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
