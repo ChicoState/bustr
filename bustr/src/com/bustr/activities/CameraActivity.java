@@ -42,7 +42,7 @@ import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
 
-public class CameraActivity extends Activity implements LocationListener {
+public class CameraActivity extends Activity {
 
    // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
@@ -82,7 +82,7 @@ public class CameraActivity extends Activity implements LocationListener {
 
    // Caption to be attached to the image
    private String caption = "";
-   
+
    // Boolean value to track when picture is taking
    private boolean takingPicture = false;
 
@@ -104,7 +104,8 @@ public class CameraActivity extends Activity implements LocationListener {
       prefEditor = sharedPrefs.edit();
       cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+            BustrGrid.instance());
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
@@ -142,8 +143,7 @@ public class CameraActivity extends Activity implements LocationListener {
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
                      getCaptionFromUser();
-                  }
-                  else if (v.getId() == R.id.btn_discard) {
+                  } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
@@ -156,11 +156,12 @@ public class CameraActivity extends Activity implements LocationListener {
          }
       };
 
+      // Auto focus even thandlerr ---------------------------------------------
       autoFocusCallback = new AutoFocusCallback() {
          @Override
          public void onAutoFocus(boolean focused, Camera pCam) {
             Log.d(LOGTAG, "Auto focus callback");
-            if(takingPicture && focused == true) {
+            if (takingPicture && focused == true) {
                mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
                takingPicture = false;
             }
@@ -171,16 +172,15 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {               
+            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                if (btn_flash.isChecked()) {
                   Camera.Parameters params = mCamera.getParameters();
-                  params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);                  
+                  params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                   mCamera.setParameters(params);
                }
                takingPicture = true;
-               mCamera.autoFocus(autoFocusCallback);               
-            }
-            else {
+               mCamera.autoFocus(autoFocusCallback);
+            } else {
                promptEnableGPS();
             }
          }
@@ -193,6 +193,11 @@ public class CameraActivity extends Activity implements LocationListener {
             switchCamera();
          }
       });
+      
+      // Verify GPS service is enabled -----------------------------------------
+      if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+         promptEnableGPS();
+      }
    }
 
    // Asynchronous image upload class ------------------------------------------
@@ -237,8 +242,7 @@ public class CameraActivity extends Activity implements LocationListener {
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.TRANSFER_SUCCESS) {
             result_message = "Upload Successful";
-         }
-         else if (result == BustrSignal.TRANSFER_FAIL) {
+         } else if (result == BustrSignal.TRANSFER_FAIL) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -251,8 +255,7 @@ public class CameraActivity extends Activity implements LocationListener {
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
-      }
-      else {
+      } else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
                .commit();
       }
@@ -314,10 +317,7 @@ public class CameraActivity extends Activity implements LocationListener {
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
       btn_flash.setChecked(false);
-      preview.addView(mPreview);
-      if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-         promptEnableGPS();
-      }
+      preview.addView(mPreview);      
    }
 
    // Requests that user enable GPS service ------------------------------------
@@ -350,26 +350,4 @@ public class CameraActivity extends Activity implements LocationListener {
             .setView(captionInput).setNeutralButton("Ok", listener)
             .setIcon(android.R.drawable.ic_input_get).show();
    }
-
-// GPS location update callback ---------------------------------------------
-   @Override
-   public void onLocationChanged(Location loc) {
-      // Not used
-   }
-
-   @Override
-   public void onProviderDisabled(String arg0) {
-      promptEnableGPS();
-   }
-
-   @Override
-   public void onProviderEnabled(String arg0) {
-      // Not used
-   }
-
-   @Override
-   public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-      // Not used
-   }
-
 }
