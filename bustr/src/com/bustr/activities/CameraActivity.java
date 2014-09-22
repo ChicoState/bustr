@@ -31,7 +31,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -39,7 +38,7 @@ import com.bustr.R;
 import com.bustr.packets.BustrSignal;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
-import com.bustr.utilities.BustrMath;
+import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
 
@@ -138,7 +137,6 @@ public class CameraActivity extends Activity implements LocationListener {
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
-            loc = locMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             OnClickListener listener = new OnClickListener() {
                @Override
                public void onClick(View v) {
@@ -205,8 +203,8 @@ public class CameraActivity extends Activity implements LocationListener {
 
       // Calculates grid dimensions
       public Uploader() {
-         lat = BustrMath.gridDimension(loc.getLatitude());
-         lng = BustrMath.gridDimension(loc.getLongitude());
+         lat = BustrGrid.gridLat(locMgr);
+         lng = BustrGrid.gridLon(locMgr);
       }
 
       // Uploads image to server asynchronously --------------------------------
@@ -353,7 +351,7 @@ public class CameraActivity extends Activity implements LocationListener {
             .setIcon(android.R.drawable.ic_input_get).show();
    }
 
-   // GPS location update callback ---------------------------------------------
+// GPS location update callback ---------------------------------------------
    @Override
    public void onLocationChanged(Location loc) {
       // Not used
