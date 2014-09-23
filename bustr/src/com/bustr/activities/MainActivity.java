@@ -79,10 +79,8 @@ public class MainActivity extends Activity implements OnClickListener {
                .setContentTitle("New Location!")
                .setContentText(contentText)
                .setAutoCancel(true);
-
        // Creates an explicit intent for an Activity in your app
        Intent resultIntent = new Intent(this, MainActivity.class);
-
        // This ensures that navigating backward from the Activity leads out of
        // your application to the Home screen.
        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);

@@ -35,14 +35,14 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.bustr.R;
-import com.bustr.packets.BustrSignal;
+import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
 
-public class CameraActivity extends Activity {
+public class CameraActivity extends Activity implements LocationListener {
 
    // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
@@ -92,7 +92,7 @@ public class CameraActivity extends Activity {
    private Button btn_snap;
    private Button btn_flip;
    private Button btn_keep;
-
+   
    // Initializes camera instance and location manager -------------------------
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +105,7 @@ public class CameraActivity extends Activity {
       cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
       locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-            BustrGrid.instance());
+            this);
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
@@ -231,7 +231,8 @@ public class CameraActivity extends Activity {
             input.close();
             socket.close();
          } catch (Exception e) {
-            returnCode = BustrSignal.TRANSFER_FAIL;
+            returnCode = BustrSignal.FAILURE;
+            Log.e(LOGTAG, e.toString());
          }
          return returnCode;
       }
@@ -240,9 +241,9 @@ public class CameraActivity extends Activity {
       @Override
       protected void onPostExecute(BustrSignal result) {
          String result_message = "Unexpected signal returned";
-         if (result == BustrSignal.TRANSFER_SUCCESS) {
+         if (result == BustrSignal.SUCCESS) {
             result_message = "Upload Successful";
-         } else if (result == BustrSignal.TRANSFER_FAIL) {
+         } else if (result == BustrSignal.FAILURE) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -294,7 +295,7 @@ public class CameraActivity extends Activity {
       try {
          c = Camera.open();
       } catch (Exception e) {
-         Log.d(LOGTAG, e.toString());
+         Log.e(LOGTAG, e.toString());
       }
       return c;
    }
@@ -349,5 +350,29 @@ public class CameraActivity extends Activity {
       new AlertDialog.Builder(this).setTitle("Add a caption?")
             .setView(captionInput).setNeutralButton("Ok", listener)
             .setIcon(android.R.drawable.ic_input_get).show();
+   }
+
+   @Override
+   public void onLocationChanged(Location arg0) {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void onProviderDisabled(String provider) {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void onProviderEnabled(String provider) {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void onStatusChanged(String provider, int status, Bundle extras) {
+      // TODO Auto-generated method stub
+      
    }
 }

@@ -5,19 +5,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-public class BustrGrid implements LocationListener {
+public class BustrGrid {
 
-   private static BustrGrid instance = null;
-   
-   private BustrGrid(){}
-   
-   public static BustrGrid instance() {      
-      if(instance == null) {
-         instance = new BustrGrid();
-      }
-      return instance;
-   }
-   
    public static float gridLat(LocationManager locMgr) {
       double lat = exactLat(locMgr);
       return (float) Math.round(lat * 10000) / 10000f;
@@ -39,26 +28,4 @@ public class BustrGrid implements LocationListener {
       loc = locMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
       return loc.getLongitude();
    }
-
-   // GPS location update callback ---------------------------------------------
-   @Override
-   public void onLocationChanged(Location loc) {
-      // Not used
-   }
-
-   @Override
-   public void onProviderDisabled(String arg0) {
-      // promptEnableGPS();
-   }
-
-   @Override
-   public void onProviderEnabled(String arg0) {
-      // Not used
-   }
-
-   @Override
-   public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-      // Not used
-   }
-
 }
