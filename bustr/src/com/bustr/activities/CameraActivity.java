@@ -46,9 +46,9 @@ import com.bustr.utilities.ResourceProvider;
 public class CameraActivity extends Activity implements LocationListener {
 
    // Detect available cameras
-   PackageManager pm = getPackageManager();
-   boolean camBack = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
-   boolean camFront = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
+   PackageManager pm;
+   boolean camBack;
+   boolean camFront;
    
    // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
@@ -108,6 +108,9 @@ public class CameraActivity extends Activity implements LocationListener {
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
+      pm = getPackageManager();
+      camBack = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+      camFront = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
       if(camFront && camBack) {
          cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
       }
