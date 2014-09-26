@@ -1,8 +1,6 @@
-package com.bustr.utilities;
+package com.bustr.packets;
 
-import java.io.Serializable;
-
-public class ImagePacket implements Serializable {
+public class ImagePacket extends BustrPacket {
 
    /**
     * 
@@ -10,29 +8,36 @@ public class ImagePacket implements Serializable {
    private static final long serialVersionUID = 1L;
    private String name;
    private byte[] data;
-   private float lat, lng;
+   private float  lat, lng;
+   private String caption;
 
-   public ImagePacket(String pName, byte[] pData, float pLat, float pLng) {
-      name = pName;
-      data = pData;
-      lat = pLat;
-      lng = pLng;
+   public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
+         String pCaption) {
+      name    = pName;
+      data    = pData;
+      lat     = pLat;
+      lng     = pLng;
+      caption = pCaption;
    }
 
    public byte[] getData() {
       return data;
    }
-   
+
    public String getName() {
       return name;
    }
-   
+
    public float getLat() {
-      return lat;      
+      return lat;
    }
-   
+
    public float getLng() {
       return lng;
+   }
+   
+   public String getCaption() {
+      return caption;
    }
 
 }
