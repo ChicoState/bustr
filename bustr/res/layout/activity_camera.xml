@@ -28,7 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right|top"
         android:text="Flip"
-        android:textSize="30sp" />
+        android:textSize="30sp" 
+        android:visibility="gone"/>
     
 
     <Button

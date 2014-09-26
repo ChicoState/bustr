@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -35,15 +36,20 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.bustr.R;
-import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
+import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
 
 public class CameraActivity extends Activity implements LocationListener {
 
+   // Detect available cameras
+   PackageManager pm = getPackageManager();
+   boolean camBack = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+   boolean camFront = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
+   
    // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
 
@@ -102,7 +108,15 @@ public class CameraActivity extends Activity implements LocationListener {
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
-      cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
+      if(camFront && camBack) {
+         cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
+      }
+      else if(camFront) {
+         cam = Camera.CameraInfo.CAMERA_FACING_FRONT;
+      }
+      else if(camBack) {
+         cam = Camera.CameraInfo.CAMERA_FACING_BACK;
+      }
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
       locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
             this);
@@ -118,6 +132,9 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setTypeface(tf);
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
+      if(camFront && camBack) {
+         btn_flip.setVisibility(View.VISIBLE);
+      }
 
       // Camera callback -------------------------------------------------------
       shutterCallback = new ShutterCallback() {
@@ -311,8 +328,9 @@ public class CameraActivity extends Activity implements LocationListener {
    // Re-initializes camera and checks if GPS is enabled -----------------------
    @Override
    protected void onResume() {
-      super.onResume();
+      super.onResume();      
       Log.d(LOGTAG, "OnResume");
+      
       mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
