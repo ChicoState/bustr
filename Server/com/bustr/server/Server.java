@@ -34,17 +34,20 @@ public class Server {
    private static int imageNum = 0;
 
    public Server() throws ClassNotFoundException,SQLException{
-      
-     System.out.printf("Connecting to database\n");
-     
-     Class.forName(dbClassName);
-     Properties p = new Properties();
-     p.put("user","root");
-     p.put("password","root");
-     connection = DriverManager.getConnection(CONNECTION,p);
-     
-      
-      
+	   
+
+	  for(int i = 0; new File("uploads/"+i+".jpg").isFile(); i++) { imageNum = i+1; }
+	   
+	  System.out.printf("Connecting to database\n");
+	  
+	  Class.forName(dbClassName);
+	  Properties p = new Properties();
+	  p.put("user","root");
+	  p.put("password","root");
+	  connection = DriverManager.getConnection(CONNECTION,p);
+	  
+	   
+	   
       System.out.printf("listening on port %d...\n", port);
       try {
          ss = new ServerSocket(port);
@@ -113,19 +116,17 @@ public class Server {
             catch (Exception e){e.printStackTrace(); }
             
             String sql = "INSERT INTO imageData VALUES (\"dummy\"," +
-                        packet.getLat() +", " + packet.getLng() + 
-                        ", " + "\"uploads/" + imageNum +".jpg\", 0," + 
-                        "\"comments/"+imageNum+".txt\", \""+packet.getCaption() + "\");";
+            				packet.getLat() +", " + packet.getLng() + 
+            				", " + "\"uploads/" + imageNum +".jpg\", 0," + 
+            				"\"comments/"+imageNum+".txt\", \""+packet.getCaption() + "\", " +
+            				"CURRENT_TIMESTAMP);";
             
             try{ stmt.executeUpdate(sql);}
             catch(Exception e) {e.printStackTrace(); }
             
-            sql = "select * from imageData;";
-            try{ stmt.execute(sql); }
-            catch(Exception e){e.printStackTrace();}
             imageNum++;
             
-            System.out.println("   Sending statement to mysql server\n "+ "    " + stmt);
+            System.out.println("   Sending statement to mysql server\n "+ "    " + sql);
             System.out.println("   '" + packet.getName() + 
                   "' written to uploads directory.");
             System.out.println("   " + "Latitude: " + packet.getLat() + 
