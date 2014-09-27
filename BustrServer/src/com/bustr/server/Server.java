@@ -119,7 +119,7 @@ public class Server {
 								SignalPacket.BustrSignal.SUCCESS));
 						input.close();
 						output.close();
-						File dir = new File("uploads");
+						File dir = new File("/home/bustr/Desktop/uploads");
 						if (!dir.exists())
 							dir.mkdir();
 						FileOutputStream fos = new FileOutputStream(new File(
@@ -128,7 +128,7 @@ public class Server {
 						bos.write(ipacket.getData());
 						fos.flush();
 						bos.close();
-						dir = new File("comments");
+						dir = new File("/home/bustr/Desktop/comments");
 						if (!dir.exists())
 							dir.mkdir();
 						FileWriter fw = new FileWriter("comments/"
