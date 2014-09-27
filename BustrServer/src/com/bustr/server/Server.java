@@ -190,13 +190,14 @@ public class Server {
 									+ Float.toString(spacket.getLng() + epsilon) + ";";
 							System.out.println("Sending stmt to db");
 							System.out.println("    "+sql);
-							rs = stmt.executeQuery(sql);
-							for (;rs.next(); ) {
+
+							for (rs = stmt.executeQuery(sql);rs.next(); ) {
+								System.out.println(rs.toString());
 								BufferedReader br = new BufferedReader(
-										new FileReader(new File(
-												rs.getString("commentPath"))));
+										new FileReader(
+												new File("/home/bustr/Desktop/"+rs.getString("commentPath"))));
 								String caption = br.readLine();
-								byte[] data = extractBytes(rs.getString("imagePath"));
+								byte[] data = extractBytes("/home/bustr/Desktop/"+rs.getString("imagePath"));
 								outpacket = new ImagePacket(
 										rs.getString("userName"), data,
 										rs.getFloat("Lat"), rs.getFloat("Lng"),
