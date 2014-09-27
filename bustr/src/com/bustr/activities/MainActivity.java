@@ -1,5 +1,12 @@
 package com.bustr.activities;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
@@ -19,8 +26,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.packets.ImagePacket;
+import com.bustr.packets.SignalPacket;
+import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -30,7 +41,7 @@ public class MainActivity extends Activity implements OnClickListener {
    private SharedPreferences sharedPrefs;
 
    // GUI Components -----------------------------------------------------------
-   private Button button1, button2;
+   private Button button1, button2, button3;
    private TextView banner;
    Typeface fontopo;
 
@@ -50,16 +61,19 @@ public class MainActivity extends Activity implements OnClickListener {
       banner = (TextView) findViewById(R.id.banner1);
       button1 = (Button) findViewById(R.id.button1);
       button2 = (Button) findViewById(R.id.button2);
+      button3 = (Button) findViewById(R.id.button3);
 
       // Load type-face resources and apply
       fontopo = ResourceProvider.instance(getBaseContext()).getFont();
       banner.setTypeface(fontopo);
       button1.setTypeface(fontopo);
       button2.setTypeface(fontopo);
+      button3.setTypeface(fontopo);
 
       // Register views that listen for clicks
       button1.setOnClickListener(this);
       button2.setOnClickListener(this);
+      button3.setOnClickListener(this);
    }
 
    // onClick event handler ----------------------------------------------------
@@ -76,28 +90,28 @@ public class MainActivity extends Activity implements OnClickListener {
                picsNum);
          Notification.Builder notifiBuilder = new Notification.Builder(this)
                .setSmallIcon(R.drawable.bustr_logo)
-               .setContentTitle("New Location!")
-               .setContentText(contentText)
+               .setContentTitle("New Location!").setContentText(contentText)
                .setAutoCancel(true);
-       // Creates an explicit intent for an Activity in your app
-       Intent resultIntent = new Intent(this, MainActivity.class);
-       // This ensures that navigating backward from the Activity leads out of
-       // your application to the Home screen.
-       TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-       // Adds the back stack for the Intent (but not the Intent itself)
-       stackBuilder.addParentStack(MainActivity.class);
-       // Adds the Intent that starts the Activity to the top of the stack
-       stackBuilder.addNextIntent(resultIntent);
-       PendingIntent resultPendingIntent =
-               stackBuilder.getPendingIntent(
-                   0,
-                   PendingIntent.FLAG_UPDATE_CURRENT
-               );
-       notifiBuilder.setContentIntent(resultPendingIntent);
-       NotificationManager mNotificationManager =
-           (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-       // 1033 allows you to update the notification later on.
-       mNotificationManager.notify(1033, notifiBuilder.build());
+         // Creates an explicit intent for an Activity in your app
+         Intent resultIntent = new Intent(this, MainActivity.class);
+         // This ensures that navigating backward from the Activity leads out of
+         // your application to the Home screen.
+         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+         // Adds the back stack for the Intent (but not the Intent itself)
+         stackBuilder.addParentStack(MainActivity.class);
+         // Adds the Intent that starts the Activity to the top of the stack
+         stackBuilder.addNextIntent(resultIntent);
+         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
+               PendingIntent.FLAG_UPDATE_CURRENT);
+         notifiBuilder.setContentIntent(resultPendingIntent);
+         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+         // 1033 allows you to update the notification later on.
+         mNotificationManager.notify(1033, notifiBuilder.build());
+         break;
+      case R.id.button3:
+         new Downloader().start();
+         Toast.makeText(this, "Sending image request...", Toast.LENGTH_LONG)
+         .show();
          break;
       }
 
@@ -123,4 +137,33 @@ public class MainActivity extends Activity implements OnClickListener {
       return super.onOptionsItemSelected(item);
    }
 
+   class Downloader extends Thread {
+
+      private Socket socket;
+
+      @Override
+      public void run() {
+         try {
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            ObjectOutputStream output = new ObjectOutputStream(
+                  socket.getOutputStream());
+            ObjectInputStream input = new ObjectInputStream(
+                  socket.getInputStream());
+            output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
+                  39.804f, -121.895f));
+            ImagePacket pack = (ImagePacket) input.readObject();
+            Log.d(LOGTAG, "PACKET RECEIVED:" + pack.getCaption());
+            output.flush();
+            output.close();
+            input.close();
+            socket.close();
+         } catch (UnknownHostException e) {
+            e.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         } 
+      }
+   }
 }
