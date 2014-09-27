@@ -115,20 +115,18 @@ public class Server {
             try{ stmt = connection.createStatement(); }
             catch (Exception e){e.printStackTrace(); }
             
-            String sql = "INSERT INTO imageData VALUES (\"dummy\"," +
+            String sql = "INSERT INTO imageData VALUES ( \"dummy\", " +
             				packet.getLat() +", " + packet.getLng() + 
             				", " + "\"uploads/" + imageNum +".jpg\", 0," + 
             				"\"comments/"+imageNum+".txt\", \""+packet.getCaption() + "\", " +
-            				"CURRENT_TIMESTAMP);";
+            				"CURRENT_TIMESTAMP );";
             
             try{ stmt.executeUpdate(sql);}
             catch(Exception e) {e.printStackTrace(); }
             
             imageNum++;
             
-            System.out.println("   Sending statement to mysql server\n "+ "    " + sql);
-            System.out.println("   '" + packet.getName() + 
-                  "' written to uploads directory.");
+            System.out.println("   Sending statement to mysql server:\n "+ "    " + sql);
             System.out.println("   " + "Latitude: " + packet.getLat() + 
                   ", Longitude: " + packet.getLng());
             System.out.println("   Caption: " + packet.getCaption());
