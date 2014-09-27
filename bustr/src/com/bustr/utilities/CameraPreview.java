@@ -26,7 +26,7 @@ implements SurfaceHolder.Callback {
     private Camera mCamera;
     
     @SuppressWarnings("deprecation")
-    public CameraPreview(Context context, Camera camera) {
+    public CameraPreview(Context context, Camera camera, boolean pSC) {
         super(context);
         mCamera = camera;        
         mHolder = getHolder();
@@ -74,7 +74,7 @@ implements SurfaceHolder.Callback {
     }
 
     public static void setCameraDisplayOrientation(Activity activity,
-            int cameraId, android.hardware.Camera camera) {
+            int cameraId, android.hardware.Camera camera, boolean singleCamera) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
@@ -93,12 +93,12 @@ implements SurfaceHolder.Callback {
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360;
             result = (360 - result) % 360;  // compensate the mirror
-            params.setRotation(result+180);
+//            params.setRotation(result+180);
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
             params.setRotation(result);
         }
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         camera.setParameters(params);        
         camera.setDisplayOrientation(result);
     }

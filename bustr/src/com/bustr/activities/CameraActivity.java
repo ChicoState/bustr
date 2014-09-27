@@ -49,7 +49,7 @@ public class CameraActivity extends Activity implements LocationListener {
    PackageManager pm;
    boolean camBack;
    boolean camFront;
-   
+
    // Logcat tag used for Bustr debugging
    private final static String LOGTAG = "BUSTR";
 
@@ -98,7 +98,7 @@ public class CameraActivity extends Activity implements LocationListener {
    private Button btn_snap;
    private Button btn_flip;
    private Button btn_keep;
-   
+
    // Initializes camera instance and location manager -------------------------
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -111,18 +111,14 @@ public class CameraActivity extends Activity implements LocationListener {
       pm = getPackageManager();
       camBack = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
       camFront = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
-      if(camFront && camBack) {
-         cam = sharedPrefs.getInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK);
-      }
-      else if(camFront) {
-         cam = Camera.CameraInfo.CAMERA_FACING_FRONT;
-      }
-      else if(camBack) {
-         cam = Camera.CameraInfo.CAMERA_FACING_BACK;
+      if (camFront && camBack) {
+         cam = sharedPrefs.getInt("camera",
+               Camera.CameraInfo.CAMERA_FACING_BACK);
+      } else {
+         cam = 0;
       }
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-            this);
+      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
@@ -135,7 +131,7 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setTypeface(tf);
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
-      if(camFront && camBack) {
+      if (camFront && camBack) {
          btn_flip.setVisibility(View.VISIBLE);
       }
 
@@ -151,9 +147,9 @@ public class CameraActivity extends Activity implements LocationListener {
       pictureCallbackJPG = new PictureCallback() {
          @Override
          public void onPictureTaken(final byte[] pBytes, Camera cam) {
-            Camera.Parameters params = cam.getParameters();
-            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            cam.setParameters(params);
+//            Camera.Parameters params = cam.getParameters();
+// TODO:            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+//            cam.setParameters(params);
             bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
@@ -213,7 +209,7 @@ public class CameraActivity extends Activity implements LocationListener {
             switchCamera();
          }
       });
-      
+
       // Verify GPS service is enabled -----------------------------------------
       if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
          promptEnableGPS();
@@ -331,15 +327,16 @@ public class CameraActivity extends Activity implements LocationListener {
    // Re-initializes camera and checks if GPS is enabled -----------------------
    @Override
    protected void onResume() {
-      super.onResume();      
+      super.onResume();
       Log.d(LOGTAG, "OnResume");
-      
+
       mCamera = Camera.open(cam);
-      mPreview = new CameraPreview(this, mCamera);
+      mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera);
+      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
+            !(camFront && camBack));
       btn_flash.setChecked(false);
-      preview.addView(mPreview);      
+      preview.addView(mPreview);
    }
 
    // Requests that user enable GPS service ------------------------------------
@@ -376,24 +373,24 @@ public class CameraActivity extends Activity implements LocationListener {
    @Override
    public void onLocationChanged(Location arg0) {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void onProviderDisabled(String provider) {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void onProviderEnabled(String provider) {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    public void onStatusChanged(String provider, int status, Bundle extras) {
       // TODO Auto-generated method stub
-      
+
    }
 }
