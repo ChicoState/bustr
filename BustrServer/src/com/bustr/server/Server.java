@@ -175,38 +175,56 @@ public class Server {
 								+ ipacket.getCaption());
 						socket.close();
 					} else if (packet instanceof SignalPacket) {
-	
+
 						float epsilon = 0.0005f;
 						ImagePacket outpacket = null;
 						SignalPacket spacket = (SignalPacket) packet;
-						System.out.println("Recieved image request from "+spacket.getLat() + ", " + spacket.getLng());
+						System.out.println("Recieved image request from "
+								+ spacket.getLat() + ", " + spacket.getLng());
 						stmt = connection.createStatement();
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
-							String sql = "select * from imageData where lat between "
-									+ Float.toString(spacket.getLat() - epsilon) + " and "
+							String sql = "SELECT * FROM imageData WHERE lat BETWEEN "
+									+ Float.toString(spacket.getLat() - epsilon)
+									+ " AND "
 									+ Float.toString(spacket.getLat() + epsilon)
-									+ " and lng between "
-									+ Float.toString(spacket.getLng() - epsilon) + " and "
-									+ Float.toString(spacket.getLng() + epsilon) + ";";
+									+ " AND lng BETWEEN "
+									+ Float.toString(spacket.getLng() - epsilon)
+									+ " AND "
+									+ Float.toString(spacket.getLng() + epsilon)
+									+ ";";
 							System.out.println("Sending stmt to db");
-							System.out.println("    "+sql);
+							System.out.println("    " + sql);
 
-							for (rs = stmt.executeQuery(sql);rs.next(); ) {
-								System.out.println(rs.toString());
+							for (rs = stmt.executeQuery(sql); rs.next();) {
+								String commentPath = "/home/bustr/Desktop/"
+										+ rs.getString("commentPath");
+								byte[] data = extractBytes("/home/bustr/Desktop/"
+										+ rs.getString("imagePath"));
+
 								BufferedReader br = new BufferedReader(
-										new FileReader(
-												new File("/home/bustr/Desktop/"+rs.getString("commentPath"))));
+										new FileReader(new File(commentPath)));
 								String caption = br.readLine();
-								byte[] data = extractBytes("/home/bustr/Desktop/"+rs.getString("imagePath"));
-								outpacket = new ImagePacket(
-										rs.getString("userName"), data,
-										rs.getFloat("Lat"), rs.getFloat("Lng"),
-										caption);
-								System.out.println("Writing out ImagePacket to user");
+								br.close();
+								String userName = rs.getString("userName");
+								Float lat = rs.getFloat("Lat");
+								Float lng = rs.getFloat("Lng");
+
+								outpacket = new ImagePacket(userName, data,
+										lat, lng, caption);
+								System.out
+										.println("\nWriting out ImagePacket to user");
+								System.out
+										.println("----------------------------------");
+								System.out.println("###  " + userName
+										+ "  ###  " + lat.toString() + ", "
+										+ lng.toString() + "  ###  " + caption);
 								output.writeObject(outpacket);
-								
+								System.out.println("Done!\n");
+
 							}
 						}
+					} else { 
+						System.out.println("YARR    MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
 					}
 				} catch (Exception e) {
 					System.out.println("NETWORK READ ERROR");
