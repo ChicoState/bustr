@@ -282,7 +282,7 @@ public class Server {
 							System.out.println("Upvoting " + pathPrefix
 									+ "uploads/" + spacket.getImageName());
 							String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
-									+ "uploads/" + spacket.getImageName();
+									+ "\"uploads/" + spacket.getImageName() +"\";";
 							try {
 								System.out.println("Executing query: " + sql);
 								stmt.executeUpdate(sql);
@@ -298,7 +298,7 @@ public class Server {
 							System.out.println("Downvoting " + pathPrefix
 									+ spacket.getImageName());
 							String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
-									+ "uploads/" + spacket.getImageName();
+									+ "\"uploads/" + spacket.getImageName() +"\";";
 							try {
 								System.out.println("Executing query: " + sql);
 								stmt.executeUpdate(sql);
