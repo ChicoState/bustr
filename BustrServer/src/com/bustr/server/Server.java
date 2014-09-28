@@ -118,14 +118,15 @@ public class Server {
 					e.printStackTrace();
 				}
 				try {
-					try { packet = (BustrPacket) input.readObject(); }
-					catch (Exception e) {
+					try {
+						packet = (BustrPacket) input.readObject();
+					} catch (Exception e) {
 						System.out.println("[-] Bustr Packet read error");
 						e.printStackTrace();
 					}
 					if (packet instanceof ImagePacket) {
 						ImagePacket ipacket = (ImagePacket) packet;
-						
+
 						sendSuccess(output);
 						input.close();
 						output.close();
@@ -135,8 +136,9 @@ public class Server {
 						FileOutputStream fos = new FileOutputStream(new File(
 								dir, Integer.toString(imageNum) + ".jpg"));
 						BufferedOutputStream bos = new BufferedOutputStream(fos);
-						try { bos.write(ipacket.getData()); }
-						catch (Exception e) {
+						try {
+							bos.write(ipacket.getData());
+						} catch (Exception e) {
 							System.out.println("[-] Image write failure.");
 							e.printStackTrace();
 						}
@@ -148,14 +150,16 @@ public class Server {
 						FileWriter fw = new FileWriter("comments/"
 								+ Integer.toString(imageNum) + ".txt");
 						PrintWriter pal = new PrintWriter(fw);
-						try{ pal.printf("%s", ipacket.getCaption()); }
-						catch (Exception e) {
-							System.out.println("[-] Comment file write failure.");
+						try {
+							pal.printf("%s", ipacket.getCaption());
+						} catch (Exception e) {
+							System.out
+									.println("[-] Comment file write failure.");
 							e.printStackTrace();
 						}
 						fw.close();
 						pal.close();
-						
+
 						String sql = "INSERT INTO imageData VALUES ( \"dummy\", ROUND("
 								+ ipacket.getLat()
 								+ ",4), ROUND("
@@ -174,7 +178,8 @@ public class Server {
 						try {
 							stmt.executeUpdate(sql);
 						} catch (Exception e) {
-							System.out.println("Failed to execute query: "+sql);
+							System.out.println("Failed to execute query: "
+									+ sql);
 							e.printStackTrace();
 						}
 						imageNum++;
@@ -195,7 +200,7 @@ public class Server {
 						SignalPacket spacket = (SignalPacket) packet;
 						System.out.println("Recieved image request from "
 								+ spacket.getLat() + ", " + spacket.getLng());
-					
+
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
 							String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
 									+ Float.toString(spacket.getLat() - epsilon)
@@ -208,85 +213,105 @@ public class Server {
 									+ ",4) ORDER BY rep;";
 							System.out.println("Sending stmt to db");
 							System.out.println("    " + sql);
-							
-							try { rs = stmt.executeQuery(sql); }
-							catch (Exception e){
-								System.out.println("[-] Failure when executing query: "+sql);
+
+							try {
+								rs = stmt.executeQuery(sql);
+							} catch (Exception e) {
+								System.out
+										.println("[-] Failure when executing query: "
+												+ sql);
 								e.printStackTrace();
 							}
-							for (int i = 0; rs.next();i++) {
-								System.out.println("Getting ready to send image response #"+Integer.toString(i));
-								String commentPath = "/home/bustr/Desktop/" + rs.getString("commentPath");
-								String imagePath = "/home/bustr/Desktop/" + rs.getString("imagePath");
+							for (int i = 0; rs.next(); i++) {
+								System.out
+										.println("Getting ready to send image response #"
+												+ Integer.toString(i));
+								String commentPath = "/home/bustr/Desktop/"
+										+ rs.getString("commentPath");
+								String imagePath = "/home/bustr/Desktop/"
+										+ rs.getString("imagePath");
 								String userName = rs.getString("userName");
 								Float lat = rs.getFloat("Lat");
 								Float lng = rs.getFloat("Lng");
-								String caption=null;
-								byte[] data=null;
-								try { data = extractBytes(imagePath);
+								String caption = null;
+								byte[] data = null;
+								try {
+									data = extractBytes(imagePath);
 								} catch (Exception e) {
-									System.out.println("[-] Failed to retrieve image from /home/bustr/Desktop/"+imagePath);
+									System.out
+											.println("[-] Failed to retrieve image from /home/bustr/Desktop/"
+													+ imagePath);
 								}
 
-								try { 
-									BufferedReader br = new BufferedReader( new FileReader(new File(commentPath)));
+								try {
+									BufferedReader br = new BufferedReader(
+											new FileReader(
+													new File(commentPath)));
 									caption = br.readLine();
 									br.close();
 								} catch (Exception e) {
-									System.out.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"+commentPath);
+									System.out
+											.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"
+													+ commentPath);
 									e.printStackTrace();
-								} 
+								}
 
-								try
-								{
-									outpacket = new ImagePacket(userName, data, lat, lng, caption);
+								try {
+									outpacket = new ImagePacket(userName, data,
+											lat, lng, caption);
 									System.out
 											.println("\nWriting out ImagePacket to user");
 									System.out
 											.println("-------------------------------------------");
 									System.out.println("###  " + userName
 											+ "  ###  " + lat.toString() + ", "
-											+ lng.toString() + "  ###  " + caption);
+											+ lng.toString() + "  ###  "
+											+ caption);
 									output.writeObject(outpacket);
 									System.out.println("Done!\n");
 								} catch (Exception e) {
-									System.out.println("[-] Failed to send ImagePacket");
+									System.out
+											.println("[-] Failed to send ImagePacket");
 									e.printStackTrace();
 								}
-							
+
 							}
 							sendSuccess(output);
-						}
-						else if(spacket.getSignal() == BustrSignal.REP_UPVOTE)
-						{
-							System.out.println("Upvoting "+spacket.getImageName());
-							String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath=" + spacket.getImageName();
-							try { stmt.executeUpdate(sql); }
-							catch (Exception e) {
-								System.out.println("[-] Failed to execute query: " + sql);
+						} else if (spacket.getSignal() == BustrSignal.REP_UPVOTE) {
+							System.out.println("Upvoting "
+									+ spacket.getImageName());
+							String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
+									+ spacket.getImageName();
+							try {
+								stmt.executeUpdate(sql);
+							} catch (Exception e) {
+								System.out
+										.println("[-] Failed to execute query: "
+												+ sql);
 								e.printStackTrace();
 							}
 							sendSuccess(output);
-						}
-						else if(spacket.getSignal() == BustrSignal.REP_DOWNVOTE)
-						{
-							System.out.println("Downvoting "+spacket.getImageName());
-							String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath=" + spacket.getImageName();
-							try { stmt.executeUpdate(sql); }
-							catch (Exception e) {
-								System.out.println("[-] Failed to execute query: " + sql);
+						} else if (spacket.getSignal() == BustrSignal.REP_DOWNVOTE) {
+							System.out.println("Downvoting "
+									+ spacket.getImageName());
+							String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
+									+ spacket.getImageName();
+							try {
+								stmt.executeUpdate(sql);
+							} catch (Exception e) {
+								System.out
+										.println("[-] Failed to execute query: "
+												+ sql);
 								e.printStackTrace();
 							}
 							sendSuccess(output);
-						}
-						else
-						{
+						} else {
 							System.out.println("[-] Unrecognized signal type");
 							sendFailure(output);
 						}
-					} 
-					else { 
-						System.out.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
+					} else {
+						System.out
+								.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
 						sendFailure(output);
 					}
 				} catch (Exception e) {
@@ -299,19 +324,21 @@ public class Server {
 			}
 		}
 	}
-	
+
 	private void sendSuccess(ObjectOutputStream output) {
-		try { output.writeObject(new SignalPacket(
-				SignalPacket.BustrSignal.SUCCESS));
+		try {
+			output.writeObject(new SignalPacket(
+					SignalPacket.BustrSignal.SUCCESS));
 		} catch (Exception e) {
 			System.out.println("[-] BustrSignal SUCCESS failure.");
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendFailure(ObjectOutputStream output) {
-		try { output.writeObject(new SignalPacket(
-				SignalPacket.BustrSignal.SUCCESS));
+		try {
+			output.writeObject(new SignalPacket(
+					SignalPacket.BustrSignal.SUCCESS));
 		} catch (Exception e) {
 			System.out.println("[-] BustrSignal SUCCESS failure.");
 			e.printStackTrace();

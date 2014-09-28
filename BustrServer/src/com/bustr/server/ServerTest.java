@@ -15,7 +15,7 @@ import org.junit.Test;
 public class ServerTest {
 
 	@Test
-	public void test() {
+	public void requestSignalTest() {
 		try {
 			System.out.println("Sending request packet to server.");
 			Socket sock = new Socket("localhost", 8000);
