@@ -74,7 +74,7 @@ public class Server {
 		}
 	}
 
-	public byte[] extractBytes(String ImageName) throws IOException {
+	private byte[] extractBytes(String ImageName) throws IOException {
 		// open image
 		File imgPath = new File(ImageName);
 		BufferedImage bufferedImage = ImageIO.read(imgPath);
@@ -114,7 +114,7 @@ public class Server {
 				try {
 					stmt = connection.createStatement();
 				} catch (Exception e) {
-					System.out.println("[-] Statement creatation failure.");
+					System.out.println("[-] Statement creation failure.");
 					e.printStackTrace();
 				}
 				try {
@@ -242,8 +242,6 @@ public class Server {
 									e.printStackTrace();
 								} 
 
-								
-
 								try
 								{
 									outpacket = new ImagePacket(userName, data, lat, lng, caption);
@@ -262,6 +260,12 @@ public class Server {
 								}
 							
 							}
+							try { output.writeObject(new SignalPacket(
+									SignalPacket.BustrSignal.SUCCESS));
+							} catch (Exception e) {
+								System.out.println("[-] BustrSignal SUCCESS failure.");
+								e.printStackTrace();
+							}
 						}
 						else if(spacket.getSignal() == BustrSignal.REP_UPVOTE)
 						{
@@ -270,6 +274,12 @@ public class Server {
 							try { stmt.executeUpdate(sql); }
 							catch (Exception e) {
 								System.out.println("[-] Failed to execute query: " + sql);
+								e.printStackTrace();
+							}
+							try { output.writeObject(new SignalPacket(
+									SignalPacket.BustrSignal.SUCCESS));
+							} catch (Exception e) {
+								System.out.println("[-] BustrSignal SUCCESS failure.");
 								e.printStackTrace();
 							}
 						}
@@ -282,14 +292,32 @@ public class Server {
 								System.out.println("[-] Failed to execute query: " + sql);
 								e.printStackTrace();
 							}
+							try { output.writeObject(new SignalPacket(
+									SignalPacket.BustrSignal.SUCCESS));
+							} catch (Exception e) {
+								System.out.println("[-] BustrSignal SUCCESS failure.");
+								e.printStackTrace();
+							}
 						}
 						else
 						{
 							System.out.println("[-] Unrecognized signal type");
+							try { output.writeObject(new SignalPacket(
+									SignalPacket.BustrSignal.FAILURE));
+							} catch (Exception e) {
+								System.out.println("[-] BustrSignal FAILURE failure.");
+								e.printStackTrace();
+							}
 						}
 					} 
 					else { 
 						System.out.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
+						try { output.writeObject(new SignalPacket(
+								SignalPacket.BustrSignal.FAILURE));
+						} catch (Exception e) {
+							System.out.println("[-] BustrSignal FAILURE failure.");
+							e.printStackTrace();
+						}
 					}
 				} catch (Exception e) {
 					System.out.println("NETWORK READ ERROR");
