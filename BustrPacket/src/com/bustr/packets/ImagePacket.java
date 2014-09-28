@@ -19,6 +19,12 @@ public class ImagePacket extends BustrPacket {
       lng     = pLng;
       caption = pCaption;
    }
+   
+   @Override
+   public String toString(){
+	   String s = name + ": " + lat + " : " + lng + " : " + caption;
+	   return s;
+   }
 
    public byte[] getData() {
       return data;
