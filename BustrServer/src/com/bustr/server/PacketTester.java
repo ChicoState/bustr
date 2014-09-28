@@ -12,6 +12,12 @@ public class PacketTester {
 	public PacketTester() {
 	}
 	
+	public void main(){
+		PacketTester pt = new PacketTester();
+		pt.sendRequest();
+		
+	}
+	
 	public void sendRequest(){
 		try {
 			Socket sock = new Socket("localhost", 8000);
@@ -37,7 +43,7 @@ public class PacketTester {
 			}
 			else if(res instanceof ImagePacket)
 			{
-				
+				System.out.println("Got an ImagePacket with info "+res.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
