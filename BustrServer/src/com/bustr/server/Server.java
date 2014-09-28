@@ -205,7 +205,7 @@ public class Server {
 									+ Float.toString(spacket.getLng() - epsilon)
 									+ ", 4) AND ROUND("
 									+ Float.toString(spacket.getLng() + epsilon)
-									+ ",4);";
+									+ ",4) ORDER BY rep;";
 							System.out.println("Sending stmt to db");
 							System.out.println("    " + sql);
 							
@@ -233,7 +233,7 @@ public class Server {
 									caption = br.readLine();
 									br.close();
 								} catch (Exception e) {
-									System.out.println("[-] Failed to retrice comment file from "+commentPath);
+									System.out.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"+commentPath);
 									e.printStackTrace();
 								} 
 
@@ -243,7 +243,7 @@ public class Server {
 									System.out
 											.println("\nWriting out ImagePacket to user");
 									System.out
-											.println("----------------------------------");
+											.println("-------------------------------------------");
 									System.out.println("###  " + userName
 											+ "  ###  " + lat.toString() + ", "
 											+ lng.toString() + "  ###  " + caption);
