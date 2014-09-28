@@ -183,15 +183,15 @@ public class Server {
 								+ spacket.getLat() + ", " + spacket.getLng());
 						stmt = connection.createStatement();
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
-							String sql = "SELECT * FROM imageData WHERE lat BETWEEN "
+							String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
 									+ Float.toString(spacket.getLat() - epsilon)
-									+ " AND "
+									+ ", 4) AND ROUND("
 									+ Float.toString(spacket.getLat() + epsilon)
-									+ " AND lng BETWEEN "
+									+ ", 4) AND lng BETWEEN ROUND("
 									+ Float.toString(spacket.getLng() - epsilon)
-									+ " AND "
+									+ ", 4) AND ROUND("
 									+ Float.toString(spacket.getLng() + epsilon)
-									+ ";";
+									+ ",4);";
 							System.out.println("Sending stmt to db");
 							System.out.println("    " + sql);
 
