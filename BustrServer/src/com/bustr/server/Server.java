@@ -39,6 +39,7 @@ public class Server {
 	private Socket socket;
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
+	private static final String pathPrefix = "/home/bustr/Desktop/";
 	private static Connection connection;
 	private Statement stmt;
 	private ResultSet rs;
@@ -130,7 +131,7 @@ public class Server {
 						sendSuccess(output);
 						input.close();
 						output.close();
-						File dir = new File("/home/bustr/Desktop/uploads");
+						File dir = new File(pathPrefix + "/uploads");
 						if (!dir.exists())
 							dir.mkdir();
 						FileOutputStream fos = new FileOutputStream(new File(
@@ -144,7 +145,7 @@ public class Server {
 						}
 						fos.flush();
 						bos.close();
-						dir = new File("/home/bustr/Desktop/comments");
+						dir = new File(pathPrefix + "/comments");
 						if (!dir.exists())
 							dir.mkdir();
 						FileWriter fw = new FileWriter("comments/"
@@ -226,9 +227,9 @@ public class Server {
 								System.out
 										.println("Getting ready to send image response #"
 												+ Integer.toString(i));
-								String commentPath = "/home/bustr/Desktop/"
+								String commentPath = pathPrefix
 										+ rs.getString("commentPath");
-								String imagePath = "/home/bustr/Desktop/"
+								String imagePath = pathPrefix
 										+ rs.getString("imagePath");
 								String userName = rs.getString("userName");
 								Float lat = rs.getFloat("Lat");
@@ -278,30 +279,34 @@ public class Server {
 							}
 							sendSuccess(output);
 						} else if (spacket.getSignal() == BustrSignal.REP_UPVOTE) {
-							System.out.println("Upvoting "
-									+ spacket.getImageName());
+							System.out.println("Upvoting " + pathPrefix
+									+ "uploads/" + spacket.getImageName());
 							String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
-									+ spacket.getImageName();
+									+ "uploads/" + spacket.getImageName();
 							try {
+								System.out.println("Executing query: " + sql);
 								stmt.executeUpdate(sql);
 							} catch (Exception e) {
 								System.out
 										.println("[-] Failed to execute query: "
 												+ sql);
+								sendFailure(output);
 								e.printStackTrace();
 							}
 							sendSuccess(output);
 						} else if (spacket.getSignal() == BustrSignal.REP_DOWNVOTE) {
-							System.out.println("Downvoting "
+							System.out.println("Downvoting " + pathPrefix
 									+ spacket.getImageName());
 							String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
-									+ spacket.getImageName();
+									+ "uploads/" + spacket.getImageName();
 							try {
+								System.out.println("Executing query: " + sql);
 								stmt.executeUpdate(sql);
 							} catch (Exception e) {
 								System.out
 										.println("[-] Failed to execute query: "
 												+ sql);
+								sendFailure(output);
 								e.printStackTrace();
 							}
 							sendSuccess(output);
