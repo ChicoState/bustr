@@ -6,6 +6,7 @@ import java.awt.image.WritableRaster;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -40,6 +41,7 @@ public class Server {
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String pathPrefix = "/home/bustr/Desktop/";
+	private static final float epsilon = 0.0005f;
 	private static Connection connection;
 	private Statement stmt;
 	private ResultSet rs;
@@ -127,157 +129,20 @@ public class Server {
 					}
 					if (packet instanceof ImagePacket) {
 						ImagePacket ipacket = (ImagePacket) packet;
-
-						sendSuccess(output);
 						input.close();
 						output.close();
-						File dir = new File(pathPrefix + "/uploads");
-						if (!dir.exists())
-							dir.mkdir();
-						FileOutputStream fos = new FileOutputStream(new File(
-								dir, Integer.toString(imageNum) + ".jpg"));
-						BufferedOutputStream bos = new BufferedOutputStream(fos);
-						try {
-							bos.write(ipacket.getData());
-						} catch (Exception e) {
-							System.out.println("[-] Image write failure.");
-							e.printStackTrace();
-						}
-						fos.flush();
-						bos.close();
-						dir = new File(pathPrefix + "/comments");
-						if (!dir.exists())
-							dir.mkdir();
-						FileWriter fw = new FileWriter("comments/"
-								+ Integer.toString(imageNum) + ".txt");
-						PrintWriter pal = new PrintWriter(fw);
-						try {
-							pal.printf("%s", ipacket.getCaption());
-						} catch (Exception e) {
-							System.out
-									.println("[-] Comment file write failure.");
-							e.printStackTrace();
-						}
-						fw.close();
-						pal.close();
-
-						String sql = "INSERT INTO imageData VALUES ( \"dummy\", ROUND("
-								+ ipacket.getLat()
-								+ ",4), ROUND("
-								+ ipacket.getLng()
-								+ ",4), "
-								+ "\"uploads/"
-								+ imageNum
-								+ ".jpg\", 0,"
-								+ "\"comments/"
-								+ imageNum
-								+ ".txt\", \""
-								+ ipacket.getCaption()
-								+ "\", "
-								+ "CURRENT_TIMESTAMP );";
-
-						try {
-							stmt.executeUpdate(sql);
-						} catch (Exception e) {
-							System.out.println("Failed to execute query: "
-									+ sql);
-							e.printStackTrace();
-						}
-						imageNum++;
-
-						System.out
-								.println("   Sending statement to mysql server:\n "
-										+ "    " + sql);
-						System.out.println("   " + "Latitude: "
-								+ ipacket.getLat() + ", Longitude: "
-								+ ipacket.getLng());
-						System.out.println("   Caption: "
-								+ ipacket.getCaption());
-						socket.close();
+						handleIncommingImage(ipacket, socket);
+						
 					} else if (packet instanceof SignalPacket) {
 
-						float epsilon = 0.0005f;
+						
 						ImagePacket outpacket = null;
 						SignalPacket spacket = (SignalPacket) packet;
 						System.out.println("Recieved image request from "
 								+ spacket.getLat() + ", " + spacket.getLng());
 
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
-							String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
-									+ Float.toString(spacket.getLat() - epsilon)
-									+ ", 4) AND ROUND("
-									+ Float.toString(spacket.getLat() + epsilon)
-									+ ", 4) AND lng BETWEEN ROUND("
-									+ Float.toString(spacket.getLng() - epsilon)
-									+ ", 4) AND ROUND("
-									+ Float.toString(spacket.getLng() + epsilon)
-									+ ",4) ORDER BY rep;";
-							System.out.println("Sending stmt to db");
-							System.out.println("    " + sql);
-
-							try {
-								rs = stmt.executeQuery(sql);
-							} catch (Exception e) {
-								System.out
-										.println("[-] Failure when executing query: "
-												+ sql);
-								e.printStackTrace();
-							}
-							for (int i = 0; rs.next(); i++) {
-								System.out
-										.println("Getting ready to send image response #"
-												+ Integer.toString(i));
-								String commentPath = pathPrefix
-										+ rs.getString("commentPath");
-								String imagePath = pathPrefix
-										+ rs.getString("imagePath");
-								String userName = rs.getString("userName");
-								Float lat = rs.getFloat("Lat");
-								Float lng = rs.getFloat("Lng");
-								String caption = null;
-								byte[] data = null;
-								try {
-									data = extractBytes(imagePath);
-								} catch (Exception e) {
-									System.out
-											.println("[-] Failed to retrieve image from /home/bustr/Desktop/"
-													+ imagePath);
-								}
-
-								try {
-									BufferedReader br = new BufferedReader(
-											new FileReader(
-													new File(commentPath)));
-									caption = br.readLine();
-									br.close();
-								} catch (Exception e) {
-									System.out
-											.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"
-													+ commentPath);
-									e.printStackTrace();
-								}
-
-								try {
-									outpacket = new ImagePacket(userName, data,
-											lat, lng, caption);
-									System.out
-											.println("\nWriting out ImagePacket to user");
-									System.out
-											.println("-------------------------------------------");
-									System.out.println("###  " + userName
-											+ "  ###  " + lat.toString() + ", "
-											+ lng.toString() + "  ###  "
-											+ caption);
-									output.writeObject(outpacket);
-									System.out.println("Done!\n");
-								} catch (Exception e) {
-									System.out
-											.println("[-] Failed to send ImagePacket");
-									e.printStackTrace();
-								}
-
-							}
-							sendSuccess(output);
+							handleImageRequest(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.REP_UPVOTE) {
 							System.out.println("Upvoting " + pathPrefix
 									+ "uploads/" + spacket.getImageName());
@@ -328,6 +193,152 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void handleImageRequest(SignalPacket spacket, ObjectOutputStream output) throws SQLException {
+	
+		ImagePacket outpacket = null;
+		String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
+				+ Float.toString(spacket.getLat() - epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLat() + epsilon)
+				+ ", 4) AND lng BETWEEN ROUND("
+				+ Float.toString(spacket.getLng() - epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLng() + epsilon)
+				+ ",4) ORDER BY rep;";
+		System.out.println("Sending stmt to db");
+		System.out.println("    " + sql);
+
+		try {
+			rs = stmt.executeQuery(sql);
+		} catch (Exception e) {
+			System.out
+					.println("[-] Failure when executing query: "
+							+ sql);
+			e.printStackTrace();
+		}
+		for (int i = 0; rs.next(); i++) {
+			System.out
+					.println("Getting ready to send image response #"
+							+ Integer.toString(i));
+			String commentPath = pathPrefix
+					+ rs.getString("commentPath");
+			String imagePath = pathPrefix
+					+ rs.getString("imagePath");
+			String userName = rs.getString("userName");
+			Float lat = rs.getFloat("Lat");
+			Float lng = rs.getFloat("Lng");
+			String caption = null;
+			byte[] data = null;
+			try {
+				data = extractBytes(imagePath);
+			} catch (Exception e) {
+				System.out
+						.println("[-] Failed to retrieve image from /home/bustr/Desktop/"
+								+ imagePath);
+			}
+
+			try {
+				BufferedReader br = new BufferedReader(
+						new FileReader(
+								new File(commentPath)));
+				caption = br.readLine();
+				br.close();
+			} catch (Exception e) {
+				System.out
+						.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"
+								+ commentPath);
+				e.printStackTrace();
+			}
+
+			try {
+				outpacket = new ImagePacket(userName, data,
+						lat, lng, caption);
+				System.out
+						.println("\nWriting out ImagePacket to user");
+				System.out
+						.println("-------------------------------------------");
+				System.out.println("###  " + userName
+						+ "  ###  " + lat.toString() + ", "
+						+ lng.toString() + "  ###  "
+						+ caption);
+				output.writeObject(outpacket);
+				System.out.println("Done!\n");
+			} catch (Exception e) {
+				System.out
+						.println("[-] Failed to send ImagePacket");
+				e.printStackTrace();
+			}
+
+		}
+		sendSuccess(output);
+	}
+	
+	private void handleIncommingImage(ImagePacket ipacket, Socket socket) throws IOException {
+		File dir = new File(pathPrefix + "/uploads");
+		if (!dir.exists())
+			dir.mkdir();
+		FileOutputStream fos = new FileOutputStream(new File(
+				dir, Integer.toString(imageNum) + ".jpg"));
+		BufferedOutputStream bos = new BufferedOutputStream(fos);
+		try {
+			bos.write(ipacket.getData());
+		} catch (Exception e) {
+			System.out.println("[-] Image write failure.");
+			e.printStackTrace();
+		}
+		fos.flush();
+		bos.close();
+		dir = new File(pathPrefix + "/comments");
+		if (!dir.exists())
+			dir.mkdir();
+		FileWriter fw = new FileWriter("comments/"
+				+ Integer.toString(imageNum) + ".txt");
+		PrintWriter pal = new PrintWriter(fw);
+		try {
+			pal.printf("%s", ipacket.getCaption());
+		} catch (Exception e) {
+			System.out
+					.println("[-] Comment file write failure.");
+			e.printStackTrace();
+		}
+		fw.close();
+		pal.close();
+
+		String sql = "INSERT INTO imageData VALUES ( \"dummy\", ROUND("
+				+ ipacket.getLat()
+				+ ",4), ROUND("
+				+ ipacket.getLng()
+				+ ",4), "
+				+ "\"uploads/"
+				+ imageNum
+				+ ".jpg\", 0,"
+				+ "\"comments/"
+				+ imageNum
+				+ ".txt\", \""
+				+ ipacket.getCaption()
+				+ "\", "
+				+ "CURRENT_TIMESTAMP );";
+
+		try {
+			stmt.executeUpdate(sql);
+		} catch (Exception e) {
+			System.out.println("Failed to execute query: "
+					+ sql);
+			e.printStackTrace();
+		}
+		imageNum++;
+
+		System.out
+				.println("   Sending statement to mysql server:\n "
+						+ "    " + sql);
+		System.out.println("   " + "Latitude: "
+				+ ipacket.getLat() + ", Longitude: "
+				+ ipacket.getLng());
+		System.out.println("   Caption: "
+				+ ipacket.getCaption());
+		socket.close();
 	}
 
 	private void sendSuccess(ObjectOutputStream output) {
