@@ -261,10 +261,34 @@ public class Server {
 									e.printStackTrace();
 								}
 							
-
 							}
 						}
-					} else { 
+						else if(spacket.getSignal() == BustrSignal.REP_UPVOTE)
+						{
+							System.out.println("Upvoting "+spacket.getImageName());
+							String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath=" + spacket.getImageName();
+							try { stmt.executeUpdate(sql); }
+							catch (Exception e) {
+								System.out.println("[-] Failed to execute query: " + sql);
+								e.printStackTrace();
+							}
+						}
+						else if(spacket.getSignal() == BustrSignal.REP_DOWNVOTE)
+						{
+							System.out.println("Downvoting "+spacket.getImageName());
+							String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath=" + spacket.getImageName();
+							try { stmt.executeUpdate(sql); }
+							catch (Exception e) {
+								System.out.println("[-] Failed to execute query: " + sql);
+								e.printStackTrace();
+							}
+						}
+						else
+						{
+							System.out.println("[-] Unrecognized signal type");
+						}
+					} 
+					else { 
 						System.out.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
 					}
 				} catch (Exception e) {
