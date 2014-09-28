@@ -224,7 +224,7 @@ public class Server {
 							}
 						}
 					} else { 
-						System.out.println("YARR    MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
+						System.out.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
 					}
 				} catch (Exception e) {
 					System.out.println("NETWORK READ ERROR");
