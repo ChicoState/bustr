@@ -17,6 +17,7 @@ public class ServerTest {
 	@Test
 	public void test() {
 		try {
+			System.out.println("Sending request packet to server.");
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(sock.getOutputStream());
 			ObjectInputStream input = new ObjectInputStream(sock.getInputStream());
@@ -25,25 +26,25 @@ public class ServerTest {
 			sp.setLat((float) 39.7276);
 			sp.setLng((float)-121.855);
 			output.writeObject(sp);
-			BustrPacket res = (BustrPacket)input.readObject();
-			if(res instanceof SignalPacket)
-			{
-				SignalPacket inSignal = (SignalPacket)res;
-				if(inSignal.getSignal() == BustrSignal.SUCCESS)
-				{
-					System.out.println("Got a SUCCESS packet");
+			BustrPacket res;
+			while((res = (BustrPacket)input.readObject()) != null){
+			
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("Got a SUCCESS packet");
+						assertTrue(true);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("Got a FAILURE packet");
+						assertTrue(true);
+						return;
+					}
+				} else if (res instanceof ImagePacket) {
+					System.out.println("Got an ImagePacket with info "
+							+ res.toString());
 					assertTrue(true);
 				}
-				else if(inSignal.getSignal() == BustrSignal.FAILURE)
-				{
-					System.out.println("Got a FAILURE packet");
-					assertTrue(true);
-				}
-			}
-			else if(res instanceof ImagePacket)
-			{
-				System.out.println("Got an ImagePacket with info "+res.toString());
-				assertTrue(true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
