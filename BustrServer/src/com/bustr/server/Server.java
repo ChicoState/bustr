@@ -143,11 +143,11 @@ public class Server {
 							e.printStackTrace();
 						}
 
-						String sql = "INSERT INTO imageData VALUES ( \"dummy\", "
+						String sql = "INSERT INTO imageData VALUES ( \"dummy\", ROUND("
 								+ ipacket.getLat()
-								+ ", "
+								+ ",4), ROUND("
 								+ ipacket.getLng()
-								+ ", "
+								+ ",4), "
 								+ "\"uploads/"
 								+ imageNum
 								+ ".jpg\", 0,"
