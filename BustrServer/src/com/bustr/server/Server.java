@@ -194,8 +194,9 @@ public class Server {
 									+ ",4);";
 							System.out.println("Sending stmt to db");
 							System.out.println("    " + sql);
-
-							for (rs = stmt.executeQuery(sql); rs.next();) {
+							rs = stmt.executeQuery(sql);
+							for (int i = 0; rs.next();i++) {
+								System.out.println("Getting ready to send image response #"+Integer.toString(i));
 								String commentPath = "/home/bustr/Desktop/"
 										+ rs.getString("commentPath");
 								byte[] data = extractBytes("/home/bustr/Desktop/"
