@@ -126,12 +126,7 @@ public class Server {
 					if (packet instanceof ImagePacket) {
 						ImagePacket ipacket = (ImagePacket) packet;
 						
-						try { output.writeObject(new SignalPacket(
-								SignalPacket.BustrSignal.SUCCESS));
-						} catch (Exception e) {
-							System.out.println("[-] BustrSignal SUCCESS failure.");
-							e.printStackTrace();
-						}
+						sendSuccess(output);
 						input.close();
 						output.close();
 						File dir = new File("/home/bustr/Desktop/uploads");
@@ -260,12 +255,7 @@ public class Server {
 								}
 							
 							}
-							try { output.writeObject(new SignalPacket(
-									SignalPacket.BustrSignal.SUCCESS));
-							} catch (Exception e) {
-								System.out.println("[-] BustrSignal SUCCESS failure.");
-								e.printStackTrace();
-							}
+							sendSuccess(output);
 						}
 						else if(spacket.getSignal() == BustrSignal.REP_UPVOTE)
 						{
@@ -276,12 +266,7 @@ public class Server {
 								System.out.println("[-] Failed to execute query: " + sql);
 								e.printStackTrace();
 							}
-							try { output.writeObject(new SignalPacket(
-									SignalPacket.BustrSignal.SUCCESS));
-							} catch (Exception e) {
-								System.out.println("[-] BustrSignal SUCCESS failure.");
-								e.printStackTrace();
-							}
+							sendSuccess(output);
 						}
 						else if(spacket.getSignal() == BustrSignal.REP_DOWNVOTE)
 						{
@@ -292,32 +277,17 @@ public class Server {
 								System.out.println("[-] Failed to execute query: " + sql);
 								e.printStackTrace();
 							}
-							try { output.writeObject(new SignalPacket(
-									SignalPacket.BustrSignal.SUCCESS));
-							} catch (Exception e) {
-								System.out.println("[-] BustrSignal SUCCESS failure.");
-								e.printStackTrace();
-							}
+							sendSuccess(output);
 						}
 						else
 						{
 							System.out.println("[-] Unrecognized signal type");
-							try { output.writeObject(new SignalPacket(
-									SignalPacket.BustrSignal.FAILURE));
-							} catch (Exception e) {
-								System.out.println("[-] BustrSignal FAILURE failure.");
-								e.printStackTrace();
-							}
+							sendFailure(output);
 						}
 					} 
 					else { 
 						System.out.println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
-						try { output.writeObject(new SignalPacket(
-								SignalPacket.BustrSignal.FAILURE));
-						} catch (Exception e) {
-							System.out.println("[-] BustrSignal FAILURE failure.");
-							e.printStackTrace();
-						}
+						sendFailure(output);
 					}
 				} catch (Exception e) {
 					System.out.println("NETWORK READ ERROR");
@@ -329,8 +299,26 @@ public class Server {
 			}
 		}
 	}
+	
+	private void sendSuccess(ObjectOutputStream output) {
+		try { output.writeObject(new SignalPacket(
+				SignalPacket.BustrSignal.SUCCESS));
+		} catch (Exception e) {
+			System.out.println("[-] BustrSignal SUCCESS failure.");
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendFailure(ObjectOutputStream output) {
+		try { output.writeObject(new SignalPacket(
+				SignalPacket.BustrSignal.SUCCESS));
+		} catch (Exception e) {
+			System.out.println("[-] BustrSignal SUCCESS failure.");
+			e.printStackTrace();
+		}
+	}
 
-	public String getCurrentDateTime() {
+	private String getCurrentDateTime() {
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
