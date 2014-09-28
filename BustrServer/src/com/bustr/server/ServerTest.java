@@ -55,6 +55,44 @@ public class ServerTest {
 	}
 	
 	@Test
+	public void downVoteTest() {
+		try {
+			String imagePath = "11.jpg";
+			System.out.println("[+] Sending upvote packet to server, with imagePath="+imagePath);
+			Socket sock = new Socket("localhost", 8000);
+			ObjectOutputStream output = new ObjectOutputStream(sock.getOutputStream());
+			ObjectInputStream input = new ObjectInputStream(sock.getInputStream());
+			
+			SignalPacket sp = new SignalPacket(BustrSignal.REP_DOWNVOTE);
+			sp.setImageName(imagePath);
+			output.writeObject(sp);
+			BustrPacket res;
+			while((res = (BustrPacket)input.readObject()) != null){
+			
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("[+] Got a SUCCESS packet");
+						assertTrue(true);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("[-] Got a FAILURE packet");
+						assertTrue(true);
+						return;
+					}
+				} else if (res instanceof ImagePacket) {
+					System.out.println("[+] Got an ImagePacket with info "
+							+ res.toString());
+					assertTrue(true);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	@Test
 	public void requestSignalTest() {
 		try {
 			System.out.println("Sending request packet to server.");
