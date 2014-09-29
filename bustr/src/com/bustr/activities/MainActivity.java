@@ -84,19 +84,19 @@ public class MainActivity extends Activity implements OnClickListener {
                .setContentTitle("New Location!").setContentText(contentText)
                .setAutoCancel(true);
 
-         new Thread(new Runnable() {
-            public void run() {
-               LocationManager loc_mgr;
-               float lat,lng;
-               while (true) {
-                  loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                  loc_mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                  lat = BustrGrid.gridLat(loc_mgr);
-                  lng = BustrGrid.gridLon(loc_mgr);
-                  
-               }
-            }
-         }).start();
+//         new Thread(new Runnable() {
+//            public void run() {
+//               LocationManager loc_mgr;
+//               float lat,lng;
+//               while (true) {
+//                  loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//                  loc_mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+//                  lat = BustrGrid.gridLat(loc_mgr);
+//                  lng = BustrGrid.gridLon(loc_mgr);
+//                  
+//               }
+//            }
+//         }).start();
 
          // Creates an explicit intent for an Activity in your app
          Intent resultIntent = new Intent(this, MainActivity.class);
