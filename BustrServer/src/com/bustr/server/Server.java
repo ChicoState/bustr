@@ -167,16 +167,16 @@ public class Server {
 		}
 	}
 	private void handleDownvote(SignalPacket spacket, ObjectOutputStream output){
-		System.out.println("Downvoting " + pathPrefix
+		System.out.println("### Downvoting " + pathPrefix
 				+ spacket.getImageName());
 		String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
 				+ "\"uploads/" + spacket.getImageName() +"\";";
 		try {
-			System.out.println("Executing query: " + sql);
+			System.out.println("### Executing query: " + sql);
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
 			System.out
-					.println("[-] Failed to execute query: "
+					.println("   [-] Failed to execute query: "
 							+ sql);
 			sendFailure(output);
 			e.printStackTrace();
@@ -186,16 +186,16 @@ public class Server {
 	
 	private void handleUpvote(SignalPacket spacket, ObjectOutputStream output)
 	{
-		System.out.println("Upvoting " + pathPrefix
+		System.out.println("### Upvoting " + pathPrefix
 				+ "uploads/" + spacket.getImageName());
 		String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
 				+ "\"uploads/" + spacket.getImageName() +"\";";
 		try {
-			System.out.println("Executing query: " + sql);
+			System.out.println("### Executing query: " + sql);
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
 			System.out
-					.println("[-] Failed to execute query: "
+					.println("   [-] Failed to execute query: "
 							+ sql);
 			sendFailure(output);
 			e.printStackTrace();
@@ -215,20 +215,20 @@ public class Server {
 				+ ", 4) AND ROUND("
 				+ Float.toString(spacket.getLng() + epsilon)
 				+ ",4) ORDER BY rep;";
-		System.out.println("Sending stmt to db");
+		System.out.println("   Sending stmt to db");
 		System.out.println("    " + sql);
 
 		try {
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
 			System.out
-					.println("[-] Failure when executing query: "
+					.println("   [-] Failure when executing query: "
 							+ sql);
 			e.printStackTrace();
 		}
 		for (int i = 0; rs.next(); i++) {
 			System.out
-					.println("Getting ready to send image response #"
+					.println("   Getting ready to send image response #"
 							+ Integer.toString(i));
 			String commentPath = pathPrefix
 					+ rs.getString("commentPath");
@@ -264,18 +264,18 @@ public class Server {
 				outpacket = new ImagePacket(userName, data,
 						lat, lng, caption);
 				System.out
-						.println("\nWriting out ImagePacket to user");
+						.println("   \nWriting out ImagePacket to user");
 				System.out
-						.println("-------------------------------------------");
-				System.out.println("###  " + userName
+						.println("   -------------------------------------------");
+				System.out.println("   ###  " + userName
 						+ "  ###  " + lat.toString() + ", "
 						+ lng.toString() + "  ###  "
 						+ caption);
 				output.writeObject(outpacket);
-				System.out.println("Done!\n");
+				System.out.println("   Done!\n");
 			} catch (Exception e) {
 				System.out
-						.println("[-] Failed to send ImagePacket");
+						.println("   [-] Failed to send ImagePacket");
 				e.printStackTrace();
 			}
 
