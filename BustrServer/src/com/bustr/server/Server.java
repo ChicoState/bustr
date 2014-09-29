@@ -138,7 +138,7 @@ public class Server {
 						
 						ImagePacket outpacket = null;
 						SignalPacket spacket = (SignalPacket) packet;
-						System.out.println("Recieved image request from "
+						System.out.println("   Recieved image request from "
 								+ spacket.getLat() + ", " + spacket.getLng());
 
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
@@ -216,7 +216,7 @@ public class Server {
 				+ Float.toString(spacket.getLng() + epsilon)
 				+ ",4) ORDER BY rep;";
 		System.out.println("   Sending stmt to db");
-		System.out.println("    " + sql);
+		System.out.println("       " + sql);
 
 		try {
 			rs = stmt.executeQuery(sql);
@@ -228,7 +228,7 @@ public class Server {
 		}
 		for (int i = 0; rs.next(); i++) {
 			System.out
-					.println("   Getting ready to send image response #"
+					.println("\n   Getting ready to send image response #"
 							+ Integer.toString(i));
 			String commentPath = pathPrefix
 					+ rs.getString("commentPath");
@@ -264,7 +264,7 @@ public class Server {
 				outpacket = new ImagePacket(userName, data,
 						lat, lng, caption);
 				System.out
-						.println("   \nWriting out ImagePacket to user");
+						.println("   \n   Writing out ImagePacket to user");
 				System.out
 						.println("   -------------------------------------------");
 				System.out.println("   ###  " + userName
