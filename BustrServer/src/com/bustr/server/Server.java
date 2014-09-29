@@ -75,9 +75,9 @@ public class Server {
 
    private byte[] extractBytes(String ImageName) throws IOException {
       // open image
-      byte[] imageData = null;
-      BufferedInputStream bis = new BufferedInputStream(new FileInputStream(
-            new File(ImageName)));
+      File f = new File(ImageName);
+      byte[] imageData = new byte[(int) f.length()];
+      BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
       bis.read(imageData);
       bis.close();
       return imageData;
@@ -85,7 +85,7 @@ public class Server {
       // get DataBufferBytes from Raster
       // WritableRaster raster = bufferedImage.getRaster();
       // DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
-//      return (data.getData());
+      // return (data.getData());
    }
 
    public static void main(String[] args) throws ClassNotFoundException,
