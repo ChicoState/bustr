@@ -81,7 +81,7 @@ public class Server {
       bis.read(imageData);
       bis.close();
       return imageData;
-      // BufferedImage bufferedImage = ImageIO.read(imgPath);
+      // BufferedImaged bufferedImage = ImageIO.read(imgPath);
       // get DataBufferBytes from Raster
       // WritableRaster raster = bufferedImage.getRaster();
       // DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
