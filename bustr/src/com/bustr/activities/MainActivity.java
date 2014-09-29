@@ -84,20 +84,6 @@ public class MainActivity extends Activity implements OnClickListener {
                .setContentTitle("New Location!").setContentText(contentText)
                .setAutoCancel(true);
 
-         new Thread(new Runnable() {
-            public void run() {
-               LocationManager loc_mgr;
-               float lat,lng;
-               while (true) {
-                  loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                  loc_mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                  lat = BustrGrid.gridLat(loc_mgr);
-                  lng = BustrGrid.gridLon(loc_mgr);
-                  
-               }
-            }
-         }).start();
-
          // Creates an explicit intent for an Activity in your app
          Intent resultIntent = new Intent(this, MainActivity.class);
 
@@ -108,12 +94,29 @@ public class MainActivity extends Activity implements OnClickListener {
          stackBuilder.addParentStack(MainActivity.class);
          // Adds the Intent that starts the Activity to the top of the stack
          stackBuilder.addNextIntent(resultIntent);
-         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
+         final PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
                PendingIntent.FLAG_UPDATE_CURRENT);
          notifiBuilder.setContentIntent(resultPendingIntent);
          NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
          // 1033 allows you to update the notification later on.
          mNotificationManager.notify(1033, notifiBuilder.build());
+
+         // Spin off a thread that will shoot that notification out if @ the
+         // Bear
+         new Thread(new Runnable() {
+            public void run() {
+               LocationManager loc_mgr;
+               float lat, lng;
+
+               loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+               loc_mgr.addProximityAlert(39.804, -121.895, 0.001f, 10,
+                     resultPendingIntent);
+               lat = BustrGrid.gridLat(loc_mgr);
+               lng = BustrGrid.gridLon(loc_mgr);
+
+            }
+         }).start();
+
          break;
       case R.id.button3:
          startActivity(new Intent(MainActivity.this, ViewerActivity.class));
