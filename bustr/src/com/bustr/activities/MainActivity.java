@@ -1,12 +1,5 @@
 package com.bustr.activities;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
@@ -17,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -26,13 +20,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bustr.R;
-import com.bustr.ViewerActivity;
-import com.bustr.packets.ImagePacket;
-import com.bustr.packets.SignalPacket;
-import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -93,8 +83,24 @@ public class MainActivity extends Activity implements OnClickListener {
                .setSmallIcon(R.drawable.bustr_logo)
                .setContentTitle("New Location!").setContentText(contentText)
                .setAutoCancel(true);
+
+         new Thread(new Runnable() {
+            public void run() {
+               LocationManager loc_mgr;
+               float lat,lng;
+               while (true) {
+                  loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                  loc_mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                  lat = BustrGrid.gridLat(loc_mgr);
+                  lng = BustrGrid.gridLon(loc_mgr);
+                  
+               }
+            }
+         }).start();
+
          // Creates an explicit intent for an Activity in your app
          Intent resultIntent = new Intent(this, MainActivity.class);
+
          // This ensures that navigating backward from the Activity leads out of
          // your application to the Home screen.
          TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
