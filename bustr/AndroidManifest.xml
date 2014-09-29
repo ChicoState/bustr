@@ -35,7 +35,7 @@
             android:label="@string/title_activity_camera" >
         </activity>
         <activity
-            android:name=".ViewerActivity"
+            android:name=".activities.ViewerActivity"
             android:label="@string/title_activity_viewer" >
         </activity>
     </application>

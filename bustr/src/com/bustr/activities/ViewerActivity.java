@@ -1,4 +1,4 @@
-package com.bustr;
+package com.bustr.activities;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -16,8 +15,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bustr.R;
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
@@ -114,6 +115,8 @@ public class ViewerActivity extends Activity {
             Toast.makeText(ViewerActivity.this,
                   "Downloaded " + images.size() + "images.", Toast.LENGTH_LONG)
                   .show();
+            ImageView viewer = (ImageView)findViewById(R.id.viewer);
+            viewer.setImageBitmap(images.get(0));
          }
       }
    }
