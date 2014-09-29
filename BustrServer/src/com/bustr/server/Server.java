@@ -130,7 +130,7 @@ public class Server {
                   ImagePacket ipacket = (ImagePacket) packet;
                   input.close();
                   output.close();
-                  handleIncommingImage(ipacket, socket);
+                  handleIncomingImage(ipacket, socket);
 
                } else if (packet instanceof SignalPacket) {
 
@@ -265,7 +265,7 @@ public class Server {
       sendSuccess(output);
    }
 
-   private void handleIncommingImage(ImagePacket ipacket, Socket socket)
+   private void handleIncomingImage(ImagePacket ipacket, Socket socket)
          throws IOException {
       File dir = new File(pathPrefix + "/uploads");
       if (!dir.exists())

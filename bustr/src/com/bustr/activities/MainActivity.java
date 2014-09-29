@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.ViewerActivity;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
@@ -109,9 +110,7 @@ public class MainActivity extends Activity implements OnClickListener {
          mNotificationManager.notify(1033, notifiBuilder.build());
          break;
       case R.id.button3:
-         new Downloader().start();
-         Toast.makeText(this, "Sending image request...", Toast.LENGTH_LONG)
-         .show();
+         startActivity(new Intent(MainActivity.this, ViewerActivity.class));
          break;
       }
 
@@ -135,35 +134,5 @@ public class MainActivity extends Activity implements OnClickListener {
          return true;
       }
       return super.onOptionsItemSelected(item);
-   }
-
-   class Downloader extends Thread {
-
-      private Socket socket;
-
-      @Override
-      public void run() {
-         try {
-            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
-            ObjectOutputStream output = new ObjectOutputStream(
-                  socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(
-                  socket.getInputStream());
-            output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
-                  39.804f, -121.895f));
-            ImagePacket pack = (ImagePacket) input.readObject();
-            Log.d(LOGTAG, "PACKET RECEIVED:" + pack.getCaption());
-            output.flush();
-            output.close();
-            input.close();
-            socket.close();
-         } catch (UnknownHostException e) {
-            e.printStackTrace();
-         } catch (IOException e) {
-            e.printStackTrace();
-         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-         } 
-      }
    }
 }

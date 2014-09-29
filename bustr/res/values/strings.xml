@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_camera_preview">CameraPreview</string>
+    <string name="title_activity_viewer">ViewerActivity</string>
 
 </resources>
