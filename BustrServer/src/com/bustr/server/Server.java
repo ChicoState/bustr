@@ -167,12 +167,12 @@ public class Server {
    }
 
    private void handleDownvote(SignalPacket spacket, ObjectOutputStream output) {
-      System.out.println("### Downvoting " + pathPrefix
+      System.out.println("   Downvoting " + pathPrefix
             + spacket.getImageName());
       String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
             + "\"uploads/" + spacket.getImageName() + "\";";
       try {
-         System.out.println("### Executing query: " + sql);
+         System.out.println("   Executing query: " + sql);
          stmt.executeUpdate(sql);
       } catch (Exception e) {
          System.out.println("   [-] Failed to execute query: " + sql);
@@ -183,12 +183,12 @@ public class Server {
    }
 
    private void handleUpvote(SignalPacket spacket, ObjectOutputStream output) {
-      System.out.println("### Upvoting " + pathPrefix + "uploads/"
+      System.out.println("   Upvoting " + pathPrefix + "uploads/"
             + spacket.getImageName());
       String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
             + "\"uploads/" + spacket.getImageName() + "\";";
       try {
-         System.out.println("### Executing query: " + sql);
+         System.out.println("   Executing query: " + sql);
          stmt.executeUpdate(sql);
       } catch (Exception e) {
          System.out.println("   [-] Failed to execute query: " + sql);
