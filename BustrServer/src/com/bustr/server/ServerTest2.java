@@ -113,8 +113,8 @@ public class ServerTest2 {
 					sock.getInputStream());
 
 			SignalPacket sp = new SignalPacket(BustrSignal.IMAGE_REQUEST);
-			sp.setLat((float) 39.7276);
-			sp.setLng((float) -121.855);
+			sp.setLat((float) 39.7305);
+			sp.setLng((float) -121.841);
 			output.writeObject(sp);
 			BustrPacket res;
 			int counter = 0;
