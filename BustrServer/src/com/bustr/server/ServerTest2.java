@@ -5,17 +5,16 @@ import static org.junit.Assert.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import org.junit.Test;
+
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 
-import org.junit.Test;
+public class ServerTest2 {
 
-public class ServerTest {
-
-	
-	
 	@Test
 	public void upVoteTest() {
 		try {
@@ -131,11 +130,3 @@ public class ServerTest {
 	}
 
 }
-
-
-
-
-
-
-
-
