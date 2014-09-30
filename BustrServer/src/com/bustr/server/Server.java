@@ -80,6 +80,7 @@ public class Server {
       BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
       bis.read(imageData);
       bis.close();
+      if(imageData == null) System.out.println("[-] Attempting to send packet with empty data.");
       return imageData;
       // BufferedImaged bufferedImage = ImageIO.read(imgPath);
       // get DataBufferBytes from Raster
