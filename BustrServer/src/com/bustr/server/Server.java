@@ -129,11 +129,9 @@ public class Server {
                }
                if (packet instanceof ImagePacket) {
                   ImagePacket ipacket = (ImagePacket) packet;
-                  input.close();
-                  output.close();
-                  handleIncomingImage(ipacket, socket);
+                  System.out.println("   Handling incoming image");
+                  handleIncomingImage(ipacket);
                   sendSuccess(output);
-                  socket.close();
 
                } else if (packet instanceof SignalPacket) {
 
@@ -157,6 +155,10 @@ public class Server {
                         .println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
                   sendFailure(output);
                }
+               System.out.println("   Closing socket and input output streams.");
+               input.close();
+               output.close();
+               socket.close();
             } catch (Exception e) {
                System.out.println("NETWORK READ ERROR");
                System.out.println(e.toString());
@@ -268,7 +270,7 @@ public class Server {
       sendSuccess(output);
    }
 
-   private void handleIncomingImage(ImagePacket ipacket, Socket socket)
+   private void handleIncomingImage(ImagePacket ipacket)
          throws IOException {
       File dir = new File(pathPrefix + "/uploads");
       if (!dir.exists())
