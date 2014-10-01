@@ -133,6 +133,7 @@ public class Server {
                   output.close();
                   handleIncomingImage(ipacket, socket);
                   sendSuccess(output);
+                  socket.close();
 
                } else if (packet instanceof SignalPacket) {
 
@@ -317,7 +318,6 @@ public class Server {
       System.out.println("   " + "Latitude: " + ipacket.getLat()
             + ", Longitude: " + ipacket.getLng());
       System.out.println("   Caption: " + ipacket.getCaption());
-      socket.close();
    }
 
    private void sendSuccess(ObjectOutputStream output) {
