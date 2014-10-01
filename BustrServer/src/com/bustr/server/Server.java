@@ -132,6 +132,7 @@ public class Server {
                   input.close();
                   output.close();
                   handleIncomingImage(ipacket, socket);
+                  sendSuccess(output);
 
                } else if (packet instanceof SignalPacket) {
 
