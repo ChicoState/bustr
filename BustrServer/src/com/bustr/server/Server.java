@@ -122,7 +122,9 @@ public class Server {
             }
             try {
                try {
+            	  System.out.print("   Getting incomming data");
                   packet = (BustrPacket) input.readObject();
+                  System.out.println(" . . . . finished recieving packet");
                } catch (Exception e) {
                   System.out.println("[-] Bustr Packet read error");
                   e.printStackTrace();
@@ -229,6 +231,7 @@ public class Server {
          String userName = rs.getString("userName");
          Float lat = rs.getFloat("Lat");
          Float lng = rs.getFloat("Lng");
+         int rep = rs.getInt("rep");
          String caption = null;
          byte[] data = null;
          try {
@@ -252,7 +255,7 @@ public class Server {
          }
 
          try {
-            outpacket = new ImagePacket(userName, data, lat, lng, caption);
+            outpacket = new ImagePacket(userName, data, lat, lng, caption, rep);
             System.out.println("   \n   Writing out ImagePacket to user");
             System.out
                   .println("   -------------------------------------------");
