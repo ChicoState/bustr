@@ -115,7 +115,8 @@ public class Server {
             ObjectInputStream input = new ObjectInputStream(
                   socket.getInputStream());
             try {
-               stmt = connection.createStatement();
+               stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+            		    ResultSet.CONCUR_READ_ONLY);
             } catch (Exception e) {
                System.out.println("[-] Statement creation failure.");
                e.printStackTrace();
@@ -207,6 +208,7 @@ public class Server {
          ObjectOutputStream output) throws SQLException {
 
       ImagePacket outpacket = null;
+      int imageCount=0;
       String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
             + Float.toString(spacket.getLat() - epsilon) + ", 4) AND ROUND("
             + Float.toString(spacket.getLat() + epsilon)
@@ -222,8 +224,25 @@ public class Server {
          System.out.println("   [-] Failure when executing query: " + sql);
          e.printStackTrace();
       }
-      for (int i = 0; rs.next(); i++) {
-         System.out.println("\n   Getting ready to send image response #"
+      try {
+    	  if(rs.last()){
+    		  imageCount = rs.getRow();
+    		  rs.beforeFirst();
+    	  }
+      } catch (Exception e) {
+    	  e.printStackTrace();
+      }
+      SignalPacket sp = new SignalPacket(BustrSignal.IMAGE_COUNT);
+      sp.setImageCount(imageCount);
+      try {
+    	  System.out.println("   Sending signal with imageCount="+imageCount);
+    	  output.writeObject(sp);
+      } catch (Exception e) {
+    	  System.out.println("[-] Failed to write imageCount packet");
+    	  e.printStackTrace();
+      }
+      for (int i = 1; rs.next(); i++) {
+         System.out.println("   Getting ready to send image response #"
                + Integer.toString(i));
          String commentPath = pathPrefix + rs.getString("commentPath");
          String imagePath = pathPrefix + rs.getString("imagePath");
