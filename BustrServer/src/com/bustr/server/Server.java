@@ -137,7 +137,6 @@ public class Server {
 
                } else if (packet instanceof SignalPacket) {
 
-                  ImagePacket outpacket = null;
                   SignalPacket spacket = (SignalPacket) packet;
                   System.out.println("   Recieved image request from "
                         + spacket.getLat() + ", " + spacket.getLng());
