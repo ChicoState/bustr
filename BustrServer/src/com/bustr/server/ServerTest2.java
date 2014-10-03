@@ -77,6 +77,7 @@ public class ServerTest2 {
 			e.printStackTrace();
 			assertTrue(false);
 		}
+		System.out.println("  ");
 	}
 
 	@Test
@@ -119,6 +120,7 @@ public class ServerTest2 {
 			e.printStackTrace();
 			assertTrue(false);
 		}
+		System.out.println("   ");
 	}
 
 	@Test
@@ -161,6 +163,7 @@ public class ServerTest2 {
 			e.printStackTrace();
 			assertTrue(false);
 		}
+		System.out.println("   ");
 	}
 
 	@Test
@@ -179,6 +182,11 @@ public class ServerTest2 {
 			output.writeObject(sp);
 			BustrPacket res;
 			int counter = 0; 
+			BustrPacket imageSignal = (BustrPacket)input.readObject();
+			if(imageSignal instanceof SignalPacket){
+				SignalPacket imageNumberSignal = (SignalPacket)imageSignal;
+				System.out.println("Got a signal saying we are going be be getting " + imageNumberSignal.getImageCount());
+			}
 			while ((res = (BustrPacket) input.readObject()) != null) {
 
 				if (res instanceof SignalPacket) {
@@ -221,6 +229,7 @@ public class ServerTest2 {
 			e.printStackTrace();
 			assertTrue(false);
 		}
+		System.out.println("   ");
 	}
 
 }
