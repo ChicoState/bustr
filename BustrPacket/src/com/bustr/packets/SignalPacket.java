@@ -6,13 +6,22 @@ public class SignalPacket extends BustrPacket {
     * 
     */
 	public enum BustrSignal {
-		FAILURE, SUCCESS, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE
+		FAILURE, SUCCESS, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_COUNT
 	}
 
 	private static final long serialVersionUID = 1L;
 	private BustrSignal signal;
 	private float lat, lng;
 	private String imageName;
+	private int imageCount;
+
+	public int getImageCount() {
+		return imageCount;
+	}
+
+	public void setImageCount(int imageCount) {
+		this.imageCount = imageCount;
+	}
 
 	public String getImageName() {
 		return imageName;
