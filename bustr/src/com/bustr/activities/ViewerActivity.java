@@ -99,15 +99,17 @@ public class ViewerActivity extends FragmentActivity {
          super.onPostExecute(result);
          adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
          pager.setAdapter(adapter);
+         Toast.makeText(ViewerActivity.this, result + " images found.",
+               Toast.LENGTH_LONG).show();
          new Downloader().execute();
       }
    }
 
-   private class Downloader extends AsyncTask<Void, Bitmap, BustrSignal> {
+   private class Downloader extends AsyncTask<Void, ImagePacket, BustrSignal> {
 
       BustrPacket packet;
       int imageNum = 0;
-      
+
       @Override
       protected void onPreExecute() {
          super.onPreExecute();
@@ -118,13 +120,8 @@ public class ViewerActivity extends FragmentActivity {
          while (true) {
             try {
                packet = (BustrPacket) input.readObject();
-               if (packet instanceof ImagePacket) {
-                  byte[] data = ((ImagePacket) packet).getData();
-                  Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
-                        data.length);
-                  if (bitmap == null)
-                     throw new AssertionError("Bitmap is null");
-                  onProgressUpdate(bitmap);
+               if (packet instanceof ImagePacket) {                  
+                  onProgressUpdate((ImagePacket)packet);
                }
                else if (packet instanceof SignalPacket) {
                   return ((SignalPacket) packet).getSignal();
@@ -142,15 +139,17 @@ public class ViewerActivity extends FragmentActivity {
       }
 
       @Override
-      protected void onProgressUpdate(Bitmap... values) {
-         final Bitmap bmp = values[0];
+      protected void onProgressUpdate(ImagePacket... values) {
+         byte[] data = values[0].getData();
+         final String caption = values[0].getCaption();
+         final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
          super.onProgressUpdate(values);
-         runOnUiThread(new Runnable(){
+         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-               adapter.setImage(imageNum++, bmp);
-               adapter.notifyDataSetChanged(); 
-            }            
+               adapter.setImage(imageNum++, bmp, caption);
+               adapter.notifyDataSetChanged();
+            }
          });
       }
 

@@ -31,26 +31,24 @@ public class ViewerFragment extends Fragment {
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
          Bundle savedInstanceState) {
-      if (rootView == null) {
-         rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
-               container, false);
-         progress = (ProgressBar) rootView.findViewById(R.id.viewerProgress);
-         viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
-         viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
-         Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();
-         viewerCaption.setTypeface(tf);
-      }
+      rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
+            container, false);
+      progress = (ProgressBar) rootView.findViewById(R.id.viewerProgress);
+      viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
+      viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
+      Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();
+      viewerCaption.setTypeface(tf);
       return rootView;
    }
 
-   public void setImage(Bitmap pImage) {
+   public void setImage(Bitmap pImage, String pCaption) {
       progress.setVisibility(View.GONE);
       image = pImage;
+      viewerCaption.setText(pCaption);      
       viewerCaption.setVisibility(View.VISIBLE);
       try {
          viewerImage.setImageBitmap(pImage);
       } catch (Exception e) {
-         Log.e(LOGTAG, "WELL SHIT");
          Log.e(LOGTAG, e.toString());
       }
       viewerImage.setVisibility(View.VISIBLE);

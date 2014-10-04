@@ -29,8 +29,8 @@ public class BustrViewerAdapter extends FragmentStatePagerAdapter {
       return fragments.length;
    } 
    
-   public void setImage(int index, Bitmap pImage) {
-      fragments[index].setImage(pImage);      
+   public void setImage(int index, Bitmap pImage, String pCaption) {
+      fragments[index].setImage(pImage, pCaption);      
    }
 
 }

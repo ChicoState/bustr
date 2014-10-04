@@ -33,6 +33,8 @@
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:shadowColor">#000000</item>
         <item name="android:shadowRadius">3</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
     </style>
 
     <style name="Button" parent="ShadowText">
