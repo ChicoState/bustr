@@ -6,16 +6,17 @@ import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bustr.R;
@@ -23,16 +24,31 @@ import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrViewerAdapter;
+import com.bustr.utilities.ResourceProvider;
 
-public class ViewerActivity extends Activity {
+public class ViewerActivity extends FragmentActivity {
 
    private ArrayList<Bitmap> images = new ArrayList<Bitmap>();
+   private ViewPager pager;
+   private BustrViewerAdapter adapter;
+   private ResourceProvider resources;
+
+   private Socket socket;
+   private ObjectOutputStream output;
+   private ObjectInputStream input;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_viewer);
-      new Downloader().execute();
+
+      resources = ResourceProvider.instance(ViewerActivity.this);
+
+      // Wire GUI elements -----------------------------------------------------
+      pager = (ViewPager) findViewById(R.id.pager);
+
+      new PrepareDownload().execute();
    }
 
    @Override
@@ -54,29 +70,51 @@ public class ViewerActivity extends Activity {
       return super.onOptionsItemSelected(item);
    }
 
+   private class PrepareDownload extends AsyncTask<Void, Void, Integer> {
+
+      private SignalPacket imageCountPacket;
+
+      @Override
+      protected Integer doInBackground(Void... arg0) {
+         try {
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            output = new ObjectOutputStream(socket.getOutputStream());
+            output.flush();
+            input = new ObjectInputStream(socket.getInputStream());
+            output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
+                  39.7296f, -121.835f));
+            imageCountPacket = (SignalPacket) input.readObject();
+         } catch (UnknownHostException e) {
+            e.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         }
+         return imageCountPacket.getImageCount();
+      }
+
+      @Override
+      protected void onPostExecute(Integer result) {
+         super.onPostExecute(result);
+         adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
+         pager.setAdapter(adapter);
+         new Downloader().execute();
+      }
+   }
+
    private class Downloader extends AsyncTask<Void, Bitmap, BustrSignal> {
 
-      private Socket socket;
-      ObjectOutputStream output;
-      ObjectInputStream input;
       BustrPacket packet;
-
+      int imageNum = 0;
+      
       @Override
       protected void onPreExecute() {
          super.onPreExecute();
       }
 
       @Override
-      protected BustrSignal doInBackground(Void... arg0) {
-         try {
-            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
-            output = new ObjectOutputStream(socket.getOutputStream());
-            input = new ObjectInputStream(socket.getInputStream());
-            output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
-                  39.804f, -121.895f));
-         } catch (IOException e) {
-            e.printStackTrace();
-         }
+      protected BustrSignal doInBackground(Void... params) {
          while (true) {
             try {
                packet = (BustrPacket) input.readObject();
@@ -87,7 +125,8 @@ public class ViewerActivity extends Activity {
                   if (bitmap == null)
                      throw new AssertionError("Bitmap is null");
                   onProgressUpdate(bitmap);
-               } else if (packet instanceof SignalPacket) {
+               }
+               else if (packet instanceof SignalPacket) {
                   return ((SignalPacket) packet).getSignal();
                }
             } catch (OptionalDataException e) {
@@ -98,14 +137,21 @@ public class ViewerActivity extends Activity {
                e.printStackTrace();
             } catch (AssertionError ae) {
                ae.printStackTrace();
-            }            
+            }
          }
       }
 
       @Override
       protected void onProgressUpdate(Bitmap... values) {
+         final Bitmap bmp = values[0];
          super.onProgressUpdate(values);
-         images.add(values[0]);
+         runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+               adapter.setImage(imageNum++, bmp);
+               adapter.notifyDataSetChanged(); 
+            }            
+         });
       }
 
       @Override
@@ -115,8 +161,11 @@ public class ViewerActivity extends Activity {
             Toast.makeText(ViewerActivity.this,
                   "Downloaded " + images.size() + "images.", Toast.LENGTH_LONG)
                   .show();
-            ImageView viewer = (ImageView)findViewById(R.id.viewer);
-            viewer.setImageBitmap(images.get(0));
+         }
+         try {
+            socket.close();
+         } catch (IOException e) {
+            e.printStackTrace();
          }
       }
    }
