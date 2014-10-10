@@ -79,6 +79,49 @@ public class ServerTest2 {
 		}
 		System.out.println("  ");
 	}
+	
+	@Test
+	public void userAuthTest() {
+		try {
+			System.out
+					.println("[+] Sending userAuth signal to server");
+			Socket sock = new Socket("localhost", 8000);
+			ObjectOutputStream output = new ObjectOutputStream(
+					sock.getOutputStream());
+			ObjectInputStream input = new ObjectInputStream(
+					sock.getInputStream());
+
+			SignalPacket sp = new SignalPacket(BustrSignal.USER_AUTH);
+			sp.setUser("vader");
+			sp.setPass("darth");
+			output.writeObject(sp);
+			BustrPacket res;
+			while ((res = (BustrPacket) input.readObject()) != null) {
+
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("[+] Got a SUCCESS packet");
+						assertTrue(true);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("[-] Got a FAILURE packet");
+						assertTrue(false);
+						return;
+					}
+				} else if (res instanceof ImagePacket) {
+					System.out.println("[+] Got an ImagePacket with info "
+							+ res.toString());
+					assertTrue(true);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		System.out.println("  ");
+	}
+
 
 	@Test
 	public void upVoteTest() {
@@ -107,7 +150,7 @@ public class ServerTest2 {
 						return;
 					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
 						System.out.println("[-] Got a FAILURE packet");
-						assertTrue(true);
+						assertTrue(false);
 						return;
 					}
 				} else if (res instanceof ImagePacket) {
@@ -150,7 +193,7 @@ public class ServerTest2 {
 						return;
 					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
 						System.out.println("[-] Got a FAILURE packet");
-						assertTrue(true);
+						assertTrue(false);
 						return;
 					}
 				} else if (res instanceof ImagePacket) {
@@ -165,6 +208,49 @@ public class ServerTest2 {
 		}
 		System.out.println("   ");
 	}
+	
+	@Test
+	public void newUserTest() {
+		try {
+			String username = "darth";
+			String pass = "vader";
+			System.out
+					.println("[+] Sending new user test, with username" 
+							+ username + " and pass "
+							+ pass);
+			Socket sock = new Socket("localhost", 8000);
+			ObjectOutputStream output = new ObjectOutputStream(
+					sock.getOutputStream());
+			ObjectInputStream input = new ObjectInputStream(
+					sock.getInputStream());
+
+			SignalPacket sp = new SignalPacket(BustrSignal.NEW_USER);
+			sp.setUser(username);
+			sp.setPass(pass);
+			output.writeObject(sp);
+			BustrPacket res;
+			while ((res = (BustrPacket) input.readObject()) != null) {
+ 
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("[+] Got a SUCCESS packet");
+						assertTrue(true);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("[-] Got a FAILURE packet");
+						assertTrue(false);
+						return;
+					}
+				} 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		System.out.println("   ");
+	}
+
 
 	@Test
 	public void requestSignalTest() {
@@ -197,7 +283,7 @@ public class ServerTest2 {
 						return;
 					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
 						System.out.println("Got a FAILURE packet");
-						assertTrue(true);
+						assertTrue(false);
 						return;
 					}
 				} else if (res instanceof ImagePacket) {

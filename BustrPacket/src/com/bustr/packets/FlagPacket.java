@@ -5,7 +5,7 @@ public class FlagPacket extends BustrPacket{
 	
 	
 	public enum BustrFlag {
-		ILLEGAL_IMAGE, DUPLICATE_IMAGE, FANTASTIC_IMAGE
+		ILLEGAL_IMAGE, DUPLICATE_IMAGE, FANTASTIC_IMAGE, NSFW
 	}
 	
 	private BustrFlag flag;

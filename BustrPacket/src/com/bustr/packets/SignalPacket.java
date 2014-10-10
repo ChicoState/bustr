@@ -6,13 +6,14 @@ public class SignalPacket extends BustrPacket {
     * 
     */
 	public enum BustrSignal {
-		FAILURE, SUCCESS, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_COUNT
+		FAILURE, SUCCESS, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_COUNT, NEW_USER, USER_AUTH
 	}
 
 	private static final long serialVersionUID = 1L;
 	private BustrSignal signal;
 	private float lat, lng;
 	private String imageName;
+	private String user, pass;
 	private int imageCount;
 
 	public int getImageCount() {
@@ -21,6 +22,22 @@ public class SignalPacket extends BustrPacket {
 
 	public void setImageCount(int imageCount) {
 		this.imageCount = imageCount;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPass() {
+		return pass;
+	}
+
+	public void setPass(String pass) {
+		this.pass = pass;
 	}
 
 	public String getImageName() {

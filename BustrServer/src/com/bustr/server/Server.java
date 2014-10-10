@@ -40,7 +40,7 @@ public class Server {
    private static final float epsilon = 0.0005f;
    private static Connection connection;
    private Statement stmt;
-   private ResultSet rs;
+   private static ResultSet rs;
    private static int imageNum = 0;
 
    public Server() throws ClassNotFoundException, SQLException {
@@ -148,10 +148,15 @@ public class Server {
                      handleUpvote(spacket, output);
                   } else if (spacket.getSignal() == BustrSignal.REP_DOWNVOTE) {
                      handleDownvote(spacket, output);
+                  } else if (spacket.getSignal() == BustrSignal.NEW_USER) {
+                	  handleNewUser(spacket, output);
+                  } else if (spacket.getSignal() == BustrSignal.USER_AUTH) {
+                	  handleUserAuth(spacket, output);
                   } else {
                      System.out.println("[-] Unrecognized signal type");
                      sendFailure(output);
                   }
+            
                } else {
                   System.out
                         .println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
@@ -171,6 +176,70 @@ public class Server {
          }
       }
    }
+   public static boolean handleUserAuth(SignalPacket spacket, ObjectOutputStream output) throws ClassNotFoundException, SQLException 
+   {
+	   String username = spacket.getUser();
+	   String password = spacket.getPass();
+   	   Class.forName(dbClassName);
+       Properties p = new Properties();
+       p.put("user", "root");
+       p.put("password", "root");
+       connection  = DriverManager.getConnection(CONNECTION, p);
+       Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+   		    ResultSet.CONCUR_READ_ONLY);
+       String sql = "SELECT * FROM users WHERE userId=\""
+   		    + username + "\" and userPass=\""
+   		    + password + "\";";
+       
+       try {  
+    	   
+       	rs = stmt.executeQuery(sql);
+       } catch (Exception e) {
+       	System.out.println("[-] Failed to execute sql stmt " + sql);
+       	e.printStackTrace();
+       	connection.close();
+       	sendFailure(output);
+       	return false;
+       }
+       Boolean valid = false;
+       for(;rs.next();)
+       {
+    	   valid = (rs.getString("userId") == username && rs.getString("userPass") == password);
+       }
+       if(valid) sendSuccess(output);
+       else sendFailure(output);
+       connection.close();
+       return valid;
+   }
+   
+   public static boolean handleNewUser(SignalPacket spacket, ObjectOutputStream output) throws ClassNotFoundException, SQLException 
+   {
+	   String username = spacket.getUser();
+	   String password = spacket.getPass();
+   	   Class.forName(dbClassName);
+       Properties p = new Properties();
+       p.put("user", "root");
+       p.put("password", "root");
+       connection  = DriverManager.getConnection(CONNECTION, p);
+       Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+   		    ResultSet.CONCUR_READ_ONLY);
+       String sql = "INSERT INTO users VALUES ( \"" + username + "\", \""
+               + password + "\" );";
+       
+       try { 
+       	stmt.execute(sql);
+       } catch (Exception e) {
+       	System.out.println("[-] Failed to execute sql stmt " + sql);
+       	e.printStackTrace();
+       	connection.close();
+       	sendFailure(output);
+       	return false;
+       }
+       connection.close();
+       sendSuccess(output);
+       return true;
+   }
+   
 
    private void handleDownvote(SignalPacket spacket, ObjectOutputStream output) {
       System.out.println("   Downvoting " + pathPrefix
@@ -274,7 +343,7 @@ public class Server {
 
          try {
             outpacket = new ImagePacket(userName, data, lat, lng, caption, rep);
-            System.out.println("   \n   Writing out ImagePacket to user");
+            System.out.println("   Writing out ImagePacket to user");
             System.out
                   .println("   -------------------------------------------");
             System.out.println("   ###  " + userName + "  ###  "
@@ -343,7 +412,7 @@ public class Server {
       System.out.println("   Caption: " + ipacket.getCaption());
    }
 
-   private void sendSuccess(ObjectOutputStream output) {
+   private static void sendSuccess(ObjectOutputStream output) {
       try {
          output.writeObject(new SignalPacket(SignalPacket.BustrSignal.SUCCESS));
       } catch (Exception e) {
@@ -352,7 +421,7 @@ public class Server {
       }
    }
 
-   private void sendFailure(ObjectOutputStream output) {
+   private static void sendFailure(ObjectOutputStream output) {
       try {
          output.writeObject(new SignalPacket(SignalPacket.BustrSignal.SUCCESS));
       } catch (Exception e) {
