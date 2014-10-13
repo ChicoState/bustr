@@ -21,7 +21,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:clickable="false"
-        android:text="Uploading..."
         android:visibility="gone" />
 
     <Button
