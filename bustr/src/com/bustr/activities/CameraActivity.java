@@ -32,6 +32,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -98,6 +99,7 @@ public class CameraActivity extends Activity implements LocationListener {
    private Button btn_snap;
    private Button btn_flip;
    private Button btn_keep;
+   private ProgressBar progress;
 
    // Initializes camera instance and location manager -------------------------
    @Override
@@ -128,6 +130,7 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_keep = (Button) findViewById(R.id.btn_keep);
       btn_discard = (Button) findViewById(R.id.btn_discard);
       btn_flash = (ToggleButton) findViewById(R.id.btn_flash);
+      progress = (ProgressBar) findViewById(R.id.uploadProgress);
       btn_snap.setTypeface(tf);
       btn_keep.setTypeface(tf);
       btn_discard.setTypeface(tf);
@@ -224,6 +227,7 @@ public class CameraActivity extends Activity implements LocationListener {
 
       // Calculates grid dimensions
       public Uploader() {
+         progress.setVisibility(View.VISIBLE);
          lat = BustrGrid.gridLat(locMgr);
          lng = BustrGrid.gridLon(locMgr);
       }
@@ -256,6 +260,7 @@ public class CameraActivity extends Activity implements LocationListener {
       // Displays return code message after attempting upload ------------------
       @Override
       protected void onPostExecute(BustrSignal result) {
+         progress.setVisibility(View.GONE);
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.SUCCESS) {
             result_message = "Upload Successful";
