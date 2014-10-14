@@ -341,20 +341,20 @@ public class CameraActivity extends Activity {
       Camera.Parameters params = mCamera.getParameters();
       List<Size> imageSizes = params.getSupportedPictureSizes();
       Collections.reverse(imageSizes);
-      Size currentSize = params.getPictureSize();
-      for (Size size : imageSizes) {
-         Log.d(LOGTAG, size.width + " x " + size.height);
-         if (size.width <= 1024) {
-            currentSize = size;
-         }
-         else {
-            Toast.makeText(
-                  CameraActivity.this,
-                  "Picture size: " + currentSize.width + " x "
-                        + currentSize.height, Toast.LENGTH_SHORT).show();
-            break;
-         }
-      }
+      Size currentSize = imageSizes.get(0);
+//      for (Size size : imageSizes) {
+//         Log.d(LOGTAG, size.width + " x " + size.height);
+//         if (size.width < 960) {
+//            currentSize = size;
+//         }
+//         else {
+//            Toast.makeText(
+//                  CameraActivity.this,
+//                  "Picture size: " + currentSize.width + " x "
+//                        + currentSize.height, Toast.LENGTH_SHORT).show();
+//            break;
+//         }
+//      }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
       params.set("orientation", "portrait");
       params.setPictureSize(currentSize.width, currentSize.height);
