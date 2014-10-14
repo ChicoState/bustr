@@ -21,8 +21,6 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,7 +45,7 @@ import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
 
-public class CameraActivity extends Activity implements LocationListener {
+public class CameraActivity extends Activity {
 
    // Detect available cameras
    PackageManager pm;
@@ -81,14 +79,11 @@ public class CameraActivity extends Activity implements LocationListener {
    // Auto focus callback
    private AutoFocusCallback autoFocusCallback;
 
-   // LocationManager object to access GPS
-   private LocationManager locMgr;
-
    // Byte[] to store image data
    private byte[] bytes;
 
-   // Location to store current coordinates
-   private Location loc;
+   // Location Manager service
+   LocationManager lm;
 
    // Caption to be attached to the image
    private String caption = "";
@@ -110,6 +105,7 @@ public class CameraActivity extends Activity implements LocationListener {
       super.onCreate(savedInstanceState);
       Log.d(LOGTAG, "OnCreate");
       setContentView(R.layout.activity_camera);
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
@@ -123,8 +119,6 @@ public class CameraActivity extends Activity implements LocationListener {
       else {
          cam = 0;
       }
-      locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
@@ -196,7 +190,7 @@ public class CameraActivity extends Activity implements LocationListener {
       btn_snap.setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            if (locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                if (btn_flash.isChecked()) {
                   Camera.Parameters params = mCamera.getParameters();
                   params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -220,7 +214,7 @@ public class CameraActivity extends Activity implements LocationListener {
       });
 
       // Verify GPS service is enabled -----------------------------------------
-      if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+      if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
          promptEnableGPS();
       }
    }
@@ -234,8 +228,8 @@ public class CameraActivity extends Activity implements LocationListener {
       // Calculates grid dimensions
       public Uploader() {
          progress.setVisibility(View.VISIBLE);
-         lat = BustrGrid.gridLat(locMgr);
-         lng = BustrGrid.gridLon(locMgr);
+         lat = BustrGrid.gridLat(lm);
+         lng = BustrGrid.gridLon(lm);
       }
 
       // Uploads image to server asynchronously --------------------------------
@@ -347,7 +341,7 @@ public class CameraActivity extends Activity implements LocationListener {
       Camera.Parameters params = mCamera.getParameters();
       List<Size> imageSizes = params.getSupportedPictureSizes();
       Collections.reverse(imageSizes);
-      Size currentSize = params.getPictureSize();      
+      Size currentSize = params.getPictureSize();
       for (Size size : imageSizes) {
          Log.d(LOGTAG, size.width + " x " + size.height);
          if (size.width <= 1024) {
@@ -362,7 +356,7 @@ public class CameraActivity extends Activity implements LocationListener {
          }
       }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
-      params.set("orientation", "portrait");      
+      params.set("orientation", "portrait");
       params.setPictureSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -401,29 +395,5 @@ public class CameraActivity extends Activity implements LocationListener {
       new AlertDialog.Builder(this).setTitle("Add a caption?")
             .setView(captionInput).setNeutralButton("Ok", listener)
             .setIcon(android.R.drawable.ic_input_get).show();
-   }
-
-   @Override
-   public void onLocationChanged(Location arg0) {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void onProviderDisabled(String provider) {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void onProviderEnabled(String provider) {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void onStatusChanged(String provider, int status, Bundle extras) {
-      // TODO Auto-generated method stub
-
    }
 }

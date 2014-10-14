@@ -1,4 +1,4 @@
-package com.bustr.activities.fragments;
+package com.bustr.fragments;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -47,7 +47,7 @@ public class ViewerFragment extends Fragment {
       viewerCaption.setText(pCaption);      
       viewerCaption.setVisibility(View.VISIBLE);
       try {
-         viewerImage.setImageBitmap(pImage);
+         viewerImage.setImageBitmap(image);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }

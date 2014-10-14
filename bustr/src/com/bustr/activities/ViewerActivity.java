@@ -9,9 +9,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -25,27 +27,28 @@ import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.BustrViewerAdapter;
-import com.bustr.utilities.ResourceProvider;
 
 public class ViewerActivity extends FragmentActivity {
 
    private ArrayList<Bitmap> images = new ArrayList<Bitmap>();
    private ViewPager pager;
    private BustrViewerAdapter adapter;
-   private ResourceProvider resources;
 
    private Socket socket;
    private ObjectOutputStream output;
    private ObjectInputStream input;
-
+   
+   private LocationManager lm;
+   
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_viewer);
 
-      resources = ResourceProvider.instance(ViewerActivity.this);
-
+      lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+      
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
       pager.setOffscreenPageLimit(9);
@@ -83,7 +86,7 @@ public class ViewerActivity extends FragmentActivity {
             output.flush();
             input = new ObjectInputStream(socket.getInputStream());
             output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
-                  39.733f, -121.861f));
+                  BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
             imageCountPacket = (SignalPacket) input.readObject();
          } catch (UnknownHostException e) {
             e.printStackTrace();
