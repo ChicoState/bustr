@@ -21,6 +21,8 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -106,6 +108,33 @@ public class CameraActivity extends Activity {
       Log.d(LOGTAG, "OnCreate");
       setContentView(R.layout.activity_camera);
       lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+            new LocationListener() {
+               @Override
+               public void onStatusChanged(String provider, int status,
+                     Bundle extras) {
+                  // TODO Auto-generated method stub
+
+               }
+
+               @Override
+               public void onProviderEnabled(String provider) {
+                  // TODO Auto-generated method stub
+
+               }
+
+               @Override
+               public void onProviderDisabled(String provider) {
+                  // TODO Auto-generated method stub
+
+               }
+
+               @Override
+               public void onLocationChanged(Location location) {
+                  // TODO Auto-generated method stub
+
+               }
+            });
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       prefEditor = sharedPrefs.edit();
