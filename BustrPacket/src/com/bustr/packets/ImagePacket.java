@@ -1,64 +1,86 @@
 package com.bustr.packets;
 
+import java.io.BufferedReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.Vector;
+
 public class ImagePacket extends BustrPacket {
 
-   /**
+	/**
     * 
     */
-   private static final long serialVersionUID = 1L;
-   private String name;
-   private byte[] data;
-   private float lat, lng;
-   private String caption;
-   private int rep = 0;
+	private static final long serialVersionUID = 1L;
+	private Vector messages;
+	private String name;
+	private byte[] data;
+	private float lat, lng;
+	private String caption;
+	private int rep = 0;
 
-   public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
-         String pCaption) {
-      name = pName;
-      data = pData;
-      lat = pLat;
-      lng = pLng;
-      caption = pCaption;
-   }
+	
+	public void addMessage(String s)
+	{
+		messages.add(s);
+	}
+	
+	
+	public Vector getMessages() {
+		return messages;
+	}
 
-   public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
-         String pCaption, int pRep) {
-      name = pName;
-      data = pData;
-      lat = pLat;
-      lng = pLng;
-      caption = pCaption;
-      rep = pRep;
-   }
+	public void setMessages(Vector messages) {
+		this.messages = messages;
+	}
 
-   @Override
-   public String toString() {
-      String s = name + ": " + lat + " : " + lng + " : " + caption;
-      return s;
-   }
+	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
+			String pCaption) {
+		name = pName;
+		data = pData;
+		lat = pLat;
+		lng = pLng;
+		caption = pCaption;
+		messages = new Vector<String>();
+	}
 
-   public byte[] getData() {
-      return data;
-   }
+	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
+			String pCaption, int pRep) {
+		name = pName;
+		data = pData;
+		lat = pLat;
+		lng = pLng;
+		caption = pCaption;
+		rep = pRep;
+	}
 
-   public String getName() {
-      return name;
-   }
+	@Override
+	public String toString() {
+		String s = name + ": " + lat + " : " + lng + " : " + caption;
+		return s;
+	}
 
-   public float getLat() {
-      return lat;
-   }
+	public byte[] getData() {
+		return data;
+	}
 
-   public float getLng() {
-      return lng;
-   }
+	public String getName() {
+		return name;
+	}
 
-   public String getCaption() {
-      return caption;
-   }
+	public float getLat() {
+		return lat;
+	}
 
-   public int getRep() {
-      return rep;
-   }
+	public float getLng() {
+		return lng;
+	}
+
+	public String getCaption() {
+		return caption;
+	}
+
+	public int getRep() {
+		return rep;
+	}
 
 }
