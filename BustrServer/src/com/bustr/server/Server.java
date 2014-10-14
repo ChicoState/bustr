@@ -114,6 +114,7 @@ public class Server {
                   socket.getOutputStream());
             ObjectInputStream input = new ObjectInputStream(
                   socket.getInputStream());
+            Statement stmt;
             try {
                stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
             		    ResultSet.CONCUR_READ_ONLY);
@@ -248,6 +249,7 @@ public class Server {
             + "\"uploads/" + spacket.getImageName() + "\";";
       try {
          System.out.println("   Executing query: " + sql);
+         Statement stmt = null;
          stmt.executeUpdate(sql);
       } catch (Exception e) {
          System.out.println("   [-] Failed to execute query: " + sql);
@@ -264,6 +266,7 @@ public class Server {
             + "\"uploads/" + spacket.getImageName() + "\";";
       try {
          System.out.println("   Executing query: " + sql);
+         Statement stmt = null;
          stmt.executeUpdate(sql);
       } catch (Exception e) {
          System.out.println("   [-] Failed to execute query: " + sql);
@@ -288,6 +291,7 @@ public class Server {
       System.out.println("       " + sql);
 
       try {
+    	  Statement stmt = null;
          rs = stmt.executeQuery(sql);
       } catch (Exception e) {
          System.out.println("   [-] Failure when executing query: " + sql);
@@ -398,6 +402,7 @@ public class Server {
             + "CURRENT_TIMESTAMP );";
 
       try {
+    	 Statement stmt = null;
          stmt.executeUpdate(sql);
       } catch (Exception e) {
          System.out.println("Failed to execute query: " + sql);

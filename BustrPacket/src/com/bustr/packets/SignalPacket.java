@@ -7,7 +7,7 @@ public class SignalPacket extends BustrPacket {
     */
 	public enum BustrSignal {
 		FAILURE, SUCCESS, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_COUNT, NEW_USER, USER_AUTH
-	}
+	} 
 
 	private static final long serialVersionUID = 1L;
 	private BustrSignal signal;

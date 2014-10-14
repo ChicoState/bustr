@@ -11,7 +11,7 @@ public class FlagPacket extends BustrPacket{
 	private BustrFlag flag;
 	
 	public FlagPacket(FlagPacket.BustrFlag pFlag){
-		flag = pFlag;
+		flag = pFlag; 
 	}
 
 	public BustrFlag getFlag() {
