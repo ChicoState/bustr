@@ -161,6 +161,7 @@ public class Server {
                } else {
                   System.out
                         .println("YARR MATIE THAT BE AN UNRECOGNIZED PACKET TYPE: FATAL SHIVER ME TIMBERS ERROR");
+                  System.out.println(packet.getClass().getName());
                   sendFailure(output);
                }
                System.out.println("   Closing socket and input output streams.");
