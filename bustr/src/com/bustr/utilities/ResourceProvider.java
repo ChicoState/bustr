@@ -8,6 +8,8 @@ public class ResourceProvider {
    private static ResourceProvider self = null;
    private static Context context;
    private Typeface fontopo;
+   private static final String server = "50.137.32.127";
+   private static final int port = 8000;
 
    public static ResourceProvider instance(Context c) {
       context = c;
@@ -22,6 +24,14 @@ public class ResourceProvider {
 
    public Typeface getFont() {
       return fontopo;
+   }   
+   
+   public String getServer() {
+      return server;
+   }
+
+   public int getPort() {
+      return port;
    }
 
 }
