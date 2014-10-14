@@ -4,6 +4,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import android.app.Activity;
@@ -18,6 +20,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -114,7 +117,8 @@ public class CameraActivity extends Activity implements LocationListener {
       if (camFront && camBack) {
          cam = sharedPrefs.getInt("camera",
                Camera.CameraInfo.CAMERA_FACING_BACK);
-      } else {
+      }
+      else {
          cam = 0;
       }
       locMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -147,9 +151,9 @@ public class CameraActivity extends Activity implements LocationListener {
       pictureCallbackJPG = new PictureCallback() {
          @Override
          public void onPictureTaken(final byte[] pBytes, Camera cam) {
-//            Camera.Parameters params = cam.getParameters();
-// TODO:            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-//            cam.setParameters(params);
+            // Camera.Parameters params = cam.getParameters();
+            // TODO: params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            // cam.setParameters(params);
             bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
@@ -159,7 +163,8 @@ public class CameraActivity extends Activity implements LocationListener {
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
                      getCaptionFromUser();
-                  } else if (v.getId() == R.id.btn_discard) {
+                  }
+                  else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
@@ -196,7 +201,8 @@ public class CameraActivity extends Activity implements LocationListener {
                }
                takingPicture = true;
                mCamera.autoFocus(autoFocusCallback);
-            } else {
+            }
+            else {
                promptEnableGPS();
             }
          }
@@ -259,7 +265,8 @@ public class CameraActivity extends Activity implements LocationListener {
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.SUCCESS) {
             result_message = "Upload Successful";
-         } else if (result == BustrSignal.FAILURE) {
+         }
+         else if (result == BustrSignal.FAILURE) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -272,7 +279,8 @@ public class CameraActivity extends Activity implements LocationListener {
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
-      } else {
+      }
+      else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
                .commit();
       }
@@ -331,7 +339,27 @@ public class CameraActivity extends Activity implements LocationListener {
       Log.d(LOGTAG, "OnResume");
 
       mCamera = Camera.open(cam);
+      Camera.Parameters params = mCamera.getParameters();
+      List<Size> imageSizes = params.getSupportedPictureSizes();
+      Collections.reverse(imageSizes);
+      Size currentSize = params.getPictureSize();      
+      for (Size size : imageSizes) {
+         Log.d(LOGTAG, size.width + " x " + size.height);
+         if (size.width <= 1024) {
+            currentSize = size;
+         }
+         else {
+            Toast.makeText(
+                  CameraActivity.this,
+                  "Picture size: " + currentSize.width + " x "
+                        + currentSize.height, Toast.LENGTH_SHORT).show();
+            break;
+         }
+      }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
+      params.set("orientation", "portrait");      
+      params.setPictureSize(currentSize.width, currentSize.height);
+      mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
             !(camFront && camBack));

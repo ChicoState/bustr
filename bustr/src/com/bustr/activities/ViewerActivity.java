@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ public class ViewerActivity extends FragmentActivity {
 
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
-
+      pager.setOffscreenPageLimit(9);
       new PrepareDownload().execute();
    }
 
@@ -82,7 +83,7 @@ public class ViewerActivity extends FragmentActivity {
             output.flush();
             input = new ObjectInputStream(socket.getInputStream());
             output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
-                  39.7296f, -121.835f));
+                  39.733f, -121.861f));
             imageCountPacket = (SignalPacket) input.readObject();
          } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -120,8 +121,8 @@ public class ViewerActivity extends FragmentActivity {
          while (true) {
             try {
                packet = (BustrPacket) input.readObject();
-               if (packet instanceof ImagePacket) {                  
-                  onProgressUpdate((ImagePacket)packet);
+               if (packet instanceof ImagePacket) {
+                  onProgressUpdate((ImagePacket) packet);
                }
                else if (packet instanceof SignalPacket) {
                   return ((SignalPacket) packet).getSignal();
@@ -142,7 +143,12 @@ public class ViewerActivity extends FragmentActivity {
       protected void onProgressUpdate(ImagePacket... values) {
          byte[] data = values[0].getData();
          final String caption = values[0].getCaption();
-         final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+         BitmapFactory.Options options = new BitmapFactory.Options();
+         options.inJustDecodeBounds = false;
+         options.inPreferredConfig = Config.RGB_565;
+         options.inDither = true;
+         final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length,
+               options);
          super.onProgressUpdate(values);
          runOnUiThread(new Runnable() {
             @Override
