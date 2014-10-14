@@ -126,7 +126,7 @@ public class ServerTest2 {
 	@Test
 	public void upVoteTest() {
 		try {
-			String imagePath = "10.jpg";
+			String imagePath = "7.jpg";
 			System.out
 					.println("[+] Sending upvote packet to server, with imagePath="
 							+ imagePath);

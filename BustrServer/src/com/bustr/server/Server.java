@@ -286,7 +286,7 @@ public class Server {
             + Float.toString(spacket.getLat() + epsilon)
             + ", 4) AND lng BETWEEN ROUND("
             + Float.toString(spacket.getLng() - epsilon) + ", 4) AND ROUND("
-            + Float.toString(spacket.getLng() + epsilon) + ",4) ORDER BY rep;";
+            + Float.toString(spacket.getLng() + epsilon) + ",4) ORDER BY rep ASC;";
       System.out.println("   Sending stmt to db");
       System.out.println("       " + sql);
 
