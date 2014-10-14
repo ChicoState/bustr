@@ -41,7 +41,7 @@ public class Server {
 	private static final float epsilon = 0.0005f;
 	private BustrPacket packet;
 	private static Connection connection;
-	private Statement stmt;
+	private static Statement stmt;
 	private static ResultSet rs;
 	private static int imageNum = 0;
 
@@ -58,7 +58,14 @@ public class Server {
 		p.put("user", "root");
 		p.put("password", "root");
 		connection = DriverManager.getConnection(CONNECTION, p);
-
+		try {
+			stmt = connection.createStatement(
+					ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+		} catch (Exception e) {
+			System.out.println("[-] Statement creation failure.");
+			e.printStackTrace();
+		}
 		System.out.printf("listening on port %d...\n", port);
 		try {
 			ss = new ServerSocket(port);
@@ -118,15 +125,6 @@ public class Server {
 						socket.getOutputStream());
 				ObjectInputStream input = new ObjectInputStream(
 						socket.getInputStream());
-				Statement stmt;
-				try {
-					stmt = connection.createStatement(
-							ResultSet.TYPE_SCROLL_INSENSITIVE,
-							ResultSet.CONCUR_READ_ONLY);
-				} catch (Exception e) {
-					System.out.println("[-] Statement creation failure.");
-					e.printStackTrace();
-				}
 				try {
 					try {
 						System.out.print("   Getting incomming data");
@@ -199,18 +197,8 @@ public class Server {
 		p.put("user", "root");
 		p.put("password", "root");
 		connection = DriverManager.getConnection(CONNECTION, p);
-		Statement stmt = null;
-		try {
-			stmt = connection.createStatement(
-					ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_READ_ONLY);
-		} catch (Exception e) {
-			System.out.println("[-] Statement creation failure.");
-			e.printStackTrace();
-		}
 		String sql = "SELECT * FROM users WHERE userId=\"" + username
 				+ "\" and userPass=\"" + password + "\";";
-
 		try {
 
 			rs = stmt.executeQuery(sql);
@@ -244,15 +232,6 @@ public class Server {
 		p.put("user", "root");
 		p.put("password", "root");
 		connection = DriverManager.getConnection(CONNECTION, p);
-		Statement stmt = null;
-		try {
-			stmt = connection.createStatement(
-					ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_READ_ONLY);
-		} catch (Exception e) {
-			System.out.println("[-] Statement creation failure.");
-			e.printStackTrace();
-		}
 		String sql = "INSERT INTO users VALUES ( \"" + username + "\", \""
 				+ password + "\" );";
 
@@ -277,7 +256,6 @@ public class Server {
 				+ "\"uploads/" + spacket.getImageName() + "\";";
 		try {
 			System.out.println("   Executing query: " + sql);
-			Statement stmt = null;
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("   [-] Failed to execute query: " + sql);
@@ -294,7 +272,6 @@ public class Server {
 				+ "\"uploads/" + spacket.getImageName() + "\";";
 		try {
 			System.out.println("   Executing query: " + sql);
-			Statement stmt = null;
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("   [-] Failed to execute query: " + sql);
@@ -307,6 +284,7 @@ public class Server {
 	private void handleImageRequest(SignalPacket spacket,
 			ObjectOutputStream output) throws SQLException {
 
+		System.out.println("HANDLE UP VOTE TEST");
 		ImagePacket outpacket = null;
 		Vector<String> outMessages = null;
 		int imageCount = 0;
@@ -323,15 +301,6 @@ public class Server {
 		System.out.println("       " + sql);
 
 		try {
-			Statement stmt = null;
-			try {
-				stmt = connection.createStatement(
-						ResultSet.TYPE_SCROLL_INSENSITIVE,
-						ResultSet.CONCUR_READ_ONLY);
-			} catch (Exception e) {
-				System.out.println("[-] Statement creation failure.");
-				e.printStackTrace();
-			}
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
 			System.out.println("   [-] Failure when executing query: " + sql);
@@ -451,15 +420,6 @@ public class Server {
 				+ "CURRENT_TIMESTAMP );";
 
 		try {
-			Statement stmt = null;
-			try {
-				stmt = connection.createStatement(
-						ResultSet.TYPE_SCROLL_INSENSITIVE,
-						ResultSet.CONCUR_READ_ONLY);
-			} catch (Exception e) {
-				System.out.println("[-] Statement creation failure.");
-				e.printStackTrace();
-			}
 			stmt.executeUpdate(sql);
 		} catch (Exception e) {
 			System.out.println("Failed to execute query: " + sql);

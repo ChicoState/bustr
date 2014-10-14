@@ -42,7 +42,7 @@ public class ServerTest2 {
 		try {
 			String imagePath = "/home/bustr/Desktop/Yoda.jpg";
 			System.out
-					.println("[+] Sending upload packet to server, with imagePath="
+					.println("UPLOAD IMAGE TEST, with imagePath="
 							+ imagePath);
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(
@@ -84,7 +84,7 @@ public class ServerTest2 {
 	public void userAuthTest() {
 		try {
 			System.out
-					.println("[+] Sending userAuth signal to server");
+					.println("[+] USER AUTH TEST");
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(
 					sock.getOutputStream());
@@ -126,9 +126,9 @@ public class ServerTest2 {
 	@Test
 	public void upVoteTest() {
 		try {
-			String imagePath = "7.jpg";
+			String imagePath = "0.jpg";
 			System.out
-					.println("[+] Sending upvote packet to server, with imagePath="
+					.println("[+] IMAGE UPVOTE TEST, with imagePath="
 							+ imagePath);
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(
@@ -169,9 +169,9 @@ public class ServerTest2 {
 	@Test
 	public void downVoteTest() {
 		try {
-			String imagePath = "11.jpg";
+			String imagePath = "0.jpg";
 			System.out
-					.println("[+] Sending upvote packet to server, with imagePath="
+					.println("[+] IMAGE DOWNVOTE TEST, with imagePath="
 							+ imagePath);
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(
@@ -215,7 +215,7 @@ public class ServerTest2 {
 			String username = "darth";
 			String pass = "vader";
 			System.out
-					.println("[+] Sending new user test, with username" 
+					.println("[+] NEW USER TEST, with username" 
 							+ username + " and pass "
 							+ pass);
 			Socket sock = new Socket("localhost", 8000);
@@ -255,7 +255,7 @@ public class ServerTest2 {
 	@Test
 	public void requestSignalTest() {
 		try {
-			System.out.println("Sending request packet to server.");
+			System.out.println("[+] IMAGE REQUEST TEST");
 			Socket sock = new Socket("localhost", 8000);
 			ObjectOutputStream output = new ObjectOutputStream(
 					sock.getOutputStream());
