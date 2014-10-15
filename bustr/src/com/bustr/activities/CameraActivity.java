@@ -144,8 +144,7 @@ public class CameraActivity extends Activity {
       if (camFront && camBack) {
          cam = sharedPrefs.getInt("camera",
                Camera.CameraInfo.CAMERA_FACING_BACK);
-      }
-      else {
+      } else {
          cam = 0;
       }
 
@@ -189,8 +188,7 @@ public class CameraActivity extends Activity {
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
                      getCaptionFromUser();
-                  }
-                  else if (v.getId() == R.id.btn_discard) {
+                  } else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
@@ -227,8 +225,7 @@ public class CameraActivity extends Activity {
                }
                takingPicture = true;
                mCamera.autoFocus(autoFocusCallback);
-            }
-            else {
+            } else {
                promptEnableGPS();
             }
          }
@@ -293,8 +290,7 @@ public class CameraActivity extends Activity {
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.SUCCESS) {
             result_message = "Upload Successful";
-         }
-         else if (result == BustrSignal.FAILURE) {
+         } else if (result == BustrSignal.FAILURE) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -307,8 +303,7 @@ public class CameraActivity extends Activity {
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
-      }
-      else {
+      } else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
                .commit();
       }

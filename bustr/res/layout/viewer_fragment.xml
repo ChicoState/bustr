@@ -13,9 +13,11 @@
         android:layout_centerVertical="true"
         android:visibility="visible" />
     
+    
+    
     <ImageView
         android:id="@+id/viewerImage"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
 
@@ -27,5 +29,23 @@
         android:layout_height="wrap_content"
         android:visibility="gone"        
         android:text="test"/>
+
+    <Button
+        android:id="@+id/upvote"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="+1" />
+
+    <Button
+        android:id="@+id/downvote"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="-1" />
 
 </RelativeLayout>

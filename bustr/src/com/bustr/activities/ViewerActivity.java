@@ -8,11 +8,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,27 +35,44 @@ import com.bustr.utilities.BustrViewerAdapter;
 
 public class ViewerActivity extends FragmentActivity {
 
-   private ArrayList<Bitmap> images = new ArrayList<Bitmap>();
    private ViewPager pager;
    private BustrViewerAdapter adapter;
 
    private Socket socket;
    private ObjectOutputStream output;
    private ObjectInputStream input;
-   
+
    private LocationManager lm;
-   
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_viewer);
 
-      lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-      
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+            new LocationListener() {
+               @Override
+               public void onStatusChanged(String provider, int status,
+                     Bundle extras) {
+               }
+
+               @Override
+               public void onProviderEnabled(String provider) {
+               }
+
+               @Override
+               public void onProviderDisabled(String provider) {
+               }
+
+               @Override
+               public void onLocationChanged(Location location) {
+               }
+            });
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
       pager.setOffscreenPageLimit(9);
-      new PrepareDownload().execute();
+      new PreparePager().execute();
    }
 
    @Override
@@ -74,18 +94,18 @@ public class ViewerActivity extends FragmentActivity {
       return super.onOptionsItemSelected(item);
    }
 
-   private class PrepareDownload extends AsyncTask<Void, Void, Integer> {
+   private class PreparePager extends AsyncTask<Void, Void, Vector<String>> {
 
       private SignalPacket imageCountPacket;
 
       @Override
-      protected Integer doInBackground(Void... arg0) {
+      protected Vector<String> doInBackground(Void... arg0) {
          try {
             socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
             output = new ObjectOutputStream(socket.getOutputStream());
             output.flush();
             input = new ObjectInputStream(socket.getInputStream());
-            output.writeObject(new SignalPacket(BustrSignal.IMAGE_REQUEST,
+            output.writeObject(new SignalPacket(BustrSignal.IMAGE_LIST_REQUEST,
                   BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
             imageCountPacket = (SignalPacket) input.readObject();
          } catch (UnknownHostException e) {
@@ -95,86 +115,16 @@ public class ViewerActivity extends FragmentActivity {
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          }
-         return imageCountPacket.getImageCount();
+         return imageCountPacket.getImageList();
       }
 
       @Override
-      protected void onPostExecute(Integer result) {
+      protected void onPostExecute(Vector<String> result) {
          super.onPostExecute(result);
          adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
          pager.setAdapter(adapter);
          Toast.makeText(ViewerActivity.this, result + " images found.",
                Toast.LENGTH_LONG).show();
-         new Downloader().execute();
-      }
-   }
-
-   private class Downloader extends AsyncTask<Void, ImagePacket, BustrSignal> {
-
-      BustrPacket packet;
-      int imageNum = 0;
-
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-      }
-
-      @Override
-      protected BustrSignal doInBackground(Void... params) {
-         while (true) {
-            try {
-               packet = (BustrPacket) input.readObject();
-               if (packet instanceof ImagePacket) {
-                  onProgressUpdate((ImagePacket) packet);
-               }
-               else if (packet instanceof SignalPacket) {
-                  return ((SignalPacket) packet).getSignal();
-               }
-            } catch (OptionalDataException e) {
-               e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-               e.printStackTrace();
-            } catch (IOException e) {
-               e.printStackTrace();
-            } catch (AssertionError ae) {
-               ae.printStackTrace();
-            }
-         }
-      }
-
-      @Override
-      protected void onProgressUpdate(ImagePacket... values) {
-         byte[] data = values[0].getData();
-         final String caption = values[0].getCaption();
-         BitmapFactory.Options options = new BitmapFactory.Options();
-         options.inJustDecodeBounds = false;
-         options.inPreferredConfig = Config.RGB_565;
-         options.inDither = true;
-         final Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length,
-               options);
-         super.onProgressUpdate(values);
-         runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-               adapter.setImage(imageNum++, bmp, caption);
-               adapter.notifyDataSetChanged();
-            }
-         });
-      }
-
-      @Override
-      protected void onPostExecute(BustrSignal result) {
-         super.onPostExecute(result);
-         if (result == BustrSignal.SUCCESS) {
-            Toast.makeText(ViewerActivity.this,
-                  "Downloaded " + images.size() + "images.", Toast.LENGTH_LONG)
-                  .show();
-         }
-         try {
-            socket.close();
-         } catch (IOException e) {
-            e.printStackTrace();
-         }
       }
    }
 }
