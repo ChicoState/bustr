@@ -11,7 +11,7 @@ public class ImagePacket extends BustrPacket {
     * 
     */
 	private static final long serialVersionUID = 1L;
-	private Vector messages;
+	private Vector<String> messages;
 	private String name;
 	private byte[] data;
 	private float lat, lng;
@@ -25,11 +25,11 @@ public class ImagePacket extends BustrPacket {
 	}
 	
 	
-	public Vector getMessages() {
+	public Vector<String> getMessages() {
 		return messages;
 	}
 
-	public void setMessages(Vector messages) {
+	public void setMessages(Vector<String> messages) {
 		this.messages = messages;
 	}
 
