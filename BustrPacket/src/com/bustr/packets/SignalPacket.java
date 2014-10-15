@@ -14,7 +14,7 @@ public class SignalPacket extends BustrPacket {
       IMAGE_REQUEST, 
       REP_UPVOTE, 
       REP_DOWNVOTE, 
-      IMAGE_COUNT, 
+      IMAGE_LIST, 
       NEW_USER, 
       USER_AUTH
    }
@@ -30,7 +30,7 @@ public class SignalPacket extends BustrPacket {
       return imageList;
    }
 
-   public void setImageCount(Vector<String> pImageList) {
+   public void setImageList(Vector<String> pImageList) {
       this.imageList = pImageList;
    }
 
@@ -76,6 +76,12 @@ public class SignalPacket extends BustrPacket {
 
    public SignalPacket(BustrSignal pSignal) {
       signal = pSignal;
+   }
+   
+   public SignalPacket(Vector<String> pImageList)
+   {
+	   signal = BustrSignal.IMAGE_LIST;
+	   imageList = pImageList;
    }
 
    public SignalPacket(BustrSignal pSignal, float pLat, float pLng) {
