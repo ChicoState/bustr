@@ -45,13 +45,14 @@ public class ImagePacket extends BustrPacket {
 	}
 
 	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
-			String pCaption, int pRep) {
+			String pCaption, int pRep, String pImageName) {
 		userName = pName;
 		data = pData;
 		lat = pLat;
 		lng = pLng;
 		caption = pCaption;
 		rep = pRep;
+		imageName = pImageName;
 	}
 
 	@Override
