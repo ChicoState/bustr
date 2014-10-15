@@ -12,8 +12,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -45,14 +54,15 @@ public class Server {
 	private static ResultSet rs;
 	private static int imageNum = 0;
 
-	public Server() throws ClassNotFoundException, SQLException {
+	
+	
+	public Server() throws ClassNotFoundException, SQLException, IOException {
 
 		for (int i = 0; new File("uploads/" + i + ".jpg").isFile(); i++) {
 			imageNum = i + 1;
 		}
 
 		System.out.printf("Connecting to database\n");
-
 		Class.forName(dbClassName);
 		Properties p = new Properties();
 		p.put("user", "root");
@@ -66,7 +76,11 @@ public class Server {
 			System.out.println("[-] Statement creation failure.");
 			e.printStackTrace();
 		}
+
+		if(!new File("private.key").isFile()) generateKeyPair();
+		
 		System.out.printf("listening on port %d...\n", port);
+
 		try {
 			ss = new ServerSocket(port);
 		} catch (IOException e1) {
@@ -79,6 +93,20 @@ public class Server {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private void saveToFile(String fileName, BigInteger mod, BigInteger exp)
+			throws IOException {
+		ObjectOutputStream oout = new ObjectOutputStream(
+				new BufferedOutputStream(new FileOutputStream(fileName)));
+		try {
+			oout.writeObject(mod);
+			oout.writeObject(exp);
+		} catch (Exception e) {
+			throw new IOException("Unexpected error", e);
+		} finally {
+			oout.close();
 		}
 	}
 
@@ -102,7 +130,7 @@ public class Server {
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException,
-			SQLException {
+			SQLException, IOException {
 		Server server = new Server();
 	}
 
@@ -223,8 +251,7 @@ public class Server {
 	}
 
 	public static boolean handleNewUser(SignalPacket spacket,
-			ObjectOutputStream output) throws ClassNotFoundException,
-			SQLException {
+			ObjectOutputStream output) throws SQLException, ClassNotFoundException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
 		Class.forName(dbClassName);
@@ -273,18 +300,19 @@ public class Server {
 		try {
 			System.out.println("   Executing query: " + sql);
 			stmt.executeUpdate(sql);
+			sendSuccess(output);
 		} catch (Exception e) {
 			System.out.println("   [-] Failed to execute query: " + sql);
 			sendFailure(output);
 			e.printStackTrace();
-		}
-		sendSuccess(output);
+		} 
+
+	
 	}
 
 	private void handleImageRequest(SignalPacket spacket,
 			ObjectOutputStream output) throws SQLException {
-
-		System.out.println("HANDLE UP VOTE TEST");
+		System.out.println("[+] Handling image request");
 		ImagePacket outpacket = null;
 		Vector<String> outMessages = null;
 		int imageCount = 0;
@@ -454,10 +482,17 @@ public class Server {
 	private static void sendFailure(ObjectOutputStream output) {
 		try {
 			output.writeObject(new SignalPacket(
-					SignalPacket.BustrSignal.SUCCESS));
+					SignalPacket.BustrSignal.FAILURE));
 		} catch (Exception e) {
-			System.out.println("[-] BustrSignal SUCCESS failure.");
+			System.out.println("[-] BustrSignal FAILURE.");
 			e.printStackTrace();
+		} finally {
+			try {
+				output.flush();
+			} catch (IOException e) {
+				System.out.println("[-] Failed to send FAILURE");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -466,6 +501,50 @@ public class Server {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		return dateFormat.format(date);
+
+	}
+	
+	private void generateKeyPair() throws IOException
+	{
+		System.out.println("[+] Generating new public-private keypair");
+		KeyPairGenerator kpg = null;
+		try {
+			kpg = KeyPairGenerator.getInstance("RSA");
+		} catch (NoSuchAlgorithmException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		kpg.initialize(2048);
+		KeyPair kp = kpg.genKeyPair();
+		Key publicKey = kp.getPublic();
+		Key privateKey = kp.getPrivate();
+
+		KeyFactory fact = null;
+		try {
+			fact = KeyFactory.getInstance("RSA");
+		} catch (NoSuchAlgorithmException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		RSAPublicKeySpec pub = null;
+		try {
+			pub = fact.getKeySpec(kp.getPublic(),
+					RSAPublicKeySpec.class);
+		} catch (InvalidKeySpecException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		RSAPrivateKeySpec priv = null;
+		try {
+			priv = fact.getKeySpec(kp.getPrivate(),
+					RSAPrivateKeySpec.class);
+		} catch (InvalidKeySpecException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		saveToFile("public.key", pub.getModulus(), pub.getPublicExponent());
+		saveToFile("private.key", priv.getModulus(), priv.getPrivateExponent());
 
 	}
 
