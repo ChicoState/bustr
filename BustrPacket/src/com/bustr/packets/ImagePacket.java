@@ -12,7 +12,8 @@ public class ImagePacket extends BustrPacket {
     */
 	private static final long serialVersionUID = 1L;
 	private Vector<String> messages;
-	private String name;
+	private String userName;
+	private String imageName;
 	private byte[] data;
 	private float lat, lng;
 	private String caption;
@@ -35,7 +36,7 @@ public class ImagePacket extends BustrPacket {
 
 	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
 			String pCaption) {
-		name = pName;
+		userName = pName;
 		data = pData;
 		lat = pLat;
 		lng = pLng;
@@ -45,7 +46,7 @@ public class ImagePacket extends BustrPacket {
 
 	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
 			String pCaption, int pRep) {
-		name = pName;
+		userName = pName;
 		data = pData;
 		lat = pLat;
 		lng = pLng;
@@ -55,7 +56,7 @@ public class ImagePacket extends BustrPacket {
 
 	@Override
 	public String toString() {
-		String s = name + ": " + lat + " : " + lng + " : " + caption;
+		String s = userName + ": " + lat + " : " + lng + " : " + caption;
 		return s;
 	}
 
@@ -64,7 +65,7 @@ public class ImagePacket extends BustrPacket {
 	}
 
 	public String getName() {
-		return name;
+		return userName;
 	}
 
 	public float getLat() {
@@ -81,6 +82,14 @@ public class ImagePacket extends BustrPacket {
 
 	public int getRep() {
 		return rep;
+	}
+	
+	public void setImageName(String name) {
+	   imageName = name;
+	}
+	
+	public String getImageName() {
+	   return imageName;
 	}
 
 }
