@@ -31,13 +31,12 @@
         android:text="Snap"
         android:textSize="30sp" />
     
-    <Button
+    <ImageView
         android:id="@+id/btn_flip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:background="@drawable/switchcamera32"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_gravity="right|top"
-        android:text="Flip"
-        android:textSize="30sp" 
         android:visibility="gone"/>
     
 

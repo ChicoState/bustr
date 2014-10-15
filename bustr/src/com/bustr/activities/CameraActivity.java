@@ -35,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -97,7 +98,7 @@ public class CameraActivity extends Activity {
    private ToggleButton btn_flash;
    private Button btn_discard;
    private Button btn_snap;
-   private Button btn_flip;
+   private ImageView btn_flip;
    private Button btn_keep;
    private ProgressBar progress;
 
@@ -152,7 +153,7 @@ public class CameraActivity extends Activity {
       Typeface tf = ResourceProvider.instance(getApplicationContext())
             .getFont();
       btn_snap = (Button) findViewById(R.id.btn_snap);
-      btn_flip = (Button) findViewById(R.id.btn_flip);
+      btn_flip = (ImageView) findViewById(R.id.btn_flip);
       btn_keep = (Button) findViewById(R.id.btn_keep);
       btn_discard = (Button) findViewById(R.id.btn_discard);
       btn_flash = (ToggleButton) findViewById(R.id.btn_flash);
