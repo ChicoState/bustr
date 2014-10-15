@@ -16,7 +16,7 @@ public class ImagePacket extends BustrPacket {
 	private String imageName;
 	private byte[] data;
 	private float lat, lng;
-	private String caption;
+	private String caption; 
 	private int rep = 0;
 
 	
