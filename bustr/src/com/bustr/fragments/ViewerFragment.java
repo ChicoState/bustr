@@ -35,7 +35,7 @@ public class ViewerFragment extends Fragment {
    // Fields -------------------------------------------------------------------
    private static final String LOGTAG = "BUSTR";
    private String imageName;
-   private Bitmap image;
+   private Bitmap image;   
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
@@ -67,7 +67,8 @@ public class ViewerFragment extends Fragment {
          public void onClick(View v) {
             if (v.getId() == R.id.upvote) {
                new Voter(BustrSignal.REP_UPVOTE);
-            } else {
+            }
+            else {
                new Voter(BustrSignal.REP_DOWNVOTE);
             }
          }
@@ -86,7 +87,7 @@ public class ViewerFragment extends Fragment {
       viewerCaption.setText(imagePacket.getCaption());
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      assert(image != null);
+      assert (image != null);
       viewerCaption.setVisibility(View.VISIBLE);
       try {
          viewerImage.setImageBitmap(image);
@@ -138,7 +139,8 @@ public class ViewerFragment extends Fragment {
          String message = null;
          if (result.getSignal() == BustrSignal.SUCCESS) {
             message = "successful";
-         } else if (result.getSignal() == BustrSignal.FAILURE) {
+         }
+         else if (result.getSignal() == BustrSignal.FAILURE) {
             message = "failed";
          }
          Toast.makeText(rootView.getContext(), "Vote " + message,
@@ -182,5 +184,9 @@ public class ViewerFragment extends Fragment {
          setImage(result);
       }
 
+   }
+
+   public void recycleImage() {
+      image.recycle();
    }
 }
