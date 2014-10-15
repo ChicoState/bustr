@@ -279,8 +279,8 @@ public class Server {
 	private void handleDownvote(SignalPacket spacket, ObjectOutputStream output) {
 		System.out.println("   Downvoting " + pathPrefix
 				+ spacket.getImageName());
-		String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath="
-				+ "\"uploads/" + spacket.getImageName() + "\";";
+		String sql = "UPDATE imageData SET rep = (rep - 1) WHERE imagePath=\""
+				+ spacket.getImageName() + "\";";
 		try {
 			System.out.println("   Executing query: " + sql);
 			stmt.executeUpdate(sql);
@@ -295,8 +295,8 @@ public class Server {
 	private void handleUpvote(SignalPacket spacket, ObjectOutputStream output) {
 		System.out.println("   Upvoting " + pathPrefix + "uploads/"
 				+ spacket.getImageName());
-		String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath="
-				+ "\"uploads/" + spacket.getImageName() + "\";";
+		String sql = "UPDATE imageData SET rep = (rep + 1) WHERE imagePath=\""
+				+ spacket.getImageName() + "\";";
 		try {
 			System.out.println("   Executing query: " + sql);
 			stmt.executeUpdate(sql);
@@ -356,7 +356,7 @@ public class Server {
 			System.out.println("   Getting ready to send image response #"
 					+ Integer.toString(i));
 			String commentPath = pathPrefix + rs.getString("commentPath");
-			String imagePath = pathPrefix + rs.getString("imagePath");
+			String imagePath = rs.getString("imagePath");
 			String userName = rs.getString("userName");
 			Float lat = rs.getFloat("Lat");
 			Float lng = rs.getFloat("Lng");
@@ -367,7 +367,7 @@ public class Server {
 				data = extractBytes(imagePath);
 			} catch (Exception e) {
 				System.out
-						.println("[-] Failed to retrieve image from /home/bustr/Desktop/"
+						.println("[-] Failed to retrieve image from "
 								+ imagePath);
 			}
 
@@ -381,14 +381,14 @@ public class Server {
 				br.close();
 			} catch (Exception e) {
 				System.out
-						.println("[-] Failed to retrice comment file from /home/bustr/Desktop/"
+						.println("[-] Failed to retrice comment file from "
 								+ commentPath);
 				e.printStackTrace();
 			}
 
 			try {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
-						rep);
+						rep, imagePath);
 				if (outMessages != null)
 					outpacket.setMessages(outMessages);
 				else
@@ -402,13 +402,14 @@ public class Server {
 				output.writeObject(outpacket);
 				output.flush();
 				System.out.println("   Done!\n");
+				sendSuccess(output);
 			} catch (Exception e) {
 				System.out.println("   [-] Failed to send ImagePacket");
 				e.printStackTrace();
+				sendFailure(output);
 			}
 
 		}
-		sendSuccess(output);
 	}
 
 	private void handleIncomingImage(ImagePacket ipacket) throws IOException {
