@@ -17,16 +17,20 @@
     
     <ImageView
         android:id="@+id/viewerImage"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/viewerCaption"
-        style="@style/ShadowText"
-        android:layout_alignBottom="@id/viewerImage"
+        style="@style/ShadowText" 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="25sp"       
+        android:layout_alignTop="@id/viewerImage"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:layout_centerHorizontal="true"
         android:visibility="gone"        
         android:text="test"/>
 

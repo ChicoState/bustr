@@ -123,7 +123,7 @@ public class ViewerActivity extends FragmentActivity {
          super.onPostExecute(result);
          adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
          pager.setAdapter(adapter);
-         Toast.makeText(ViewerActivity.this, result + " images found.",
+         Toast.makeText(ViewerActivity.this, result.size() + " images found.",
                Toast.LENGTH_LONG).show();
       }
    }

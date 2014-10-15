@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,7 +36,7 @@ public class ViewerFragment extends Fragment {
    // Fields -------------------------------------------------------------------
    private static final String LOGTAG = "BUSTR";
    private String imageName;
-   private Bitmap image;   
+   private Bitmap image;
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
@@ -87,10 +88,15 @@ public class ViewerFragment extends Fragment {
       viewerCaption.setText(imagePacket.getCaption());
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      assert (image != null);
+      Matrix mtx = new Matrix();
+      mtx.postRotate(90);
+      float scale = (float)viewerImage.getMeasuredWidth() / image.getWidth();
+      mtx.postScale(scale, scale);
+      Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
+            image.getHeight(), mtx, true);  
       viewerCaption.setVisibility(View.VISIBLE);
       try {
-         viewerImage.setImageBitmap(image);
+         viewerImage.setImageBitmap(rotated);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }
