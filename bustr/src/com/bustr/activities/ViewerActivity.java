@@ -71,7 +71,7 @@ public class ViewerActivity extends FragmentActivity {
             });
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
-      pager.setOffscreenPageLimit(9);
+      pager.setOffscreenPageLimit(5);
       new PreparePager().execute();
    }
 

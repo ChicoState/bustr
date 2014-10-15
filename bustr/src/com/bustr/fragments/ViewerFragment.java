@@ -78,21 +78,22 @@ public class ViewerFragment extends Fragment {
       upvote.setTypeface(tf);
       downvote.setTypeface(tf);
       viewerCaption.setTypeface(tf);
+      new Downloader().execute();
       return rootView;
    }
 
    public void setImage(ImagePacket imagePacket) {
-      progress.setVisibility(View.GONE);
+      viewerCaption.setText(imagePacket.getCaption());
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      imageName = imagePacket.getImageName();
-      viewerCaption.setText(imagePacket.getCaption());
+      assert(image != null);
       viewerCaption.setVisibility(View.VISIBLE);
       try {
          viewerImage.setImageBitmap(image);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }
+      progress.setVisibility(View.GONE);
       viewerImage.setVisibility(View.VISIBLE);
    }
 
@@ -161,6 +162,9 @@ public class ViewerFragment extends Fragment {
             imgReq.setImageName(imageName);
             output.writeObject(imgReq);
             ImagePacket imagePacket = (ImagePacket) input.readObject();
+            output.close();
+            input.close();
+            socket.close();
             return imagePacket;
          } catch (UnknownHostException e) {
             e.printStackTrace();
