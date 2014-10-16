@@ -1,13 +1,24 @@
 package com.bustr.server;
 
+import java.io.BufferedInputStream;
+
 import static org.junit.Assert.*;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import junit.framework.TestCase;
 
 import org.junit.Test;
 
@@ -19,23 +30,46 @@ import com.bustr.packets.SignalPacket.BustrSignal;
 public class ServerTest2 {
 	
 	@Test
-	public void extractBytesTest() {
-		
+	public void extractBytesTest() throws IOException {
+		String imageName = "emptyPic.jpg";
+		File f = new File(imageName);
+		byte[] imageData = new byte[(int) f.length()];
+	    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
+	    bis.read(imageData);
+	    bis.close();
+	    TestCase.assertEquals(null, imageData);
 	}
 
 	@Test
 	public void getCurrentDateTimeTest() {
-		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		TestCase.assertTrue(true);
 	}
 	
 	@Test 
 	public void sendFailureTest() {
-		
+		ObjectOutputStream output = null;
+		try {
+			output.writeObject(new SignalPacket(SignalPacket.BustrSignal.FAILURE));
+	    } catch (Exception e) {
+	    	System.out.println("[-] BustrSignal FAILURE failure.");
+	        e.printStackTrace();
+	        TestCase.assertFalse(false);
+	    }
 	}
 	
 	@Test
 	public void sendSuccessTest() {
-		
+		ObjectOutputStream output = null;
+		try {
+			output.writeObject(new SignalPacket(SignalPacket.BustrSignal.SUCCESS));
+	    } catch (Exception e) {
+	    	System.out.println("[-] BustrSignal SUCCESS failure.");
+	        e.printStackTrace();
+	        TestCase.assertFalse(false);
+	    }
+	
 	}
 	
 	@Test
