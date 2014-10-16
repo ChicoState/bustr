@@ -385,8 +385,8 @@ public class CameraActivity extends Activity {
       params.setPictureSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-//      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
-//            !(camFront && camBack));
+      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
+            !(camFront && camBack));
       btn_flash.setChecked(false);
       preview.addView(mPreview);
    }
