@@ -79,6 +79,12 @@ public class SignalPacket extends BustrPacket {
 		signal = pSignal;
 	}
 
+	public SignalPacket(String newComment, String pImagePath) {
+		signal = BustrSignal.NEW_COMMENT;
+		comment = newComment;
+		imageName = pImagePath;
+	}
+	
 	public SignalPacket(Vector<String> pImageList) {
 		signal = BustrSignal.IMAGE_LIST;
 		imageList = pImageList;
