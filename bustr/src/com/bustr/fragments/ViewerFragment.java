@@ -42,6 +42,7 @@ public class ViewerFragment extends Fragment {
    private ViewGroup rootView = null;
    private Button upvote, downvote;
    private TextView viewerCaption;
+   private TextView repDisplay;
    private ImageView viewerImage;
    private ProgressBar progress;
 
@@ -59,6 +60,7 @@ public class ViewerFragment extends Fragment {
 
       // GUI element wiring ----------------------------------------------------
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
+      repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
       progress = (ProgressBar) rootView.findViewById(R.id.viewerProgress);
       viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
       downvote = (Button) rootView.findViewById(R.id.downvote);
@@ -80,12 +82,16 @@ public class ViewerFragment extends Fragment {
       upvote.setTypeface(tf);
       downvote.setTypeface(tf);
       viewerCaption.setTypeface(tf);
+      repDisplay.setTypeface(tf);
       new Downloader().execute();
       return rootView;
    }
 
    public void setImage(ImagePacket imagePacket) {
       viewerCaption.setText(imagePacket.getCaption());
+      repDisplay.setText(Integer.toString(imagePacket.getRep()));
+      viewerCaption.setVisibility(View.VISIBLE);
+      repDisplay.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
       Matrix mtx = new Matrix();
@@ -94,7 +100,6 @@ public class ViewerFragment extends Fragment {
       mtx.postScale(scale, scale);
       Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
             image.getHeight(), mtx, true);  
-      viewerCaption.setVisibility(View.VISIBLE);
       try {
          viewerImage.setImageBitmap(rotated);
       } catch (Exception e) {

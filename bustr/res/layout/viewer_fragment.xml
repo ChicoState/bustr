@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/super_light_blue"
     android:layout_gravity="center">    
 
     <ProgressBar
@@ -11,8 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:visibility="visible" />
-    
+        android:visibility="visible" />  
     
     
     <ImageView
@@ -42,7 +42,17 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="+1" />
-
+    
+    <TextView 
+        android:id="@+id/repDisplay"
+        style="@style/ShadowText" 
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:visibility="invisible"/>
+        
     <Button
         android:id="@+id/downvote"
         style="?android:attr/buttonStyleSmall"

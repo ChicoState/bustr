@@ -31,6 +31,7 @@ import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.BustrGrid;
+import com.bustr.utilities.BustrPageTransformer;
 import com.bustr.utilities.BustrViewerAdapter;
 
 public class ViewerActivity extends FragmentActivity {
@@ -71,7 +72,8 @@ public class ViewerActivity extends FragmentActivity {
             });
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
-      pager.setOffscreenPageLimit(5);
+      pager.setOffscreenPageLimit(10);
+      pager.setPageTransformer(true, new BustrPageTransformer());
       new PreparePager().execute();
    }
 
