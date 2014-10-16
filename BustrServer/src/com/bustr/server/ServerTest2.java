@@ -17,7 +17,27 @@ import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 
 public class ServerTest2 {
+	
+	@Test
+	public void extractBytesTest() {
+		
+	}
 
+	@Test
+	public void getCurrentDateTimeTest() {
+		
+	}
+	
+	@Test 
+	public void sendFailureTest() {
+		
+	}
+	
+	@Test
+	public void sendSuccessTest() {
+		
+	}
+	
 	@Test
 	public void upVoteTest() {
 		try {
