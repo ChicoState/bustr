@@ -4,105 +4,94 @@ import java.util.Vector;
 
 public class SignalPacket extends BustrPacket {
 
-   /**
+	/**
     * 
     */
-   public enum BustrSignal {
-      FAILURE, 
-      SUCCESS, 
-      IMAGE_LIST_REQUEST, 
-      IMAGE_REQUEST, 
-      REP_UPVOTE, 
-      REP_DOWNVOTE, 
-      IMAGE_LIST, 
-      NEW_USER, 
-      USER_AUTH,
-      NEW_COMMENT;
-   }
+	public enum BustrSignal {
+		FAILURE, SUCCESS, IMAGE_LIST_REQUEST, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_LIST, NEW_USER, USER_AUTH, NEW_COMMENT;
+	}
 
-   private static final long serialVersionUID = 1L;
-   private BustrSignal signal;
-   private float lat, lng;
-   private String imageName;
-   private String user, pass;
-   private Vector<String> imageList;
-   private String comment;
-   
-   public String getComment() {
-	return comment;
-}
+	private static final long serialVersionUID = 1L;
+	private BustrSignal signal;
+	private float lat, lng;
+	private String imageName;
+	private String user, pass;
+	private Vector<String> imageList;
+	private String comment;
 
-public void setComment(String comment) {
-	this.comment = comment;
-}
+	public String getComment() {
+		return comment;
+	}
 
-public Vector<String> getImageList() {
-      return imageList;
-   }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
-   public void setImageList(Vector<String> pImageList) {
-      this.imageList = pImageList;
-   }
-   
+	public Vector<String> getImageList() {
+		return imageList;
+	}
 
-   public String getUser() {
-      return user;
-   }
+	public void setImageList(Vector<String> pImageList) {
+		this.imageList = pImageList;
+	}
 
-   public void setUser(String user) {
-      this.user = user;
-   }
+	public String getUser() {
+		return user;
+	}
 
-   public String getPass() {
-      return pass;
-   }
+	public void setUser(String user) {
+		this.user = user;
+	}
 
-   public void setPass(String pass) {
-      this.pass = pass;
-   }
+	public String getPass() {
+		return pass;
+	}
 
-   public String getImageName() {
-      return imageName;
-   }
+	public void setPass(String pass) {
+		this.pass = pass;
+	}
 
-   public void setImageName(String imageName) {
-      this.imageName = imageName;
-   }
+	public String getImageName() {
+		return imageName;
+	}
 
-   public float getLat() {
-      return lat;
-   }
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
 
-   public void setLat(float lat) {
-      this.lat = lat;
-   }
+	public float getLat() {
+		return lat;
+	}
 
-   public float getLng() {
-      return lng;
-   }
+	public void setLat(float lat) {
+		this.lat = lat;
+	}
 
-   public void setLng(float lng) {
-      this.lng = lng;
-   }
+	public float getLng() {
+		return lng;
+	}
 
-   public SignalPacket(BustrSignal pSignal) {
-      signal = pSignal;
-   }
-   
-   public SignalPacket(Vector<String> pImageList)
-   {
-	   signal = BustrSignal.IMAGE_LIST;
-	   imageList = pImageList;
-   }
+	public void setLng(float lng) {
+		this.lng = lng;
+	}
 
-   public SignalPacket(BustrSignal pSignal, float pLat, float pLng) {
-      signal = pSignal;
-      lat = pLat;
-      lng = pLng;
-   }
+	public SignalPacket(BustrSignal pSignal) {
+		signal = pSignal;
+	}
 
-   public BustrSignal getSignal() {
-      return signal;
-   }
+	public SignalPacket(Vector<String> pImageList) {
+		signal = BustrSignal.IMAGE_LIST;
+		imageList = pImageList;
+	}
+
+	public SignalPacket(BustrSignal pSignal, float pLat, float pLng) {
+		signal = pSignal;
+		lat = pLat;
+		lng = pLng;
+	}
+
+	public BustrSignal getSignal() {
+		return signal;
+	}
 
 }
