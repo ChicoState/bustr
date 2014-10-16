@@ -218,26 +218,33 @@ public class Server {
 			}
 		}
 	}
-	
-	public static void handleNewComment(SignalPacket spacket, ObjectOutputStream output) throws IOException
-	{
+
+	public static void handleNewComment(SignalPacket spacket,
+			ObjectOutputStream output) throws IOException {
 		String newComment = spacket.getComment();
+		if (newComment.length() == 0) {
+			sendFailure(output);
+			System.out.println("[-] Received an empty comment");
+			return;
+		}
 		String user = spacket.getUser();
 		String imagePath = spacket.getImageName();
+		System.out.println("[+] Adding comment " + newComment + " to image "
+				+ imagePath);
 		File dir = new File(pathPrefix + "/uploads");
 		if (!dir.exists())
 			dir.mkdir();
-		FileWriter fw = new FileWriter("/comments/" + imagePath.substring(7));
-		PrintWriter pal = new PrintWriter(fw);
+		FileWriter fw = new FileWriter("comments/" + imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			pal.append(newComment);
+			fw.append(newComment + System.getProperty("line.separator"));
 		} catch (Exception e) {
-			System.out.println("[-] New comment write failure with comment " + newComment);
+			System.out.println("[-] New comment write failure with comment "
+					+ newComment);
 			e.printStackTrace();
 		}
 		fw.close();
-		pal.close();
-		
+		sendSuccess(output);
+
 	}
 
 	public static boolean handleUserAuth(SignalPacket spacket,
