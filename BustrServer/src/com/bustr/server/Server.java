@@ -54,8 +54,6 @@ public class Server {
 	private static ResultSet rs;
 	private static int imageNum = 0;
 
-	
-	
 	public Server() throws ClassNotFoundException, SQLException, IOException {
 
 		for (int i = 0; new File("uploads/" + i + ".jpg").isFile(); i++) {
@@ -77,8 +75,9 @@ public class Server {
 			e.printStackTrace();
 		}
 
-		if(!new File("private.key").isFile()) generateKeyPair();
-		
+		if (!new File("private.key").isFile())
+			generateKeyPair();
+
 		System.out.printf("listening on port %d...\n", port);
 
 		try {
@@ -89,6 +88,7 @@ public class Server {
 		while (true) {
 			try {
 				socket = ss.accept();
+				System.out.println("[+] Received a new packet");
 				Worker worker = new Worker(socket);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -146,7 +146,7 @@ public class Server {
 		@Override
 		public void run() {
 			try {
-				System.out.println("\n" + getCurrentDateTime());
+				System.out.println(getCurrentDateTime());
 				System.out.println("   Connected to "
 						+ socket.getInetAddress().getHostName());
 				ObjectOutputStream output = new ObjectOutputStream(
@@ -185,6 +185,8 @@ public class Server {
 							handleNewUser(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.USER_AUTH) {
 							handleUserAuth(spacket, output);
+						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
+							handleImageListRequest(spacket, output);
 						} else {
 							System.out.println("[-] Unrecognized signal type");
 							sendFailure(output);
@@ -251,7 +253,8 @@ public class Server {
 	}
 
 	public static boolean handleNewUser(SignalPacket spacket,
-			ObjectOutputStream output) throws SQLException, ClassNotFoundException {
+			ObjectOutputStream output) throws SQLException,
+			ClassNotFoundException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
 		Class.forName(dbClassName);
@@ -305,17 +308,15 @@ public class Server {
 			System.out.println("   [-] Failed to execute query: " + sql);
 			sendFailure(output);
 			e.printStackTrace();
-		} 
+		}
 
-	
 	}
 
-	private void handleImageRequest(SignalPacket spacket,
+	private void handleImageListRequest(SignalPacket spacket,
 			ObjectOutputStream output) throws SQLException {
-		System.out.println("[+] Handling image request");
-		ImagePacket outpacket = null;
-		Vector<String> outMessages = null;
-		int imageCount = 0;
+		System.out.println("[+] Handling image list request");
+		SignalPacket outpacket = null;
+		Vector<String> imageList = new Vector<String>();
 		String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
 				+ Float.toString(spacket.getLat() - epsilon)
 				+ ", 4) AND ROUND("
@@ -324,7 +325,44 @@ public class Server {
 				+ Float.toString(spacket.getLng() - epsilon)
 				+ ", 4) AND ROUND("
 				+ Float.toString(spacket.getLng() + epsilon)
-				+ ",4) ORDER BY rep ASC;";
+				+ ",4) ORDER BY rep DESC;";
+		System.out.println("   Sending stmt to db");
+		System.out.println("       " + sql);
+		try {
+			rs = stmt.executeQuery(sql);
+		} catch (Exception e) {
+			System.out.println("   [-] Failure when executing query: " + sql);
+			e.printStackTrace();
+		}
+		for (int i = 1; rs.next(); i++) {
+			System.out.println("   Getting ready to send image "
+					+ rs.getString("imagePath"));
+			try {
+				imageList.add(rs.getString("imagePath"));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		outpacket = new SignalPacket(imageList);
+		try {
+			output.writeObject(outpacket);
+		} catch (IOException e) {
+			System.out.println("[-] Failed to send imageList Signal Packet");
+			e.printStackTrace();
+		}
+
+	}
+
+	private void handleImageRequest(SignalPacket spacket,
+			ObjectOutputStream output) throws SQLException, IOException {
+		System.out.println("[+] Handling image request for image "
+				+ spacket.getImageName());
+		ImagePacket outpacket = null;
+		Vector<String> outMessages = null;
+		String imagePath = "default";
+		String sql = "SELECT * FROM imageData WHERE imagePath=\""
+				+ spacket.getImageName() + "\"; ";
 		System.out.println("   Sending stmt to db");
 		System.out.println("       " + sql);
 
@@ -334,29 +372,10 @@ public class Server {
 			System.out.println("   [-] Failure when executing query: " + sql);
 			e.printStackTrace();
 		}
-		try {
-			if (rs.last()) {
-				imageCount = rs.getRow();
-				rs.beforeFirst();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		SignalPacket sp = new SignalPacket(BustrSignal.IMAGE_COUNT);
-		sp.setImageCount(imageCount);
-		try {
-			System.out.println("   Sending signal with imageCount="
-					+ imageCount);
-			output.writeObject(sp);
-		} catch (Exception e) {
-			System.out.println("[-] Failed to write imageCount packet");
-			e.printStackTrace();
-		}
-		for (int i = 1; rs.next(); i++) {
-			System.out.println("   Getting ready to send image response #"
-					+ Integer.toString(i));
-			String commentPath = pathPrefix + rs.getString("commentPath");
-			String imagePath = rs.getString("imagePath");
+
+		if (rs.next()) {
+			String commentPath = rs.getString("commentPath");
+			imagePath = rs.getString("imagePath");
 			String userName = rs.getString("userName");
 			Float lat = rs.getFloat("Lat");
 			Float lng = rs.getFloat("Lng");
@@ -366,9 +385,8 @@ public class Server {
 			try {
 				data = extractBytes(imagePath);
 			} catch (Exception e) {
-				System.out
-						.println("[-] Failed to retrieve image from "
-								+ imagePath);
+				System.out.println("[-] Failed to retrieve image from "
+						+ imagePath);
 			}
 
 			try {
@@ -380,9 +398,8 @@ public class Server {
 					outMessages.add(s);
 				br.close();
 			} catch (Exception e) {
-				System.out
-						.println("[-] Failed to retrice comment file from "
-								+ commentPath);
+				System.out.println("[-] Failed to retrice comment file from "
+						+ commentPath);
 				e.printStackTrace();
 			}
 
@@ -400,15 +417,14 @@ public class Server {
 						+ lat.toString() + ", " + lng.toString() + "  ###  "
 						+ caption);
 				output.writeObject(outpacket);
-				output.flush();
 				System.out.println("   Done!\n");
-				sendSuccess(output);
 			} catch (Exception e) {
 				System.out.println("   [-] Failed to send ImagePacket");
 				e.printStackTrace();
-				sendFailure(output);
 			}
-
+		} else {
+			System.out
+					.println("[-] Failed to send image with name" + imagePath);
 		}
 	}
 
@@ -472,8 +488,8 @@ public class Server {
 			e.printStackTrace();
 		} finally {
 			try {
-				output.flush();
-			} catch (IOException e) {
+				// output.flush();
+			} catch (Exception e) {
 				System.out.println("[-] Failed to flush outputstream");
 				e.printStackTrace();
 			}
@@ -489,8 +505,8 @@ public class Server {
 			e.printStackTrace();
 		} finally {
 			try {
-				output.flush();
-			} catch (IOException e) {
+				// output.flush();
+			} catch (Exception e) {
 				System.out.println("[-] Failed to send FAILURE");
 				e.printStackTrace();
 			}
@@ -504,9 +520,8 @@ public class Server {
 		return dateFormat.format(date);
 
 	}
-	
-	private void generateKeyPair() throws IOException
-	{
+
+	private void generateKeyPair() throws IOException {
 		System.out.println("[+] Generating new public-private keypair");
 		KeyPairGenerator kpg = null;
 		try {
@@ -529,16 +544,14 @@ public class Server {
 		}
 		RSAPublicKeySpec pub = null;
 		try {
-			pub = fact.getKeySpec(kp.getPublic(),
-					RSAPublicKeySpec.class);
+			pub = fact.getKeySpec(kp.getPublic(), RSAPublicKeySpec.class);
 		} catch (InvalidKeySpecException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		RSAPrivateKeySpec priv = null;
 		try {
-			priv = fact.getKeySpec(kp.getPrivate(),
-					RSAPrivateKeySpec.class);
+			priv = fact.getKeySpec(kp.getPrivate(), RSAPrivateKeySpec.class);
 		} catch (InvalidKeySpecException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();

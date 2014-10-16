@@ -33,6 +33,7 @@ public class SignalPacket extends BustrPacket {
    public void setImageList(Vector<String> pImageList) {
       this.imageList = pImageList;
    }
+   
 
    public String getUser() {
       return user;
