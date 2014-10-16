@@ -16,7 +16,8 @@ public class SignalPacket extends BustrPacket {
       REP_DOWNVOTE, 
       IMAGE_LIST, 
       NEW_USER, 
-      USER_AUTH
+      USER_AUTH,
+      NEW_COMMENT;
    }
 
    private static final long serialVersionUID = 1L;
@@ -25,8 +26,17 @@ public class SignalPacket extends BustrPacket {
    private String imageName;
    private String user, pass;
    private Vector<String> imageList;
+   private String comment;
+   
+   public String getComment() {
+	return comment;
+}
 
-   public Vector<String> getImageList() {
+public void setComment(String comment) {
+	this.comment = comment;
+}
+
+public Vector<String> getImageList() {
       return imageList;
    }
 
