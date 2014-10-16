@@ -1,5 +1,7 @@
 package com.bustr.server;
 
+import java.io.BufferedInputStream;
+
 import static org.junit.Assert.*;
 
 import java.io.BufferedInputStream;
@@ -15,6 +17,8 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import junit.framework.TestCase;
 
 import junit.framework.TestCase;
 import java.sql.Connection;
