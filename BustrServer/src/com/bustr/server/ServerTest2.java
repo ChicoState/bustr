@@ -81,6 +81,48 @@ public class ServerTest2 {
 	}
 	
 	@Test
+	public void newCommentTest() {
+		try {
+			String imagePath = "/uploads/83.jpg";
+			String comment = "ALARM CLOCKS KILL DREAMS";
+			System.out
+					.println("NEW COMMENT TEST, with imagePath="
+							+ imagePath);
+			Socket sock = new Socket("localhost", 8000);
+			ObjectOutputStream output = new ObjectOutputStream(
+					sock.getOutputStream());
+			ObjectInputStream input = new ObjectInputStream(
+					sock.getInputStream());
+			SignalPacket spacket = new SignalPacket(comment, imagePath);
+			output.writeObject(spacket);
+			BustrPacket res;
+			while ((res = (BustrPacket) input.readObject()) != null) {
+
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("[+] Got a SUCCESS packet");
+						assertTrue(true);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("[-] Got a FAILURE packet");
+						assertTrue(false);
+						return;
+					}
+				} else if (res instanceof ImagePacket) {
+					System.out.println("[+] Got an ImagePacket with info "
+							+ res.toString());
+					assertTrue(true);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		System.out.println("  ");
+	}
+	
+	@Test
 	public void userAuthTest() {
 		try {
 			System.out
@@ -113,6 +155,48 @@ public class ServerTest2 {
 					System.out.println("[+] Got an ImagePacket with info "
 							+ res.toString());
 					assertTrue(true);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		System.out.println("  ");
+	}
+	
+	@Test
+	public void bogusUserTest() {
+		try {
+			System.out
+					.println("[+] USER AUTH TEST");
+			Socket sock = new Socket("localhost", 8000);
+			ObjectOutputStream output = new ObjectOutputStream(
+					sock.getOutputStream());
+			ObjectInputStream input = new ObjectInputStream(
+					sock.getInputStream());
+
+			SignalPacket sp = new SignalPacket(BustrSignal.USER_AUTH);
+			sp.setUser("Jarjar");
+			sp.setPass("binks");
+			output.writeObject(sp);
+			BustrPacket res;
+			while ((res = (BustrPacket) input.readObject()) != null) {
+
+				if (res instanceof SignalPacket) {
+					SignalPacket inSignal = (SignalPacket) res;
+					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
+						System.out.println("[+] Got a SUCCESS packet");
+						assertTrue(false);
+						return;
+					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
+						System.out.println("[-] Got a FAILURE packet");
+						assertTrue(true);
+						return;
+					}
+				} else if (res instanceof ImagePacket) {
+					System.out.println("[+] Got an ImagePacket with info "
+							+ res.toString());
+					assertFalse(true);
 				}
 			}
 		} catch (Exception e) {
@@ -251,7 +335,7 @@ public class ServerTest2 {
 		System.out.println("   ");
 	}
 
-
+/*
 	@Test
 	public void requestSignalTest() {
 		try {
@@ -317,5 +401,5 @@ public class ServerTest2 {
 		}
 		System.out.println("   ");
 	}
-
+*/
 }
