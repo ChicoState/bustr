@@ -47,7 +47,7 @@ public class Server {
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String pathPrefix = "/home/bustr/Desktop/";
-	private static final float epsilon = 0.0005f;
+	private static final float epsilon = 0.0001f;
 	private BustrPacket packet;
 	private static Connection connection;
 	private static Statement stmt;
@@ -185,6 +185,8 @@ public class Server {
 							handleNewUser(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.USER_AUTH) {
 							handleUserAuth(spacket, output);
+						} else if (spacket.getSignal() == BustrSignal.NEW_COMMENT) {
+							handleNewComment(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
 							handleImageListRequest(spacket, output);
 						} else {
@@ -215,6 +217,27 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static void handleNewComment(SignalPacket spacket, ObjectOutputStream output) throws IOException
+	{
+		String newComment = spacket.getComment();
+		String user = spacket.getUser();
+		String imagePath = spacket.getImageName();
+		File dir = new File(pathPrefix + "/uploads");
+		if (!dir.exists())
+			dir.mkdir();
+		FileWriter fw = new FileWriter("/comments/" + imagePath.substring(7));
+		PrintWriter pal = new PrintWriter(fw);
+		try {
+			pal.append(newComment);
+		} catch (Exception e) {
+			System.out.println("[-] New comment write failure with comment " + newComment);
+			e.printStackTrace();
+		}
+		fw.close();
+		pal.close();
+		
 	}
 
 	public static boolean handleUserAuth(SignalPacket spacket,
