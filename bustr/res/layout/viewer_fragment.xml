@@ -2,73 +2,85 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/super_light_blue"
-    android:layout_gravity="center">    
+    android:layout_gravity="center"
+    android:background="@drawable/shadow_black"
+    android:paddingBottom="5px"
+    android:paddingLeft="6px"
+    android:paddingRight="5px"
+    android:paddingTop="5px" >
 
-    <ProgressBar
-        android:id="@+id/viewerProgress"
-        style="?android:attr/progressBarStyleLarge"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:visibility="visible" />  
-    
-    <ImageView
-        android:id="@+id/viewerImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:layout_margin="3dp"
+        android:background="#FFFFFF" >
 
-    <TextView
-        android:id="@+id/viewerCaption"
-        style="@style/ShadowText" 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"       
-        android:layout_alignTop="@id/viewerImage"
-        android:paddingBottom="5dp"
-        android:paddingTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"        
-        android:text="test"/>
-        
-    <TextView 
-        android:id="@+id/repDisplay"
-        style="@style/ShadowText" 
-        android:layout_below="@id/viewerCaption"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:visibility="invisible"/>
+        <ProgressBar
+            android:id="@+id/viewerProgress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="visible" />
 
+        <ImageView
+            android:id="@+id/viewerImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/upvote"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="+1" />
-    
-    <Button
-        android:id="@+id/comment"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Comment" />
-        
-    <Button
-        android:id="@+id/downvote"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="-1" />
+        <TextView
+            android:id="@+id/viewerCaption"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/viewerImage"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="5dp"
+            android:paddingTop="10dp"
+            android:text="test"
+            android:textSize="25sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/repDisplay"
+            style="@style/ShadowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewerCaption"
+            android:layout_centerHorizontal="true"
+            android:padding="5dp"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/upvote"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="+1" />
+
+        <Button
+            android:id="@+id/comment"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="Comment" />
+
+        <Button
+            android:id="@+id/downvote"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="-1" />
+    </RelativeLayout>
 
 </RelativeLayout>
