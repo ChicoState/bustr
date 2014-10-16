@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -67,7 +68,8 @@ public class ViewerFragment extends Fragment {
          public void onClick(View v) {
             if (v.getId() == R.id.upvote) {
                new Voter(BustrSignal.REP_UPVOTE);
-            } else {
+            }
+            else {
                new Voter(BustrSignal.REP_DOWNVOTE);
             }
          }
@@ -86,10 +88,15 @@ public class ViewerFragment extends Fragment {
       viewerCaption.setText(imagePacket.getCaption());
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      assert(image != null);
+      Matrix mtx = new Matrix();
+      mtx.postRotate(90);
+      float scale = (float)viewerImage.getMeasuredWidth() / image.getWidth();
+      mtx.postScale(scale, scale);
+      Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
+            image.getHeight(), mtx, true);  
       viewerCaption.setVisibility(View.VISIBLE);
       try {
-         viewerImage.setImageBitmap(image);
+         viewerImage.setImageBitmap(rotated);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }
@@ -138,7 +145,8 @@ public class ViewerFragment extends Fragment {
          String message = null;
          if (result.getSignal() == BustrSignal.SUCCESS) {
             message = "successful";
-         } else if (result.getSignal() == BustrSignal.FAILURE) {
+         }
+         else if (result.getSignal() == BustrSignal.FAILURE) {
             message = "failed";
          }
          Toast.makeText(rootView.getContext(), "Vote " + message,
@@ -182,5 +190,9 @@ public class ViewerFragment extends Fragment {
          setImage(result);
       }
 
+   }
+
+   public void recycleImage() {
+      image.recycle();
    }
 }

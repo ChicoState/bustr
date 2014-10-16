@@ -222,6 +222,7 @@ public class CameraActivity extends Activity {
                if (btn_flash.isChecked()) {
                   Camera.Parameters params = mCamera.getParameters();
                   params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+//                  params.setRotation(90);
                   mCamera.setParameters(params);
                }
                takingPicture = true;
@@ -380,12 +381,12 @@ public class CameraActivity extends Activity {
       // }
       // }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
-      params.set("orientation", "portrait");
+//      params.set("orientation", "portrait");
       params.setPictureSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
-            !(camFront && camBack));
+//      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
+//            !(camFront && camBack));
       btn_flash.setChecked(false);
       preview.addView(mPreview);
    }

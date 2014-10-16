@@ -80,7 +80,7 @@ public class ViewerActivity extends FragmentActivity {
       // Inflate the menu; this adds items to the action bar if it is present.
       getMenuInflater().inflate(R.menu.viewer, menu);
       return true;
-   }
+   }   
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
@@ -123,7 +123,7 @@ public class ViewerActivity extends FragmentActivity {
          super.onPostExecute(result);
          adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
          pager.setAdapter(adapter);
-         Toast.makeText(ViewerActivity.this, result + " images found.",
+         Toast.makeText(ViewerActivity.this, result.size() + " images found.",
                Toast.LENGTH_LONG).show();
       }
    }
