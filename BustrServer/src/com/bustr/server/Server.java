@@ -520,7 +520,10 @@ public class Server {
 		}
 		fw.close();
 		pal.close();
-
+		System.out.println("[+] Got a new image! ");
+		System.out.println("[+] Username = "+ ipacket.getUserName());
+		System.out.println("[+] Caption  = "+ ipacket.getCaption() + "\n");
+		
 		String sql = "INSERT INTO imageData VALUES ( \""
 				+ ipacket.getUserName() + "\", ROUND(" + ipacket.getLat()
 				+ ",4), ROUND(" + ipacket.getLng() + ",4), " + "\"uploads/"
