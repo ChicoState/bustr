@@ -11,15 +11,27 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.mysql.jdbc.Statement;
 
 public class ServerTest2 {
+	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
+	private static final String dbClassName = "com.mysql.jdbc.Driver";
+	private static Connection connection;
+	private static Statement stmt;
+	private static ResultSet rs;
 	
 	private byte[] extractBytes(String ImageName) throws IOException {
 	      // open image
@@ -36,6 +48,26 @@ public class ServerTest2 {
 	      // DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
 	      // return (data.getData());
 	   }
+	@Before
+	public void test() throws ClassNotFoundException, SQLException{
+		Class.forName(dbClassName);
+		Properties p = new Properties();
+		p.put("user", "root");
+		p.put("password", "root");
+		connection = DriverManager.getConnection(CONNECTION, p);
+		try {
+			stmt = (Statement) connection.createStatement(
+					ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+		} catch (Exception e) {
+			System.out.println("[-] Statement creation failure.");
+			e.printStackTrace();
+		}
+
+		String sql = "DELETE FROM users WHERE userId=\"vader\";";
+		rs = stmt.executeQuery(sql);
+
+	}
 	
 	@Test
 	public void upLoadTest() {
@@ -142,19 +174,11 @@ public class ServerTest2 {
 
 				if (res instanceof SignalPacket) {
 					SignalPacket inSignal = (SignalPacket) res;
-					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
-						System.out.println("[+] Got a SUCCESS packet");
-						assertTrue(true);
-						return;
-					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
-						System.out.println("[-] Got a FAILURE packet");
-						assertTrue(false);
-						return;
-					}
+					assertTrue(inSignal.getSignal() == BustrSignal.SUCCESS);
 				} else if (res instanceof ImagePacket) {
 					System.out.println("[+] Got an ImagePacket with info "
 							+ res.toString());
-					assertTrue(true);
+					assertFalse(true);
 				}
 			}
 		} catch (Exception e) {
@@ -176,27 +200,14 @@ public class ServerTest2 {
 					sock.getInputStream());
 
 			SignalPacket sp = new SignalPacket(BustrSignal.USER_AUTH);
-			sp.setUser("Jarjar");
-			sp.setPass("binks");
+			sp.setUser("darth");
+			sp.setPass("i am your father");
 			output.writeObject(sp);
 			BustrPacket res;
 			while ((res = (BustrPacket) input.readObject()) != null) {
-
 				if (res instanceof SignalPacket) {
 					SignalPacket inSignal = (SignalPacket) res;
-					if (inSignal.getSignal() == BustrSignal.SUCCESS) {
-						System.out.println("[+] Got a SUCCESS packet");
-						assertTrue(false);
-						return;
-					} else if (inSignal.getSignal() == BustrSignal.FAILURE) {
-						System.out.println("[-] Got a FAILURE packet");
-						assertTrue(true);
-						return;
-					}
-				} else if (res instanceof ImagePacket) {
-					System.out.println("[+] Got an ImagePacket with info "
-							+ res.toString());
-					assertFalse(true);
+					assertTrue(inSignal.getSignal() == BustrSignal.FAILURE);
 				}
 			}
 		} catch (Exception e) {
