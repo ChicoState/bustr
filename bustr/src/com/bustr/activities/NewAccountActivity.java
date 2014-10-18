@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,63 +29,55 @@ import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.ResourceProvider;
 
-public class LoginActivity extends Activity {
+public class NewAccountActivity extends Activity {
 
-   private EditText username, password;
-   private TextView banner;
-   private Button sign_in, sign_up;
    private static final String LOGTAG = "BUSTR";
    private SharedPreferences sharedPrefs;
    private SharedPreferences.Editor editor;
 
+   // GUI Components -----------------------------------------------------------
+   private TextView banner;
+   private EditText username, password1, password2;
+   private Button create;
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_login);
+      setContentView(R.layout.activity_create_account);
 
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       editor = sharedPrefs.edit();
-      if (sharedPrefs.getInt("logged_in", 0) == 1) {
-         startActivity(new Intent(LoginActivity.this, MainActivity.class));
-         finish();
-      }
-
-      // Wire GUI --------------------------------------------------------------
-      username = (EditText) findViewById(R.id.username_input);
-      password = (EditText) findViewById(R.id.password_input);
-      banner = (TextView) findViewById(R.id.banner1);
-      sign_in = (Button) findViewById(R.id.sign_in);
-      sign_up = (Button) findViewById(R.id.sign_up);
       
-      // Setup typeface --------------------------------------------------------
-      Typeface tf = ResourceProvider.instance(LoginActivity.this).getFont();
-      banner.setTypeface(tf);
-      sign_in.setTypeface(tf);
-      sign_up.setTypeface(tf);
+      // Wire GUI components ---------------------------------------------------
+      banner = (TextView) findViewById(R.id.banner2);
+      username = (EditText) findViewById(R.id.new_username);
+      password1 = (EditText) findViewById(R.id.new_password1);
+      password2 = (EditText) findViewById(R.id.new_password2);
+      create = (Button)findViewById(R.id.create_account);
 
-      // Listener --------------------------------------------------------------
-      OnClickListener listener = new OnClickListener() {
+      create.setOnClickListener(new OnClickListener() {         
          @Override
-         public void onClick(View v) {
-            if (v.getId() == R.id.sign_in) {
-               new AttemptLogin().execute();
-            }
-            else if (v.getId() == R.id.sign_up) {
-               startActivity(new Intent(LoginActivity.this,
-                     NewAccountActivity.class));
-               finish();
+         public void onClick(View v) {            
+            if(password1.getText().toString().equals(password2.getText().toString())) {
+               new CreateAccount().execute();
+            } else {
+               Toast.makeText(NewAccountActivity.this, "Password mismatch", Toast.LENGTH_SHORT).show();
             }
          }
-      };
-      sign_in.setOnClickListener(listener);
-      sign_up.setOnClickListener(listener);
+      });
+      
+      // Setup typeface --------------------------------------------------------
+      Typeface tf = ResourceProvider.instance(NewAccountActivity.this)
+            .getFont();
+      banner.setTypeface(tf);
+      create.setTypeface(tf);
    }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
       // Inflate the menu; this adds items to the action bar if it is present.
-      getMenuInflater().inflate(R.menu.login, menu);
+      getMenuInflater().inflate(R.menu.create_account, menu);
       return true;
    }
 
@@ -100,12 +93,12 @@ public class LoginActivity extends Activity {
       return super.onOptionsItemSelected(item);
    }
 
-   private class AttemptLogin extends AsyncTask<Void, Void, BustrSignal> {
+   private class CreateAccount extends AsyncTask<Void, Void, BustrSignal> {
 
       private Socket socket;
       private ObjectOutputStream output;
       private ObjectInputStream input;
-      BustrSignal result = BustrSignal.REP_DOWNVOTE;
+      BustrSignal result = BustrSignal.FAILURE;
 
       @Override
       protected BustrSignal doInBackground(Void... arg0) {
@@ -113,20 +106,21 @@ public class LoginActivity extends Activity {
             socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
-            SignalPacket user_login = new SignalPacket(BustrSignal.USER_AUTH);
-            user_login.setUser(username.getText().toString());
-            user_login.setPass(password.getText().toString());
-            Log.d(LOGTAG, "Login attempt: User: " + user_login.getUser()
-                  + ", Pass: " + user_login.getPass());
-            output.writeObject(user_login);
+            SignalPacket new_user = new SignalPacket(BustrSignal.NEW_USER);
+            new_user.setUser(username.getText().toString());
+            new_user.setPass(password1.getText().toString());
+            Log.d(LOGTAG, "Login attempt: User: " + new_user.getUser()
+                  + ", Pass: " + new_user.getPass());
+            output.writeObject(new_user);
             SignalPacket response = (SignalPacket) input.readObject();
             input.close();
             output.close();
             socket.close();
             return response.getSignal();
-
-         } catch (IOException ioe) {
-            ioe.printStackTrace();
+         } catch (UnknownHostException e) {
+            e.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          }
@@ -136,9 +130,8 @@ public class LoginActivity extends Activity {
       @Override
       protected void onPostExecute(BustrSignal result) {
          super.onPostExecute(result);
-         Log.d(LOGTAG, "Login response: " + result.toString());
          if (result == BustrSignal.SUCCESS) {
-            Toast.makeText(LoginActivity.this, "Login Successful!",
+            Toast.makeText(NewAccountActivity.this, "Registration Successful!",
                   Toast.LENGTH_SHORT).show();
             editor.putInt("logged_in", 1).commit();
             editor.putString("username", username.getText().toString())
@@ -148,14 +141,17 @@ public class LoginActivity extends Activity {
             } catch (InterruptedException e) {
                // Do nothing
             }
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            startActivity(new Intent(NewAccountActivity.this,
+                  MainActivity.class));
             finish();
          }
-         else {
-            Toast.makeText(LoginActivity.this, "Login Failed",
+         else if (result == BustrSignal.FAILURE) {
+            Toast.makeText(NewAccountActivity.this, "Login Failed",
                   Toast.LENGTH_SHORT).show();
          }
+
       }
+
    }
 
 }
