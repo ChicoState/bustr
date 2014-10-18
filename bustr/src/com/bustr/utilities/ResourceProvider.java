@@ -1,5 +1,8 @@
 package com.bustr.utilities;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import android.content.Context;
 import android.graphics.Typeface;
 
@@ -32,6 +35,10 @@ public class ResourceProvider {
 
    public int getPort() {
       return port;
+   }
+   
+   public SocketAddress socketAddress() {
+      return new InetSocketAddress(server, port);
    }
 
 }

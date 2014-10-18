@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ViewerBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/super_light_blue"
@@ -10,5 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </android.support.v4.view.ViewPager>
+
 
 </RelativeLayout>
