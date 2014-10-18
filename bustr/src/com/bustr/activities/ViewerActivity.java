@@ -29,71 +29,70 @@ import com.bustr.utilities.BustrViewerAdapter;
 
 public class ViewerActivity extends FragmentActivity {
 
-   private ViewPager pager;
-   private BustrViewerAdapter adapter;
+  private ViewPager pager;
+  private BustrViewerAdapter adapter;
 
-   private Socket socket;
-   private ObjectOutputStream output;
-   private ObjectInputStream input;
+  private Socket socket;
+  private ObjectOutputStream output;
+  private ObjectInputStream input;
 
-   private LocationManager lm;
+  private LocationManager lm;
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_viewer);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_viewer);
 
-      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-      lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-            new LocationListener() {
-               @Override
-               public void onStatusChanged(String provider, int status,
-                     Bundle extras) {
-               }
+    lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+        new LocationListener() {
+          @Override
+          public void onStatusChanged(String provider, int status, Bundle extras) {
+          }
 
-               @Override
-               public void onProviderEnabled(String provider) {
-               }
+          @Override
+          public void onProviderEnabled(String provider) {
+          }
 
-               @Override
-               public void onProviderDisabled(String provider) {
-               }
+          @Override
+          public void onProviderDisabled(String provider) {
+          }
 
-               @Override
-               public void onLocationChanged(Location location) {
-               }
-            });
-      // Wire GUI elements -----------------------------------------------------
-      pager = (ViewPager) findViewById(R.id.pager);
-      pager.setOffscreenPageLimit(10);
-      pager.setPageTransformer(true, new BustrPageTransformer());
-      new PreparePager().execute();
-   }
+          @Override
+          public void onLocationChanged(Location location) {
+          }
+        });
+    // Wire GUI elements -----------------------------------------------------
+    pager = (ViewPager) findViewById(R.id.pager);
+    pager.setOffscreenPageLimit(10);
+    pager.setPageTransformer(true, new BustrPageTransformer());
+    new PreparePager().execute();
+  }
 
-   @Override
-   public boolean onCreateOptionsMenu(Menu menu) {
-      // Inflate the menu; this adds items to the action bar if it is present.
-      getMenuInflater().inflate(R.menu.viewer, menu);
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.viewer, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // Handle action bar item clicks here. The action bar will
+    // automatically handle clicks on the Home/Up button, so long
+    // as you specify a parent activity in AndroidManifest.xml.
+    int id = item.getItemId();
+    if (id == R.id.action_settings) {
       return true;
-   }   
+    }
+    return super.onOptionsItemSelected(item);
+  }
 
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      // Handle action bar item clicks here. The action bar will
-      // automatically handle clicks on the Home/Up button, so long
-      // as you specify a parent activity in AndroidManifest.xml.
-      int id = item.getItemId();
-      if (id == R.id.action_settings) {
-         return true;
-      }
-      return super.onOptionsItemSelected(item);
-   }
+  private class PreparePager extends AsyncTask<Void, Void, Vector<String>> {
 
-   private class PreparePager extends AsyncTask<Void, Void, Vector<String>> {
+    private SignalPacket imageCountPacket;
 
-      private SignalPacket imageCountPacket;
-
-      @Override
+    @Override
       protected Vector<String> doInBackground(Void... arg0) {
          try {
             socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
@@ -110,16 +109,21 @@ public class ViewerActivity extends FragmentActivity {
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
          }
-         return imageCountPacket.getImageList();
+         if (imageCountPacket != null) {
+           return imageCountPacket.getImageList();
+         } else {
+           Toast.makeText(ViewerActivity.this, "imageCountPacket not received", Toast.LENGTH_LONG).show();
+           return new Vector<String>();
+         }
       }
 
-      @Override
-      protected void onPostExecute(Vector<String> result) {
-         super.onPostExecute(result);
-         adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
-         pager.setAdapter(adapter);
-         Toast.makeText(ViewerActivity.this, result.size() + " images found.",
-               Toast.LENGTH_LONG).show();
-      }
-   }
+    @Override
+    protected void onPostExecute(Vector<String> result) {
+      super.onPostExecute(result);
+      adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
+      pager.setAdapter(adapter);
+      Toast.makeText(ViewerActivity.this, result.size() + " images found.",
+          Toast.LENGTH_LONG).show();
+    }
+  }
 }
