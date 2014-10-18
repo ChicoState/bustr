@@ -289,7 +289,6 @@ public class Server {
 		} catch (Exception e) {
 			System.out.println("[-] Failed to execute sql stmt " + sql);
 			e.printStackTrace();
-			connection.close();
 			sendFailure(output);
 			return false;
 		}
