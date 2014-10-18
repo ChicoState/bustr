@@ -267,12 +267,12 @@ public class CameraActivity extends Activity {
          BustrSignal returnCode = null;
          ObjectOutputStream output;
          ObjectInputStream input;
-         String randomName = Long.toString(new Random().nextLong()) + ".jpg";
+         String username = sharedPrefs.getString("username", "no_user");
          try {
             socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
-            output.writeObject(new ImagePacket(randomName, bytes, lat, lng,
+            output.writeObject(new ImagePacket(username, bytes, lat, lng,
                   caption));
             returnCode = ((SignalPacket) input.readObject()).getSignal();
             output.close();
