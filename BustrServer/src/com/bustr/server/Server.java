@@ -255,15 +255,15 @@ public class Server {
 		}
 		String user = spacket.getUser();
 		String imagePath = spacket.getImageName();
-		System.out.println("[+] Adding comment " + newComment + " to image "
+		System.out.println("[+] Adding comment \"" + newComment + "\" to image="
 				+ imagePath);
-		File dir = new File(pathPrefix + "/uploads");
+		File dir = new File(pathPrefix + "/comments");
 		if (!dir.exists())
 			dir.mkdir();
 		FileWriter fw = new FileWriter("comments/"
-				+ imagePath.substring(9, imagePath.length() - 3) + "txt", true);
+				+ imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			fw.append(newComment + System.getProperty("line.separator"));
+			fw.append(newComment + ", " + user + System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] New comment write failure with comment "
 					+ newComment);
