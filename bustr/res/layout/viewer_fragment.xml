@@ -10,7 +10,6 @@
     android:paddingTop="5px" >
 
     <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
@@ -55,32 +54,32 @@
             android:padding="5dp"
             android:visibility="invisible" />
 
-        <Button
+        <ImageView
             android:id="@+id/upvote"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:text="+1" />
+            android:background="@drawable/button_wrapper"
+            android:src="@drawable/upcircular" />
 
-        <Button
+        <ImageView
             android:id="@+id/comment"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="Comment" />
+            android:background="@drawable/button_wrapper"
+            android:src="@drawable/commentsbutton" />
 
-        <Button
+        <ImageView
             android:id="@+id/downvote"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:text="-1" />
+            android:background="@drawable/button_wrapper"
+            android:src="@drawable/downcircular" />
     </RelativeLayout>
 
 </RelativeLayout>

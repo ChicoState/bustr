@@ -44,7 +44,7 @@ public class ViewerFragment extends Fragment {
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
-   private Button upvote, downvote, comment;
+   private ImageView upvote, downvote, comment;
    private TextView viewerCaption;
    private TextView repDisplay;
    private ImageView viewerImage;
@@ -67,9 +67,9 @@ public class ViewerFragment extends Fragment {
       repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
       progress = (ProgressBar) rootView.findViewById(R.id.viewerProgress);
       viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
-      downvote = (Button) rootView.findViewById(R.id.downvote);
-      upvote = (Button) rootView.findViewById(R.id.upvote);
-      comment = (Button) rootView.findViewById(R.id.comment);
+      downvote = (ImageView) rootView.findViewById(R.id.downvote);
+      upvote = (ImageView) rootView.findViewById(R.id.upvote);
+      comment = (ImageView) rootView.findViewById(R.id.comment);
       OnClickListener voteClick = new OnClickListener() {
          @Override
          public void onClick(View v) {
@@ -85,10 +85,7 @@ public class ViewerFragment extends Fragment {
       upvote.setOnClickListener(voteClick);
       downvote.setOnClickListener(voteClick);
       comment.setOnClickListener(voteClick);
-      Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();
-      upvote.setTypeface(tf);
-      downvote.setTypeface(tf);
-      comment.setTypeface(tf);
+      Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();      
       viewerCaption.setTypeface(tf);
       repDisplay.setTypeface(tf);
       new Downloader().execute();
