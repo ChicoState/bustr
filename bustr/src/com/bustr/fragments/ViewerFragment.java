@@ -119,13 +119,14 @@ public class ViewerFragment extends Fragment {
     repDisplay.setVisibility(View.VISIBLE);
     image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
         imagePacket.getData().length);
-    
-    //ListView populating
+
+    // ListView populating
     commentv.toArray(comments);
-    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, comments);
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+        android.R.layout.simple_list_item_1, comments);
     listView.setAdapter(adapter);
-    
-    //Image rendering
+
+    // Image rendering
     Matrix mtx = new Matrix();
     mtx.postRotate(90);
     float scale = (float) viewerImage.getMeasuredWidth() / image.getWidth();
