@@ -3,12 +3,17 @@ package com.bustr.activities;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,8 +21,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.packets.SignalPacket;
+import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.ResourceProvider;
 
 public class LoginActivity extends Activity {
@@ -25,11 +33,22 @@ public class LoginActivity extends Activity {
    private EditText username, password;
    private TextView banner;
    private Button sign_in;
-
+   private static final String LOGTAG = "BUSTR";
+   private SharedPreferences sharedPrefs;
+   private SharedPreferences.Editor editor;
+   
    @Override
    protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+      super.onCreate(savedInstanceState);      
       setContentView(R.layout.activity_login);
+      
+      sharedPrefs = PreferenceManager
+            .getDefaultSharedPreferences(getBaseContext());
+      editor = sharedPrefs.edit();      
+      if(sharedPrefs.getInt("logged_in", 0) == 1) {
+         startActivity(new Intent(LoginActivity.this, MainActivity.class));
+         finish();
+      }
 
       // Wire GUI --------------------------------------------------------------
       username = (EditText) findViewById(R.id.username_input);
@@ -39,16 +58,15 @@ public class LoginActivity extends Activity {
       Typeface tf = ResourceProvider.instance(LoginActivity.this).getFont();
       banner.setTypeface(tf);
       sign_in.setTypeface(tf);
-      
+
       // Listener --------------------------------------------------------------
       sign_in.setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View arg0) {
-            username.setVisibility(View.GONE);
-            password.setVisibility(View.GONE);
+            new AttemptLogin().execute();
          }
-         
+
       });
    }
 
@@ -71,23 +89,60 @@ public class LoginActivity extends Activity {
       return super.onOptionsItemSelected(item);
    }
 
-   private class AttemptLogin extends AsyncTask<Void, Void, Void> {
+   private class AttemptLogin extends AsyncTask<Void, Void, BustrSignal> {
 
       private Socket socket;
       private ObjectOutputStream output;
       private ObjectInputStream input;
+      BustrSignal result = BustrSignal.REP_DOWNVOTE;
 
       @Override
-      protected Void doInBackground(Void... arg0) {
+      protected BustrSignal doInBackground(Void... arg0) {
          try {
-            socket = new Socket();
-            socket.connect(ResourceProvider.instance(LoginActivity.this)
-                  .socketAddress(), 10);
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            output = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
+            SignalPacket user_login = new SignalPacket(BustrSignal.USER_AUTH);
+            user_login.setUser(username.getText().toString());
+            user_login.setPass(password.getText().toString());
+            Log.d(LOGTAG, "Login attempt: User: " + user_login.getUser()
+                  + ", Pass: " + user_login.getPass());
+            output.writeObject(user_login);
+            SignalPacket response = (SignalPacket) input.readObject();
+            input.close();
+            output.close();
+            socket.close();
+            return response.getSignal();
+
          } catch (IOException ioe) {
             ioe.printStackTrace();
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
          }
-
          return null;
+      }
+
+      @Override
+      protected void onPostExecute(BustrSignal result) {
+         super.onPostExecute(result);
+         Log.d(LOGTAG, "Login response: " + result.toString());
+         if (result == BustrSignal.SUCCESS) {
+            Toast.makeText(LoginActivity.this, "Login Successful!",
+                  Toast.LENGTH_SHORT).show();
+            editor.putInt("logged_in", 1).commit();
+            editor.putString("username", username.getText().toString()).commit();
+            try {
+               Thread.sleep(1000);
+            } catch (InterruptedException e) {
+               // Do nothing
+            }
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+         }
+         else {
+            Toast.makeText(LoginActivity.this, "Login Failed",
+                  Toast.LENGTH_SHORT).show();
+         }
       }
    }
 

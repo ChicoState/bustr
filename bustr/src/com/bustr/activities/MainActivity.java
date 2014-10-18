@@ -100,8 +100,8 @@ public class MainActivity extends Activity implements OnClickListener {
             public void run() {
 
                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-               lm.addProximityAlert(39.804, -121.895,
-                     0.001f, 10, resultPendingIntent);
+               lm.addProximityAlert(39.804, -121.895, 0.001f, 10,
+                     resultPendingIntent);
 
             }
          }).start();
