@@ -41,4 +41,13 @@
         android:layout_below="@+id/password_input"
         android:text="Sign In" />
 
+    <Button
+        android:id="@+id/sign_up"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sign_in"
+        android:layout_alignLeft="@+id/password_input"
+        android:text="Sign Up" />
+
 </RelativeLayout>
