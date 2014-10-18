@@ -59,7 +59,24 @@ public class Server {
 		for (int i = 0; new File("uploads/" + i + ".jpg").isFile(); i++) {
 			imageNum = i + 1;
 		}
+		System.out.println("[=============================]");
+		System.out.println("[===Welcome to Bustr Server!==]");
+		System.out.println("[==We have " + imageNum + " images on file!==]\n");
+		
 
+		System.out.println("Starting memory profiler");
+		Runtime runtime = Runtime.getRuntime();  
+
+		long maxMemory = runtime.maxMemory();  
+		long allocatedMemory = runtime.totalMemory();  
+		long freeMemory = runtime.freeMemory();  
+
+		System.out.println("free memory: " + freeMemory / 1024);  
+		System.out.println("allocated memory: " + allocatedMemory / 1024);  
+		System.out.println("max memory: " + maxMemory /1024);  
+		System.out.println("total free memory: " +   
+		   (freeMemory + (maxMemory - allocatedMemory)) / 1024);
+		
 		System.out.printf("Connecting to database\n");
 		Class.forName(dbClassName);
 		Properties p = new Properties();
@@ -176,18 +193,25 @@ public class Server {
 								+ spacket.getLat() + ", " + spacket.getLng());
 
 						if (spacket.getSignal() == BustrSignal.IMAGE_REQUEST) {
+							System.out.println("[+] IMAGE REQUEST");
 							handleImageRequest(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.REP_UPVOTE) {
+							System.out.println("[+] UPVOTE");
 							handleUpvote(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.REP_DOWNVOTE) {
+							System.out.println("[+] DOWNVOTE");
 							handleDownvote(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.NEW_USER) {
-							handleNewUser(spacket, output);
+							System.out.println("[+] NEW USER");
+							if(!handleNewUser(spacket, output)) System.out.println("[-] Failed new user check.");
 						} else if (spacket.getSignal() == BustrSignal.USER_AUTH) {
+							System.out.println("[+] USER AUTH");
 							handleUserAuth(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.NEW_COMMENT) {
+							System.out.println("[+] NEW COMMENT");
 							handleNewComment(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
+							System.out.println("[+] IMAGE LIST REQUEST");
 							handleImageListRequest(spacket, output);
 						} else {
 							System.out.println("[-] Unrecognized signal type");
@@ -205,12 +229,13 @@ public class Server {
 					}
 					System.out
 							.println("   Closing socket and input output streams.");
-					input.close();
-					output.close();
-					socket.close();
 				} catch (Exception e) {
 					System.out.println("NETWORK READ ERROR");
 					System.out.println(e.toString());
+				} finally {
+					input.close();
+					output.close();
+					socket.close();
 				}
 
 			} catch (IOException e) {
@@ -234,7 +259,7 @@ public class Server {
 		File dir = new File(pathPrefix + "/uploads");
 		if (!dir.exists())
 			dir.mkdir();
-		FileWriter fw = new FileWriter("comments/" + imagePath.substring(7, imagePath.length() - 3) + "txt", true);
+		FileWriter fw = new FileWriter("comments/" + imagePath.substring(9, imagePath.length() - 3) + "txt", true);
 		try {
 			fw.append(newComment + System.getProperty("line.separator"));
 		} catch (Exception e) {
@@ -252,11 +277,7 @@ public class Server {
 			SQLException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
-		Class.forName(dbClassName);
-		Properties p = new Properties();
-		p.put("user", "root");
-		p.put("password", "root");
-		connection = DriverManager.getConnection(CONNECTION, p);
+		System.out.println("[+] User Auth where userId=" + username + " and password="+password);
 		String sql = "SELECT * FROM users WHERE userId=\"" + username
 				+ "\" and userPass=\"" + password + "\";";
 		try {
@@ -270,15 +291,15 @@ public class Server {
 			return false;
 		}
 		Boolean valid = false;
-		for (; rs.next();) {
-			valid = (rs.getString("userId") == username && rs
-					.getString("userPass") == password);
+		for ( ; rs.next(); ) {
+			valid = (rs.getString("userId").equals(username)  && rs
+					.getString("userPass").equals(password) );
+			System.out.println("[+] Found userID="+rs.getString("userId") + ", password=" + rs.getString("userPass"));
 		}
 		if (valid)
 			sendSuccess(output);
 		else
 			sendFailure(output);
-		connection.close();
 		return valid;
 	}
 
@@ -287,12 +308,13 @@ public class Server {
 			ClassNotFoundException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
-		Class.forName(dbClassName);
-		Properties p = new Properties();
-		p.put("user", "root");
-		p.put("password", "root");
-		connection = DriverManager.getConnection(CONNECTION, p);
-		String sql = "INSERT INTO users VALUES ( \"" + username + "\", \""
+		String sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
+		rs = stmt.executeQuery(sql);
+		if(rs.next()){
+			sendFailure(output);
+			return false;
+		}
+		sql = "INSERT INTO users VALUES ( \"" + username + "\", \""
 				+ password + "\" );";
 
 		try {
@@ -424,8 +446,12 @@ public class Server {
 						commentPath)));
 				caption = br.readLine();
 				outMessages = new Vector<String>();
+				String s = br.readLine();
+				outMessages.add(s);
+				/*
 				for (String s = br.readLine(); s != null; br.readLine())
 					outMessages.add(s);
+				*/
 				br.close();
 			} catch (Exception e) {
 				System.out.println("[-] Failed to retrice comment file from "
@@ -481,6 +507,7 @@ public class Server {
 		PrintWriter pal = new PrintWriter(fw);
 		try {
 			pal.printf("%s", ipacket.getCaption());
+			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] Comment file write failure.");
 			e.printStackTrace();
@@ -513,8 +540,9 @@ public class Server {
 		try {
 			output.writeObject(new SignalPacket(
 					SignalPacket.BustrSignal.SUCCESS));
+			System.out.println("[+] Sent SUCCESS");
 		} catch (Exception e) {
-			System.out.println("[-] BustrSignal SUCCESS failure.");
+			System.out.println("[-] Failed to send SUCCESS");
 			e.printStackTrace();
 		} finally {
 			try {
@@ -530,8 +558,9 @@ public class Server {
 		try {
 			output.writeObject(new SignalPacket(
 					SignalPacket.BustrSignal.FAILURE));
+			System.out.println("[+] Sent FAILURE");
 		} catch (Exception e) {
-			System.out.println("[-] BustrSignal FAILURE.");
+			System.out.println("[-] failed to send  FAILURE.");
 			e.printStackTrace();
 		} finally {
 			try {
