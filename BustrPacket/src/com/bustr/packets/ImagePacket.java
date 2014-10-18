@@ -26,6 +26,16 @@ public class ImagePacket extends BustrPacket {
 	}
 	
 	
+	public String getUserName() {
+		return userName;
+	}
+
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+
 	public Vector<String> getMessages() {
 		return messages;
 	}
