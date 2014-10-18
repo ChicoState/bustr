@@ -62,21 +62,20 @@ public class Server {
 		System.out.println("[=============================]");
 		System.out.println("[===Welcome to Bustr Server!==]");
 		System.out.println("[==We have " + imageNum + " images on file!==]\n");
-		
 
 		System.out.println("Starting memory profiler");
-		Runtime runtime = Runtime.getRuntime();  
+		Runtime runtime = Runtime.getRuntime();
 
-		long maxMemory = runtime.maxMemory();  
-		long allocatedMemory = runtime.totalMemory();  
-		long freeMemory = runtime.freeMemory();  
+		long maxMemory = runtime.maxMemory();
+		long allocatedMemory = runtime.totalMemory();
+		long freeMemory = runtime.freeMemory();
 
-		System.out.println("free memory: " + freeMemory / 1024);  
-		System.out.println("allocated memory: " + allocatedMemory / 1024);  
-		System.out.println("max memory: " + maxMemory /1024);  
-		System.out.println("total free memory: " +   
-		   (freeMemory + (maxMemory - allocatedMemory)) / 1024);
-		
+		System.out.println("free memory: " + freeMemory / 1024);
+		System.out.println("allocated memory: " + allocatedMemory / 1024);
+		System.out.println("max memory: " + maxMemory / 1024);
+		System.out.println("total free memory: "
+				+ (freeMemory + (maxMemory - allocatedMemory)) / 1024);
+
 		System.out.printf("Connecting to database\n");
 		Class.forName(dbClassName);
 		Properties p = new Properties();
@@ -203,7 +202,9 @@ public class Server {
 							handleDownvote(spacket, output);
 						} else if (spacket.getSignal() == BustrSignal.NEW_USER) {
 							System.out.println("[+] NEW USER");
-							if(!handleNewUser(spacket, output)) System.out.println("[-] Failed new user check.");
+							if (!handleNewUser(spacket, output))
+								System.out
+										.println("[-] Failed new user check.");
 						} else if (spacket.getSignal() == BustrSignal.USER_AUTH) {
 							System.out.println("[+] USER AUTH");
 							handleUserAuth(spacket, output);
@@ -259,7 +260,8 @@ public class Server {
 		File dir = new File(pathPrefix + "/uploads");
 		if (!dir.exists())
 			dir.mkdir();
-		FileWriter fw = new FileWriter("comments/" + imagePath.substring(9, imagePath.length() - 3) + "txt", true);
+		FileWriter fw = new FileWriter("comments/"
+				+ imagePath.substring(9, imagePath.length() - 3) + "txt", true);
 		try {
 			fw.append(newComment + System.getProperty("line.separator"));
 		} catch (Exception e) {
@@ -277,7 +279,8 @@ public class Server {
 			SQLException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
-		System.out.println("[+] User Auth where userId=" + username + " and password="+password);
+		System.out.println("[+] User Auth where userId=" + username
+				+ " and password=" + password);
 		String sql = "SELECT * FROM users WHERE userId=\"" + username
 				+ "\" and userPass=\"" + password + "\";";
 		try {
@@ -291,10 +294,11 @@ public class Server {
 			return false;
 		}
 		Boolean valid = false;
-		for ( ; rs.next(); ) {
-			valid = (rs.getString("userId").equals(username)  && rs
-					.getString("userPass").equals(password) );
-			System.out.println("[+] Found userID="+rs.getString("userId") + ", password=" + rs.getString("userPass"));
+		for (; rs.next();) {
+			valid = (rs.getString("userId").equals(username) && rs.getString(
+					"userPass").equals(password));
+			System.out.println("[+] Found userID=" + rs.getString("userId")
+					+ ", password=" + rs.getString("userPass"));
 		}
 		if (valid)
 			sendSuccess(output);
@@ -310,12 +314,12 @@ public class Server {
 		String password = spacket.getPass();
 		String sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
 		rs = stmt.executeQuery(sql);
-		if(rs.next()){
+		if (rs.next()) {
 			sendFailure(output);
 			return false;
 		}
-		sql = "INSERT INTO users VALUES ( \"" + username + "\", \""
-				+ password + "\" );";
+		sql = "INSERT INTO users VALUES ( \"" + username + "\", \"" + password
+				+ "\" );";
 
 		try {
 			stmt.execute(sql);
@@ -446,12 +450,14 @@ public class Server {
 						commentPath)));
 				caption = br.readLine();
 				outMessages = new Vector<String>();
+				// String s = br.readLine();
+				// outMessages.add(s);
 				String s = br.readLine();
-				outMessages.add(s);
-				/*
-				for (String s = br.readLine(); s != null; br.readLine())
+				for (; s != null; s = br.readLine()) {
 					outMessages.add(s);
-				*/
+					System.out.println("[+] Adding comment=\"" + s
+							+ "\" to the image");
+				}
 				br.close();
 			} catch (Exception e) {
 				System.out.println("[-] Failed to retrice comment file from "
@@ -515,10 +521,11 @@ public class Server {
 		fw.close();
 		pal.close();
 
-		String sql = "INSERT INTO imageData VALUES ( \"dummy\", ROUND("
-				+ ipacket.getLat() + ",4), ROUND(" + ipacket.getLng() + ",4), "
-				+ "\"uploads/" + imageNum + ".jpg\", 0," + "\"comments/"
-				+ imageNum + ".txt\", \"" + ipacket.getCaption() + "\", "
+		String sql = "INSERT INTO imageData VALUES ( \""
+				+ ipacket.getUserName() + "\", ROUND(" + ipacket.getLat()
+				+ ",4), ROUND(" + ipacket.getLng() + ",4), " + "\"uploads/"
+				+ imageNum + ".jpg\", 0," + "\"comments/" + imageNum
+				+ ".txt\", \"" + ipacket.getCaption() + "\", "
 				+ "CURRENT_TIMESTAMP );";
 
 		try {
