@@ -4,6 +4,11 @@ package com.bustr.packets;
 public class FlagPacket extends BustrPacket{
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public enum BustrFlag {
 		ILLEGAL_IMAGE, DUPLICATE_IMAGE, FANTASTIC_IMAGE, NSFW
 	}

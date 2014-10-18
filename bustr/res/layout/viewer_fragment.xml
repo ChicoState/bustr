@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/lib/com.sothree.slidinguppanel"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:background="@drawable/shadow_black"
-    android:paddingBottom="5px"
-    android:paddingLeft="6px"
-    android:paddingRight="5px"
-    android:paddingTop="5px" >
+    android:layout_gravity="bottom"
+    sothree:panelHeight="68dp"
+    sothree:shadowHeight="4dp" >
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_margin="3dp"
-        android:background="#FFFFFF" >
+        android:background="#FFFFFF"
+        android:gravity="center" >
 
         <ProgressBar
             android:id="@+id/viewerProgress"
@@ -53,6 +52,18 @@
             android:layout_centerHorizontal="true"
             android:padding="5dp"
             android:visibility="invisible" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|bottom" >
+
+        <ListView
+            android:id="@+id/comment_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </ListView>
 
         <ImageView
             android:id="@+id/upvote"
@@ -82,4 +93,4 @@
             android:src="@drawable/downcircular" />
     </RelativeLayout>
 
-</RelativeLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
