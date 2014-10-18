@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/super_light_blue"
+    android:gravity="center"
+    tools:context="com.bustr.LoginActivity" >
+
+    <TextView
+        android:id="@+id/banner1"
+        style="@style/Banner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/username_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/banner1"
+        android:ems="10"
+        android:hint="Username" />
+
+    <EditText
+        android:id="@+id/password_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/username_input"
+        android:layout_alignRight="@+id/username_input"
+        android:layout_below="@id/username_input"
+        android:hint="Password"
+        android:password="true" />
+
+    <Button
+        android:id="@+id/sign_in"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/username_input"
+        android:layout_below="@+id/password_input"
+        android:text="Sign In" />
+
+</RelativeLayout>
