@@ -93,29 +93,31 @@ public class ViewerActivity extends FragmentActivity {
     private SignalPacket imageCountPacket;
 
     @Override
-      protected Vector<String> doInBackground(Void... arg0) {
-         try {
-            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
-            output = new ObjectOutputStream(socket.getOutputStream());
-            output.flush();
-            input = new ObjectInputStream(socket.getInputStream());
-            output.writeObject(new SignalPacket(BustrSignal.IMAGE_LIST_REQUEST,
-                  BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
-            imageCountPacket = (SignalPacket) input.readObject();
-         } catch (UnknownHostException e) {
-            e.printStackTrace();
-         } catch (IOException e) {
-            e.printStackTrace();
-         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-         }
-         if (imageCountPacket != null) {
-           return imageCountPacket.getImageList();
-         } else {
-           Toast.makeText(ViewerActivity.this, "imageCountPacket not received", Toast.LENGTH_LONG).show();
-           return new Vector<String>();
-         }
+    protected Vector<String> doInBackground(Void... arg0) {
+      imageCountPacket = null;
+      try {
+        socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+        output = new ObjectOutputStream(socket.getOutputStream());
+        output.flush();
+        input = new ObjectInputStream(socket.getInputStream());
+        output.writeObject(new SignalPacket(BustrSignal.IMAGE_LIST_REQUEST,
+            BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
+        imageCountPacket = (SignalPacket) input.readObject();
+      } catch (UnknownHostException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
       }
+      if (imageCountPacket != null) {
+        return imageCountPacket.getImageList();
+      } else {
+        Toast.makeText(ViewerActivity.this, "imageCountPacket not received", Toast.LENGTH_LONG)
+            .show();
+        return new Vector<String>();
+      }
+    }
 
     @Override
     protected void onPostExecute(Vector<String> result) {
