@@ -43,6 +43,7 @@ public class ViewerFragment extends Fragment {
   private String imageName;
   private Bitmap image;
   private String userComment;
+  Vector<String> commentv;
 
   // GUI elements -------------------------------------------------------------
   private ViewGroup rootView = null;
@@ -111,7 +112,7 @@ public class ViewerFragment extends Fragment {
   }
 
   public void setImage(ImagePacket imagePacket) {
-    Vector<String> commentv = imagePacket.getMessages();
+    commentv = imagePacket.getMessages();
     String[] comments = new String[commentv.size()];
     viewerCaption.setText(imagePacket.getCaption());
     repDisplay.setText(Integer.toString(imagePacket.getRep()));
@@ -190,6 +191,15 @@ public class ViewerFragment extends Fragment {
         message = "Fail";
       }
       Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT).show();
+      if (result.getSignal() == BustrSignal.SUCCESS) {
+        commentv.add(userComment);
+        String[] comments = new String[commentv.size()];
+        commentv.toArray(comments);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+            android.R.layout.simple_list_item_1, comments);
+        listView.setAdapter(adapter);
+
+      }
     }
   }
 
