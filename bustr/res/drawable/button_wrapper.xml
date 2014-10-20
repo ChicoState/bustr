@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/button_wrapper"
+    android:shape="rectangle">
+	<stroke android:width="3dp" android:color="@color/border_blue"/>
+    <corners android:radius="5dp" />
+	
+</shape>

@@ -2,18 +2,13 @@ package com.bustr.utilities;
 
 import java.io.IOException;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Camera;
-import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import com.bustr.activities.CameraActivity;
 
 public class CameraPreview 
 extends SurfaceView 
@@ -38,6 +33,7 @@ implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         try {
+            mCamera.setDisplayOrientation(90);
             mCamera.setPreviewDisplay(holder);            
             mCamera.startPreview();
         }
@@ -93,14 +89,14 @@ implements SurfaceHolder.Callback {
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360;
             result = (360 - result) % 360;  // compensate the mirror
-//            params.setRotation(result+180);
+            params.setRotation(result+180);
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
             params.setRotation(result);
         }
 //        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         camera.setParameters(params);        
-        camera.setDisplayOrientation(result);
+//        camera.setDisplayOrientation(90);
     }
     
     public void stopEverything() {

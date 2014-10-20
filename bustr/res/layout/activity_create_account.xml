@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/super_light_blue"
+    android:gravity="center"
+    tools:context="com.bustr.LoginActivity" >
+
+    <TextView
+        android:id="@+id/banner2"
+        style="@style/ShadowText"
+        android:textSize="50sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="Register"
+        android:textAppearance="?android:attr/textAppearanceLarge" 
+        android:paddingBottom="10dp"/>
+
+    <EditText
+        android:id="@+id/new_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/new_password1"
+        android:layout_alignRight="@+id/new_password1"
+        android:layout_below="@+id/banner2"
+        android:ems="10"
+        android:hint="Username" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/new_password1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/new_username"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword" />
+
+    <EditText
+        android:id="@+id/new_password2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/new_password1"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="Re-enter password"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/create_account"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/banner2"
+        android:layout_below="@+id/new_password2"
+        android:text="Create Account" />
+
+</RelativeLayout>

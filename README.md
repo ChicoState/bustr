@@ -15,3 +15,8 @@ Michael Tostenson - CSCI Senior, Software developer intern at EXL Landa, Android
 Sterling Baldwin - CSCI Student, interested in real time systems and robotic programming
 
 Bradley Rudolph - CSCI Student, interested in mobile & web developement. 
+
+Workspace Notes
+===============
+
+Make sure to import the AndroidSlideUpPanel project to your workspace.

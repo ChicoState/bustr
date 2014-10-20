@@ -8,11 +8,9 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,14 +20,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.bustr.R;
-import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends Activity implements OnClickListener {
 
    // Private fields -----------------------------------------------------------
    private static final String LOGTAG = "BUSTR";
-   private SharedPreferences sharedPrefs;
 
    // GUI Components -----------------------------------------------------------
    private Button button1, button2, button3;
@@ -44,9 +40,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
       // Log onCreate event for life-cycle debugging
       Log.d(LOGTAG, "OnCreate()");
-
-      sharedPrefs = PreferenceManager
-            .getDefaultSharedPreferences(getBaseContext());
 
       // GUI Component wiring
       banner = (TextView) findViewById(R.id.banner1);
@@ -94,8 +87,8 @@ public class MainActivity extends Activity implements OnClickListener {
          stackBuilder.addParentStack(MainActivity.class);
          // Adds the Intent that starts the Activity to the top of the stack
          stackBuilder.addNextIntent(resultIntent);
-         final PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-               PendingIntent.FLAG_UPDATE_CURRENT);
+         final PendingIntent resultPendingIntent = stackBuilder
+               .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
          notifiBuilder.setContentIntent(resultPendingIntent);
          NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
          // 1033 allows you to update the notification later on.
@@ -105,14 +98,10 @@ public class MainActivity extends Activity implements OnClickListener {
          // Bear
          new Thread(new Runnable() {
             public void run() {
-               LocationManager loc_mgr;
-               float lat, lng;
 
-               loc_mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-               loc_mgr.addProximityAlert(39.804, -121.895, 0.001f, 10,
+               LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+               lm.addProximityAlert(39.804, -121.895, 0.001f, 10,
                      resultPendingIntent);
-               lat = BustrGrid.gridLat(loc_mgr);
-               lng = BustrGrid.gridLon(loc_mgr);
 
             }
          }).start();
