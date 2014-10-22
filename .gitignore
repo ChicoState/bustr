@@ -15,6 +15,3 @@ bustr/.idea/*
 *.iml
 *.ipr
 *.iws
-
-#SlideUpPanel
-resources/AndroidSlideUpPanel
