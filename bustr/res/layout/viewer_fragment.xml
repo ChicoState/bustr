@@ -14,15 +14,6 @@
         android:background="#FFFFFF"
         android:gravity="center" >
 
-        <ProgressBar
-            android:id="@+id/viewerProgress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:visibility="visible" />
-
         <ImageView
             android:id="@+id/viewerImage"
             android:layout_width="match_parent"
@@ -52,6 +43,25 @@
             android:layout_centerHorizontal="true"
             android:padding="5dp"
             android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/outer"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="visible"
+            android:src="@drawable/outer" />
+
+        <ImageView
+            android:id="@+id/inner"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="visible"
+            android:src="@drawable/inner" />
+
     </RelativeLayout>
 
     <RelativeLayout
