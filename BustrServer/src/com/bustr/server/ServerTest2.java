@@ -39,7 +39,7 @@ import com.mysql.jdbc.Statement;
 public class ServerTest2 {
 	
 	@Test
-<<<<<<< HEAD
+
 	public void extractBytesTest() throws IOException {
 		String imageName = "emptyPic.jpg";
 		File f = new File(imageName);
@@ -135,6 +135,7 @@ public class ServerTest2 {
 		System.out.println("  ");
 	}
 	
+/*
 	@Test
 	public void newCommentTest() {
 		try {
@@ -152,11 +153,12 @@ public class ServerTest2 {
 			output.writeObject(spacket);
 			BustrPacket res;
 			while ((res = (BustrPacket) input.readObject()) != null) {
-=======
+
+	
 	public void extractBytesTest() {
 		
 	}
->>>>>>> 8ac7a18... Server() Unit Test Skeletons
+
 
 				if (res instanceof SignalPacket) {
 					SignalPacket inSignal = (SignalPacket) res;
@@ -182,6 +184,8 @@ public class ServerTest2 {
 		System.out.println("  ");
 	}
 	
+	*/
+				
 	@Test
 	public void userAuthTest() {
 		try {
@@ -277,21 +281,7 @@ public class ServerTest2 {
 	    }
 	
 	}
-	
-	@Test
-	public void getCurrentDateTimeTest() {
-		
-	}
-	
-	@Test 
-	public void sendFailureTest() {
-		
-	}
-	
-	@Test
-	public void sendSuccessTest() {
-		
-	}
+
 	
 	@Test
 	public void upVoteTest() {
