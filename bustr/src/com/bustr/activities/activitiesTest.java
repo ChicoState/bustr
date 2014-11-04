@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.util.Log;
@@ -15,8 +16,14 @@ public class activitiesTest extends TestCase {
 	
 	@Test
 	public void getCameraInstanceTest() {
-		
-		TestCase.assertFalse(false);
+		Camera c = null;
+	      try {
+	         c = Camera.open();
+	      } catch (Exception e) {
+	         Log.e(LOGTAG, e.toString());
+	         TestCase.assertFalse(false);
+	      }
+	      TestCase.assertNotNull(c);
 	}
 	
 	@Test
@@ -49,7 +56,17 @@ public class activitiesTest extends TestCase {
 	         }
 		}
 	}
-		
+	
+	@Test
+	public void cameraFacingBackTest() {
+		TestCase.assertEquals(Camera.CameraInfo.CAMERA_FACING_BACK, cam);
+	}
+	
+	@Test
+	public void cameraFacingFrontTest() {
+		TestCase.assertEquals(Camera.CameraInfo.CAMERA_FACING_FRONT, cam);
+	}
+	
 	@Test
 	public void getCaptionFromUserTest() {
 		TestCase.assertFalse(false);
