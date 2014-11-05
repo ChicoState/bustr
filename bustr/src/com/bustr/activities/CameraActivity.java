@@ -1,12 +1,17 @@
 package com.bustr.activities;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -26,13 +32,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -96,11 +102,13 @@ public class CameraActivity extends Activity {
 
    // GUI elements -------------------------------------------------------------
    private ToggleButton btn_flash;
-   private Button btn_discard;
-   private Button btn_snap;
+   private ImageView btn_snap;
    private ImageView btn_flip;
-   private Button btn_keep;
+   private ImageView btn_save;
+   private ImageView btn_keep;
+   private ImageView btn_discard;
    private ProgressBar progress;
+   private FrameLayout container;
 
    // Initializes camera instance and location manager -------------------------
    @Override
@@ -145,22 +153,22 @@ public class CameraActivity extends Activity {
       if (camFront && camBack) {
          cam = sharedPrefs.getInt("camera",
                Camera.CameraInfo.CAMERA_FACING_BACK);
-      } else {
+      }
+      else {
          cam = 0;
       }
 
       // Wire GUI elements -----------------------------------------------------
       Typeface tf = ResourceProvider.instance(getApplicationContext())
             .getFont();
-      btn_snap = (Button) findViewById(R.id.btn_snap);
+      btn_snap = (ImageView) findViewById(R.id.btn_snap);
       btn_flip = (ImageView) findViewById(R.id.btn_flip);
-      btn_keep = (Button) findViewById(R.id.btn_keep);
-      btn_discard = (Button) findViewById(R.id.btn_discard);
+      btn_keep = (ImageView) findViewById(R.id.btn_keep);
+      btn_discard = (ImageView) findViewById(R.id.btn_discard);
       btn_flash = (ToggleButton) findViewById(R.id.btn_flash);
+      btn_save = (ImageView) findViewById(R.id.btn_save);
       progress = (ProgressBar) findViewById(R.id.uploadProgress);
-      btn_snap.setTypeface(tf);
-      btn_keep.setTypeface(tf);
-      btn_discard.setTypeface(tf);
+      container = (FrameLayout) findViewById(R.id.container);
       if (camFront && camBack) {
          btn_flip.setVisibility(View.VISIBLE);
       }
@@ -183,26 +191,39 @@ public class CameraActivity extends Activity {
             bytes = pBytes;
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
+            btn_save.setVisibility(View.VISIBLE);
             btn_snap.setVisibility(View.GONE);
             OnClickListener listener = new OnClickListener() {
                @Override
                public void onClick(View v) {
                   if (v.getId() == R.id.btn_keep) {
                      getCaptionFromUser();
-                  } else if (v.getId() == R.id.btn_discard) {
+                  }
+                  else if (v.getId() == R.id.btn_discard) {
                      btn_keep.setVisibility(View.GONE);
                      btn_discard.setVisibility(View.GONE);
+                     btn_save.setVisibility(View.GONE);
                      btn_snap.setVisibility(View.VISIBLE);
                      mCamera.startPreview();
                   }
+                  else if (v.getId() == R.id.btn_save)
+                     try {
+                        saveLocalCopy(bytes);
+                     } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                     } catch (IOException e) {
+                        e.printStackTrace();
+                     }
                }
+
             };
             btn_keep.setOnClickListener(listener);
+            btn_save.setOnClickListener(listener);
             btn_discard.setOnClickListener(listener);
          }
       };
 
-      // Auto focus even thandlerr ---------------------------------------------
+      // Auto focus event handler ----------------------------------------------
       autoFocusCallback = new AutoFocusCallback() {
          @Override
          public void onAutoFocus(boolean focused, Camera pCam) {
@@ -222,12 +243,13 @@ public class CameraActivity extends Activity {
                if (btn_flash.isChecked()) {
                   Camera.Parameters params = mCamera.getParameters();
                   params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-//                  params.setRotation(90);
+                  // params.setRotation(90);
                   mCamera.setParameters(params);
                }
                takingPicture = true;
                mCamera.autoFocus(autoFocusCallback);
-            } else {
+            }
+            else {
                promptEnableGPS();
             }
          }
@@ -292,7 +314,8 @@ public class CameraActivity extends Activity {
          String result_message = "Unexpected signal returned";
          if (result == BustrSignal.SUCCESS) {
             result_message = "Upload Successful";
-         } else if (result == BustrSignal.FAILURE) {
+         }
+         else if (result == BustrSignal.FAILURE) {
             result_message = "Upload Failed";
          }
          Toast.makeText(getBaseContext(), result_message, Toast.LENGTH_LONG)
@@ -305,7 +328,8 @@ public class CameraActivity extends Activity {
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
-      } else {
+      }
+      else {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_BACK)
                .commit();
       }
@@ -365,6 +389,8 @@ public class CameraActivity extends Activity {
 
       mCamera = Camera.open(cam);
       Camera.Parameters params = mCamera.getParameters();
+      params.set("orientation", "landscape");
+      params.setZoom(0);
       List<Size> imageSizes = params.getSupportedPictureSizes();
       Collections.reverse(imageSizes);
       Size currentSize = imageSizes.get(0);
@@ -381,14 +407,36 @@ public class CameraActivity extends Activity {
       // }
       // }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
-//      params.set("orientation", "portrait");
       params.setPictureSize(currentSize.width, currentSize.height);
+//      params.setPreviewSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+      Point screen_size = new Point();
+      
+      int picH = params.getPictureSize().height;
+      int picW = params.getPictureSize().width;
+      int preH = params.getPreviewSize().height;
+      int preW = params.getPreviewSize().width;
+
+      float scale = ((float)(picH*preW)) / ((float)(picW*preH));     
+      
+      
+      getWindowManager().getDefaultDisplay().getSize(screen_size);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
             !(camFront && camBack));
       btn_flash.setChecked(false);
+
+//      float scale_factor = (float) currentSize.height / (float) screen_size.x;
+//      Log.d(LOGTAG, "Scaling Y to factor of " + scale_factor);
+//      preview.setScaleY(scale_factor);
+//      preview.setScaleX(0.5f);
+//      
       preview.addView(mPreview);
+      
+      Log.d(LOGTAG, "Picture h: " + params.getPictureSize().height);
+      Log.d(LOGTAG, "Picture w: " + params.getPictureSize().width);
+      Log.d(LOGTAG, "Preview h: " + params.getPreviewSize().height);
+      Log.d(LOGTAG, "Preview w: " + params.getPreviewSize().width);
    }
 
    // Requests that user enable GPS service ------------------------------------
@@ -420,5 +468,19 @@ public class CameraActivity extends Activity {
       new AlertDialog.Builder(this).setTitle("Add a caption?")
             .setView(captionInput).setNeutralButton("Ok", listener)
             .setIcon(android.R.drawable.ic_input_get).show();
+   }
+
+   private void saveLocalCopy(byte[] bytes) throws FileNotFoundException,
+         IOException {
+      File folder = new File(Environment.getExternalStorageDirectory()
+            + "/Bustr/");
+      folder.mkdir();
+      Date date = new Date();
+      File dest = new File(folder, new Timestamp(date.getTime()) + ".jpg");
+      FileOutputStream outStream = new FileOutputStream(dest);
+      outStream.write(bytes, 0, bytes.length);
+      outStream.close();
+      Toast.makeText(CameraActivity.this, "File saved.", Toast.LENGTH_SHORT)
+            .show();
    }
 }

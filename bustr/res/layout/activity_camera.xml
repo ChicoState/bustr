@@ -3,6 +3,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/super_light_blue"
     tools:context="com.bustr.activities.CameraActivity"
     tools:ignore="MergeRootFrame" >
 
@@ -13,7 +14,7 @@
         tools:context="com.bustr.activities.CameraActivity"
         tools:ignore="MergeRootFrame" >
     </FrameLayout>
-    
+
     <ProgressBar
         android:id="@+id/uploadProgress"
         style="?android:attr/progressBarStyleLarge"
@@ -23,40 +24,41 @@
         android:clickable="false"
         android:visibility="gone" />
 
-    <Button
+    <ImageView
         android:id="@+id/btn_snap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:text="Snap"
-        android:textSize="30sp" />
-    
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|bottom"        
+        android:src = "@drawable/snap_button"
+        android:padding="10dp"/>
+
     <ImageView
         android:id="@+id/btn_flip"
-        android:background="@drawable/switchcamera32"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_gravity="right|top"
-        android:visibility="gone"/>
-    
-
-    <Button
-        android:id="@+id/btn_keep"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:text="Keep"
-        android:textSize="30sp"
+        android:src="@drawable/switchcamera"
+        android:padding="10dp"
         android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btn_discard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <ImageView
+        android:id="@+id/btn_keep"        
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/thumbsup" 
         android:layout_gravity="right|bottom"
-        android:text="Discard"
-        android:textSize="30sp" 
-        android:visibility="gone" />
+        android:padding="10dp"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/btn_discard"        
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/thumbsdown" 
+        android:layout_gravity="left|bottom"
+        android:padding="10dp"
+        android:visibility="gone"/>
 
     <ToggleButton
         android:id="@+id/btn_flash"
@@ -64,5 +66,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left|top"
         android:text="Flash" />
+
+    <ImageView
+        android:id="@+id/btn_save"        
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/savebutton" 
+        android:layout_gravity="center|bottom"
+        android:padding="10dp"
+        android:visibility="gone"/>
 
 </FrameLayout>

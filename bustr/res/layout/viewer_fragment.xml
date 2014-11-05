@@ -46,20 +46,22 @@
 
         <ImageView
             android:id="@+id/outer"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:visibility="visible"
+            android:alpha=".5"
             android:src="@drawable/outer" />
 
         <ImageView
             android:id="@+id/inner"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:visibility="visible"
+            android:alpha=".5"
             android:src="@drawable/inner" />
 
     </RelativeLayout>
@@ -82,7 +84,7 @@
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:background="@drawable/button_wrapper"
+            android:background="@drawable/snap_button"
             android:src="@drawable/upcircular" />
 
         <ImageView
@@ -91,7 +93,7 @@
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/button_wrapper"
+            android:background="@drawable/snap_button"
             android:src="@drawable/commentsbutton" />
 
         <ImageView
@@ -100,7 +102,7 @@
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:background="@drawable/button_wrapper"
+            android:background="@drawable/snap_button"
             android:src="@drawable/downcircular" />
     </RelativeLayout>
 

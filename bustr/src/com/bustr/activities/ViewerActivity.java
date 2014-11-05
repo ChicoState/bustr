@@ -65,7 +65,7 @@ public class ViewerActivity extends FragmentActivity {
     // Wire GUI elements -----------------------------------------------------
     pager = (ViewPager) findViewById(R.id.pager);
     pager.setOffscreenPageLimit(10);
-    pager.setPageTransformer(true, new BustrPageTransformer());
+//    pager.setPageTransformer(true, new BustrPageTransformer());
     new PreparePager().execute();
   }
 

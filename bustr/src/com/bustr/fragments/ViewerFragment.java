@@ -54,7 +54,7 @@ public class ViewerFragment extends Fragment {
    private TextView viewerCaption;
    private TextView repDisplay;
    private ImageView viewerImage;
-   private ImageView outer, inner;
+   private ImageView outer, inner;   
 
    // Constructor --------------------------------------------------------------
    public ViewerFragment(String pImageName) {
