@@ -1,9 +1,12 @@
 package com.bustr.utilities;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 
 public class ResourceProvider {
@@ -39,6 +42,14 @@ public class ResourceProvider {
    
    public SocketAddress socketAddress() {
       return new InetSocketAddress(server, port);
+   }
+
+   public Bitmap rotateBmp(Bitmap bmp) {
+      Matrix mtx = new Matrix();
+      mtx.postRotate(90);
+      bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+            bmp.getHeight(), mtx, true);
+      return bmp;
    }
 
 }

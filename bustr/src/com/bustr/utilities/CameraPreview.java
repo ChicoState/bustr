@@ -89,13 +89,13 @@ implements SurfaceHolder.Callback {
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360;
             result = (360 - result) % 360;  // compensate the mirror
-            params.setRotation(result+180);
+//            params.setRotation(result+180);
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
-            params.setRotation(result);
+//            params.setRotation(result);
         }
 //        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        camera.setParameters(params);        
+//        camera.setParameters(params);        
 //        camera.setDisplayOrientation(90);
     }
     

@@ -167,6 +167,10 @@ public class ViewerFragment extends Fragment {
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
 
+      if(image.getWidth() > image.getHeight()) {
+         image = ResourceProvider.instance(getActivity()).rotateBmp(image);
+      }
+      
       // ListView populating
       commentv.toArray(comments);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
@@ -174,14 +178,15 @@ public class ViewerFragment extends Fragment {
       listView.setAdapter(adapter);
 
       // Image rendering
-      Matrix mtx = new Matrix();
-      mtx.postRotate(90);
-      float scale = (float) viewerImage.getMeasuredWidth() / image.getWidth();
-      mtx.postScale(scale, scale);
-      Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
-            image.getHeight(), mtx, true);
+//      Matrix mtx = new Matrix();
+//      mtx.postRotate(90);
+//      float scale = (float) viewerImage.getMeasuredWidth() / image.getWidth();
+//      mtx.postScale(scale, scale);
+//      Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
+//            image.getHeight(), mtx, true);
       try {
-         viewerImage.setImageBitmap(rotated);
+//         viewerImage.setImageBitmap(rotated);
+         viewerImage.setImageBitmap(image);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }

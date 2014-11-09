@@ -529,8 +529,8 @@ public class Server {
 		System.out.println("[+] Caption  = "+ ipacket.getCaption() + "\n");
 		
 		String sql = "INSERT INTO imageData VALUES ( \""
-				+ ipacket.getUserName() + "\", ROUND(" + ipacket.getLat()
-				+ ",4), ROUND(" + ipacket.getLng() + ",4), " + "\"uploads/"
+				+ ipacket.getUserName() + "\", " + ipacket.getLat()
+				+ ", " + ipacket.getLng() + ", " + "\"uploads/"
 				+ imageNum + ".jpg\", 0," + "\"comments/" + imageNum
 				+ ".txt\", \"" + ipacket.getCaption() + "\", "
 				+ "CURRENT_TIMESTAMP );";

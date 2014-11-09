@@ -1,5 +1,6 @@
 package com.bustr.activities;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,7 +21,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -123,25 +126,21 @@ public class CameraActivity extends Activity {
                public void onStatusChanged(String provider, int status,
                      Bundle extras) {
                   // TODO Auto-generated method stub
-
                }
 
                @Override
                public void onProviderEnabled(String provider) {
                   // TODO Auto-generated method stub
-
                }
 
                @Override
                public void onProviderDisabled(String provider) {
                   // TODO Auto-generated method stub
-
                }
 
                @Override
                public void onLocationChanged(Location location) {
                   // TODO Auto-generated method stub
-
                }
             });
       sharedPrefs = PreferenceManager
@@ -185,10 +184,18 @@ public class CameraActivity extends Activity {
       pictureCallbackJPG = new PictureCallback() {
          @Override
          public void onPictureTaken(final byte[] pBytes, Camera cam) {
-            // Camera.Parameters params = cam.getParameters();
-            // TODO: params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            // cam.setParameters(params);
-            bytes = pBytes;
+            Bitmap bmp = BitmapFactory
+                  .decodeByteArray(pBytes, 0, pBytes.length);
+            if (bmp.getWidth() > bmp.getHeight()) {
+               bmp = ResourceProvider.instance(CameraActivity.this).rotateBmp(
+                     bmp);
+               ByteArrayOutputStream stream = new ByteArrayOutputStream();
+               bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+               bytes = stream.toByteArray();
+            }
+            else {
+               bytes = pBytes;
+            }
             btn_keep.setVisibility(View.VISIBLE);
             btn_discard.setVisibility(View.VISIBLE);
             btn_save.setVisibility(View.VISIBLE);
@@ -389,7 +396,6 @@ public class CameraActivity extends Activity {
 
       mCamera = Camera.open(cam);
       Camera.Parameters params = mCamera.getParameters();
-      params.set("orientation", "landscape");
       params.setZoom(0);
       List<Size> imageSizes = params.getSupportedPictureSizes();
       Collections.reverse(imageSizes);
@@ -400,15 +406,13 @@ public class CameraActivity extends Activity {
       // currentSize = size;
       // }
       // else {
-      Toast.makeText(CameraActivity.this,
-            "Picture size: " + currentSize.width + " x " + currentSize.height,
-            Toast.LENGTH_SHORT).show();
       // break;
       // }
       // }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
       params.setPictureSize(currentSize.width, currentSize.height);
-//      params.setPreviewSize(currentSize.width, currentSize.height);
+      params.set("orientation", "portrait");
+      // params.setPreviewSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 
@@ -416,13 +420,18 @@ public class CameraActivity extends Activity {
             !(camFront && camBack));
       btn_flash.setChecked(false);
 
-//      float scale_factor = (float) currentSize.height / (float) screen_size.x;
-//      Log.d(LOGTAG, "Scaling Y to factor of " + scale_factor);
-//      preview.setScaleY(scale_factor);
-//      preview.setScaleX(0.5f);
-//      
+      // float scale_factor = (float) currentSize.height / (float)
+      // screen_size.x;
+      // Log.d(LOGTAG, "Scaling Y to factor of " + scale_factor);
+      // preview.setScaleY(scale_factor);
+      // preview.setScaleX(0.5f);
+      //
       preview.addView(mPreview);
-      
+
+      Toast.makeText(
+            CameraActivity.this,
+            "h: " + params.getPictureSize().height + ", w: "
+                  + params.getPictureSize().width, Toast.LENGTH_LONG).show();
       Log.d(LOGTAG, "Picture h: " + params.getPictureSize().height);
       Log.d(LOGTAG, "Picture w: " + params.getPictureSize().width);
       Log.d(LOGTAG, "Preview h: " + params.getPreviewSize().height);
