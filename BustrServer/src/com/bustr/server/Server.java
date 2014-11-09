@@ -36,6 +36,7 @@ import java.util.Vector;
 
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
+import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 
@@ -467,6 +468,10 @@ public class Server {
 			try {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
 						rep, imagePath);
+				
+				// TODO: Set actual vote state here
+				outpacket.setVoteState(VoteState.NONE);
+				
 				if (outMessages != null)
 					outpacket.setMessages(outMessages);
 				else

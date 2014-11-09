@@ -411,17 +411,7 @@ public class CameraActivity extends Activity {
 //      params.setPreviewSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-      Point screen_size = new Point();
-      
-      int picH = params.getPictureSize().height;
-      int picW = params.getPictureSize().width;
-      int preH = params.getPreviewSize().height;
-      int preW = params.getPreviewSize().width;
 
-      float scale = ((float)(picH*preW)) / ((float)(picW*preH));     
-      
-      
-      getWindowManager().getDefaultDisplay().getSize(screen_size);
       CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
             !(camFront && camBack));
       btn_flash.setChecked(false);

@@ -4,9 +4,8 @@ import java.util.Vector;
 
 public class ImagePacket extends BustrPacket {
 
-	/**
-    * 
-    */
+   public enum VoteState { NONE, UP, DOWN };
+   
 	private static final long serialVersionUID = 1L;
 	private Vector<String> messages;
 	private String userName;
@@ -15,6 +14,7 @@ public class ImagePacket extends BustrPacket {
 	private float lat, lng;
 	private String caption; 
 	private int rep = 0;
+	private VoteState voteState = VoteState.NONE;
 
 	
 	public void addMessage(String s)
@@ -100,4 +100,11 @@ public class ImagePacket extends BustrPacket {
 	   return imageName;
 	}
 
+   public VoteState getVoteState() {
+      return voteState;
+   }
+
+   public void setVoteState(VoteState voteState) {
+      this.voteState = voteState;
+   }
 }

@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.bustr.R;
 import com.bustr.packets.ImagePacket;
+import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.ResourceProvider;
@@ -46,6 +47,7 @@ public class ViewerFragment extends Fragment {
    private Bitmap image;
    private String userComment;
    Vector<String> commentv;
+   private VoteState voteState;
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
@@ -54,7 +56,7 @@ public class ViewerFragment extends Fragment {
    private TextView viewerCaption;
    private TextView repDisplay;
    private ImageView viewerImage;
-   private ImageView outer, inner;   
+   private ImageView outer, inner;
 
    // Constructor --------------------------------------------------------------
    public ViewerFragment(String pImageName) {
@@ -82,10 +84,40 @@ public class ViewerFragment extends Fragment {
          @Override
          public void onClick(View v) {
             if (v.getId() == R.id.upvote) {
-               new Voter(BustrSignal.REP_UPVOTE);
+               switch (voteState) {
+                  case NONE:                  
+                     new Voter(BustrSignal.REP_UPVOTE);
+                     voteState = VoteState.UP;
+                     break;
+                  case UP:
+                     new Voter(BustrSignal.REP_DOWNVOTE);
+                     voteState = VoteState.NONE;
+                     break;
+                  case DOWN:
+                     new Voter(BustrSignal.REP_UPVOTE);
+                     new Voter(BustrSignal.REP_UPVOTE);
+                     voteState = VoteState.UP;
+                     break;
+               }
+               setVoteButtonStates();
             }
             else if (v.getId() == R.id.downvote) {
-               new Voter(BustrSignal.REP_DOWNVOTE);
+               switch (voteState) {
+                  case NONE:                  
+                     new Voter(BustrSignal.REP_DOWNVOTE);
+                     voteState = VoteState.DOWN;
+                     break;
+                  case UP:
+                     new Voter(BustrSignal.REP_DOWNVOTE);
+                     new Voter(BustrSignal.REP_DOWNVOTE);
+                     voteState = VoteState.DOWN;
+                     break;
+                  case DOWN:
+                     new Voter(BustrSignal.REP_UPVOTE);                  
+                     voteState = VoteState.NONE;
+                     break;
+               }
+               setVoteButtonStates();
             }
             else if (v.getId() == R.id.comment) {
                getCommentFromUser();
@@ -125,6 +157,8 @@ public class ViewerFragment extends Fragment {
 
    public void setImage(ImagePacket imagePacket) {
       commentv = imagePacket.getMessages();
+      voteState = imagePacket.getVoteState();
+      setVoteButtonStates();
       String[] comments = new String[commentv.size()];
       viewerCaption.setText(imagePacket.getCaption());
       repDisplay.setText(Integer.toString(imagePacket.getRep()));
@@ -255,6 +289,25 @@ public class ViewerFragment extends Fragment {
          setImage(result);
       }
 
+   }
+   
+   private void setVoteButtonStates()
+   {
+      switch(voteState)
+      {
+      case NONE:
+         downvote.setImageResource(R.drawable.downcircular);
+         upvote.setImageResource(R.drawable.upcircular);
+         break;
+      case UP:
+         downvote.setImageResource(R.drawable.downcircular);
+         upvote.setImageResource(R.drawable.upcircular2);
+         break;
+      case DOWN:
+         downvote.setImageResource(R.drawable.downcircular2);
+         upvote.setImageResource(R.drawable.upcircular);
+         break;
+      }
    }
 
    public void recycleImage() {
