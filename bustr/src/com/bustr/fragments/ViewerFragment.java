@@ -281,6 +281,7 @@ public class ViewerFragment extends Fragment {
          } catch (UnknownHostException e) {
             e.printStackTrace();
          } catch (IOException e) {
+            Log.e(LOGTAG, "You dropped the connection!!!");
             e.printStackTrace();
          } catch (ClassNotFoundException e) {
             e.printStackTrace();
