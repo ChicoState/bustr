@@ -102,6 +102,9 @@ public class CameraActivity extends Activity {
 
    // Boolean value to track when picture is taking
    private boolean takingPicture = false;
+   
+   // Boolean value to track after picture is taken
+   private boolean pictureTaken = false;
 
    // GUI elements -------------------------------------------------------------
    private ToggleButton btn_flash;
@@ -191,15 +194,29 @@ public class CameraActivity extends Activity {
       previewCallback = new PreviewCallback() {
          @Override
          public void onPreviewFrame(byte[] data, Camera camera) {
+
             if (mPreview.takingPicture == true) {
+
+               Log.d(LOGTAG, "Picture has been taken");
                mPreview.takingPicture = false;
+               pictureTaken = true;               
+
+               Log.d(LOGTAG, "Stopping preview");
                mCamera.stopPreview();
+
                Size previewSize = camera.getParameters().getPreviewSize();
+               Log.d(LOGTAG, "[PREVIEW-SIZE] h: " + previewSize.height
+                     + ", w: " + previewSize.width);
+
                YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21,
                      previewSize.width, previewSize.height, null);
+
                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+               // TODO: Scale the images to a uniform size here
                yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width,
                      previewSize.height), 80, baos);
+
                byte[] jdata = baos.toByteArray();
 
                // Convert to Bitmap
@@ -207,19 +224,20 @@ public class CameraActivity extends Activity {
                      jdata.length);
 
                if (bmp.getWidth() > bmp.getHeight()) {
+                  Log.d(LOGTAG, "Rotating bitmap...");
                   bmp = ResourceProvider.instance(CameraActivity.this)
                         .rotateBmp(bmp);
                   ByteArrayOutputStream stream = new ByteArrayOutputStream();
                   bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
                   bytes = stream.toByteArray();
+                  Log.d(LOGTAG, "Bitmap Rotated.");
                }
                else {
                   bytes = data;
                }
-               btn_keep.setVisibility(View.VISIBLE);
-               btn_discard.setVisibility(View.VISIBLE);
-               btn_save.setVisibility(View.VISIBLE);
-               btn_snap.setVisibility(View.GONE);
+
+               showPostPictureButtons();
+
                OnClickListener listener = new OnClickListener() {
                   @Override
                   public void onClick(View v) {
@@ -227,10 +245,9 @@ public class CameraActivity extends Activity {
                         getCaptionFromUser();
                      }
                      else if (v.getId() == R.id.btn_discard) {
-                        btn_keep.setVisibility(View.GONE);
-                        btn_discard.setVisibility(View.GONE);
-                        btn_save.setVisibility(View.GONE);
-                        btn_snap.setVisibility(View.VISIBLE);
+
+                        showPrePictureButtons();
+                        pictureTaken = false;
                         mCamera.startPreview();
                         mCamera.setPreviewCallback(previewCallback);
                      }
@@ -405,32 +422,17 @@ public class CameraActivity extends Activity {
    protected void onResume() {
       super.onResume();
       Log.d(LOGTAG, "OnResume");
-
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+      Log.d(LOGTAG, "Opening camera");
       mCamera = Camera.open(cam);
-
-      // for (Size size : imageSizes) {
-      // Log.d(LOGTAG, size.width + " x " + size.height);
-      // if (size.width < 960) {
-      // currentSize = size;
-      // }
-      // else {
-      // break;
-      // }
-      // }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
             previewCallback);
-      
       btn_flash.setChecked(false);
-
-      // float scale_factor = (float) currentSize.height / (float)
-      // screen_size.x;
-      // Log.d(LOGTAG, "Scaling Y to factor of " + scale_factor);
-      // preview.setScaleY(scale_factor);
-      // preview.setScaleX(0.5f);
-      //      
       preview.addView(mPreview);
-      mCamera.startPreview();
+      Log.d(LOGTAG, "Starting preview");
+      if(!pictureTaken) {
+         mCamera.startPreview();
+      }
    }
 
    // Requests that user enable GPS service ------------------------------------
@@ -476,6 +478,24 @@ public class CameraActivity extends Activity {
       outStream.close();
       Toast.makeText(CameraActivity.this, "File saved.", Toast.LENGTH_SHORT)
             .show();
+   }
+
+   private void showPostPictureButtons() {
+      btn_keep.setVisibility(View.VISIBLE);
+      btn_discard.setVisibility(View.VISIBLE);
+      btn_save.setVisibility(View.VISIBLE);
+      btn_snap.setVisibility(View.GONE);
+      btn_flash.setVisibility(View.GONE);
+      btn_flip.setVisibility(View.GONE);
+   }
+
+   private void showPrePictureButtons() {
+      btn_keep.setVisibility(View.GONE);
+      btn_discard.setVisibility(View.GONE);
+      btn_save.setVisibility(View.GONE);
+      btn_snap.setVisibility(View.VISIBLE);
+      btn_flip.setVisibility(View.VISIBLE);
+      btn_flash.setVisibility(View.VISIBLE);
    }
 
 }

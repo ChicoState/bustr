@@ -36,7 +36,7 @@
         android:id="@+id/btn_flip"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_gravity="right|top"
+        android:layout_gravity="right|bottom"
         android:src="@drawable/switchcamera"
         android:padding="10dp"
         android:visibility="gone" />
@@ -64,7 +64,7 @@
         android:id="@+id/btn_flash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
+        android:layout_gravity="left|bottom"
         android:text="Flash" />
 
     <ImageView
