@@ -406,12 +406,9 @@ public class CameraActivity extends Activity {
       super.onResume();
       Log.d(LOGTAG, "OnResume");
 
+      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       mCamera = Camera.open(cam);
-      Camera.Parameters params = mCamera.getParameters();
-      params.setZoom(0);
-      List<Size> imageSizes = params.getSupportedPictureSizes();
-      Collections.reverse(imageSizes);
-      Size currentSize = imageSizes.get(0);
+
       // for (Size size : imageSizes) {
       // Log.d(LOGTAG, size.width + " x " + size.height);
       // if (size.width < 960) {
@@ -423,11 +420,7 @@ public class CameraActivity extends Activity {
       // }
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
             previewCallback);
-      params.setPictureSize(currentSize.width, currentSize.height);
-      params.set("orientation", "portrait");
-      // params.setPreviewSize(currentSize.width, currentSize.height);
-      mCamera.setParameters(params);
-      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+      
       btn_flash.setChecked(false);
 
       // float scale_factor = (float) currentSize.height / (float)
@@ -435,18 +428,9 @@ public class CameraActivity extends Activity {
       // Log.d(LOGTAG, "Scaling Y to factor of " + scale_factor);
       // preview.setScaleY(scale_factor);
       // preview.setScaleX(0.5f);
-      //
+      //      
       preview.addView(mPreview);
       mCamera.startPreview();
-
-      Toast.makeText(
-            CameraActivity.this,
-            "h: " + params.getPictureSize().height + ", w: "
-                  + params.getPictureSize().width, Toast.LENGTH_LONG).show();
-      Log.d(LOGTAG, "Picture h: " + params.getPictureSize().height);
-      Log.d(LOGTAG, "Picture w: " + params.getPictureSize().width);
-      Log.d(LOGTAG, "Preview h: " + params.getPreviewSize().height);
-      Log.d(LOGTAG, "Preview w: " + params.getPreviewSize().width);
    }
 
    // Requests that user enable GPS service ------------------------------------

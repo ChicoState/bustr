@@ -28,6 +28,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -167,17 +168,16 @@ public class ViewerFragment extends Fragment {
 //      repDisplay.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-
-      if(image.getWidth() > image.getHeight()) {
-         image = ResourceProvider.instance(getActivity()).rotateBmp(image);
-      }
+//
+//      if(image.getWidth() > image.getHeight()) {
+//         image = ResourceProvider.instance(getActivity()).rotateBmp(image);
+//      }
       
       // ListView populating
       commentv.toArray(comments);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
             android.R.layout.simple_list_item_1, comments);
       listView.setAdapter(adapter);
-
       // Image rendering
 //      Matrix mtx = new Matrix();
 //      mtx.postRotate(90);
@@ -187,10 +187,14 @@ public class ViewerFragment extends Fragment {
 //            image.getHeight(), mtx, true);
       try {
 //         viewerImage.setImageBitmap(rotated);
+         viewerImage.setScaleType(ScaleType.CENTER_CROP);
          viewerImage.setImageBitmap(image);
+//         float scaleFactor = (float)rootView.getMeasuredWidth() / (float)image.getWidth();         
+//         viewerImage.setScaleX((float)rootView.getMeasuredWidth() / (float)image.getScaledWidth(1));
+//         viewerImage.setScaleY(scaleFactor);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
-      }
+      }      
       outer.clearAnimation();
       inner.setVisibility(View.GONE);
       outer.setVisibility(View.GONE);
