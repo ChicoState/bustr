@@ -23,11 +23,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.location.Location;
@@ -82,11 +85,8 @@ public class CameraActivity extends Activity {
    // CameraPreview that renders to View
    private CameraPreview mPreview;
 
-   // ShutterCallback instance handles taking picture
-   private ShutterCallback shutterCallback;
-
-   // PictureCallback handles jpg byte[]
-   private PictureCallback pictureCallbackJPG;
+   // PreviewCallback
+   private PreviewCallback previewCallback;
 
    // Auto focus callback
    private AutoFocusCallback autoFocusCallback;
@@ -172,73 +172,85 @@ public class CameraActivity extends Activity {
          btn_flip.setVisibility(View.VISIBLE);
       }
 
-      // Camera callback -------------------------------------------------------
-      shutterCallback = new ShutterCallback() {
-         @Override
-         public void onShutter() {
-            // Currently unused
-         }
-      };
-
-      // After JPG created callback --------------------------------------------
-      pictureCallbackJPG = new PictureCallback() {
-         @Override
-         public void onPictureTaken(final byte[] pBytes, Camera cam) {
-            Bitmap bmp = BitmapFactory
-                  .decodeByteArray(pBytes, 0, pBytes.length);
-            if (bmp.getWidth() > bmp.getHeight()) {
-               bmp = ResourceProvider.instance(CameraActivity.this).rotateBmp(
-                     bmp);
-               ByteArrayOutputStream stream = new ByteArrayOutputStream();
-               bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-               bytes = stream.toByteArray();
-            }
-            else {
-               bytes = pBytes;
-            }
-            btn_keep.setVisibility(View.VISIBLE);
-            btn_discard.setVisibility(View.VISIBLE);
-            btn_save.setVisibility(View.VISIBLE);
-            btn_snap.setVisibility(View.GONE);
-            OnClickListener listener = new OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                  if (v.getId() == R.id.btn_keep) {
-                     getCaptionFromUser();
-                  }
-                  else if (v.getId() == R.id.btn_discard) {
-                     btn_keep.setVisibility(View.GONE);
-                     btn_discard.setVisibility(View.GONE);
-                     btn_save.setVisibility(View.GONE);
-                     btn_snap.setVisibility(View.VISIBLE);
-                     mCamera.startPreview();
-                  }
-                  else if (v.getId() == R.id.btn_save)
-                     try {
-                        saveLocalCopy(bytes);
-                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                     } catch (IOException e) {
-                        e.printStackTrace();
-                     }
-               }
-
-            };
-            btn_keep.setOnClickListener(listener);
-            btn_save.setOnClickListener(listener);
-            btn_discard.setOnClickListener(listener);
-         }
-      };
-
       // Auto focus event handler ----------------------------------------------
       autoFocusCallback = new AutoFocusCallback() {
          @Override
          public void onAutoFocus(boolean focused, Camera pCam) {
             Log.d(LOGTAG, "Auto focus callback");
             if (takingPicture && focused == true) {
-               mCamera.takePicture(shutterCallback, null, pictureCallbackJPG);
+
+               // mCamera.takePicture(shutterCallback, null,
+               // pictureCallbackJPG);
+               mPreview.takingPicture = true;
                takingPicture = false;
             }
+         }
+      };
+
+      // Preview Callback event
+      previewCallback = new PreviewCallback() {
+         @Override
+         public void onPreviewFrame(byte[] data, Camera camera) {
+            if (mPreview.takingPicture == true) {
+               mPreview.takingPicture = false;
+               mCamera.stopPreview();
+               Size previewSize = camera.getParameters().getPreviewSize();
+               YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21,
+                     previewSize.width, previewSize.height, null);
+               ByteArrayOutputStream baos = new ByteArrayOutputStream();
+               yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width,
+                     previewSize.height), 80, baos);
+               byte[] jdata = baos.toByteArray();
+
+               // Convert to Bitmap
+               Bitmap bmp = BitmapFactory.decodeByteArray(jdata, 0,
+                     jdata.length);
+
+               if (bmp.getWidth() > bmp.getHeight()) {
+                  bmp = ResourceProvider.instance(CameraActivity.this)
+                        .rotateBmp(bmp);
+                  ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                  bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                  bytes = stream.toByteArray();
+               }
+               else {
+                  bytes = data;
+               }
+               btn_keep.setVisibility(View.VISIBLE);
+               btn_discard.setVisibility(View.VISIBLE);
+               btn_save.setVisibility(View.VISIBLE);
+               btn_snap.setVisibility(View.GONE);
+               OnClickListener listener = new OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                     if (v.getId() == R.id.btn_keep) {
+                        getCaptionFromUser();
+                     }
+                     else if (v.getId() == R.id.btn_discard) {
+                        btn_keep.setVisibility(View.GONE);
+                        btn_discard.setVisibility(View.GONE);
+                        btn_save.setVisibility(View.GONE);
+                        btn_snap.setVisibility(View.VISIBLE);
+                        mCamera.startPreview();
+                        mCamera.setPreviewCallback(previewCallback);
+                     }
+                     else if (v.getId() == R.id.btn_save)
+                        try {
+                           saveLocalCopy(bytes);
+                        } catch (FileNotFoundException e) {
+                           e.printStackTrace();
+                        } catch (IOException e) {
+                           e.printStackTrace();
+                        }
+                  }
+
+               };
+               btn_keep.setOnClickListener(listener);
+               btn_save.setOnClickListener(listener);
+               btn_discard.setOnClickListener(listener);
+               Log.d(LOGTAG, "h: " + bmp.getHeight() + "w: " + bmp.getWidth());
+            }
+            Log.d(LOGTAG, "Preview Callback");
          }
       };
 
@@ -409,15 +421,13 @@ public class CameraActivity extends Activity {
       // break;
       // }
       // }
-      mPreview = new CameraPreview(this, mCamera, !(camFront && camBack));
+      mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
+            previewCallback);
       params.setPictureSize(currentSize.width, currentSize.height);
       params.set("orientation", "portrait");
       // params.setPreviewSize(currentSize.width, currentSize.height);
       mCamera.setParameters(params);
       FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-
-      CameraPreview.setCameraDisplayOrientation(this, cam, mCamera,
-            !(camFront && camBack));
       btn_flash.setChecked(false);
 
       // float scale_factor = (float) currentSize.height / (float)
@@ -427,6 +437,7 @@ public class CameraActivity extends Activity {
       // preview.setScaleX(0.5f);
       //
       preview.addView(mPreview);
+      mCamera.startPreview();
 
       Toast.makeText(
             CameraActivity.this,
@@ -482,4 +493,5 @@ public class CameraActivity extends Activity {
       Toast.makeText(CameraActivity.this, "File saved.", Toast.LENGTH_SHORT)
             .show();
    }
+
 }

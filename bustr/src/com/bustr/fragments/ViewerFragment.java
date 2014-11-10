@@ -48,15 +48,16 @@ public class ViewerFragment extends Fragment {
    private String userComment;
    Vector<String> commentv;
    private VoteState voteState;
+   private Downloader downloader = new Downloader();
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
    private ListView listView;
    private ImageView upvote, downvote, comment;
    private TextView viewerCaption;
-   private TextView repDisplay;
+//   private TextView repDisplay;
    private ImageView viewerImage;
-   private ImageView outer, inner;
+   private ImageView outer, inner;   
 
    // Constructor --------------------------------------------------------------
    public ViewerFragment(String pImageName) {
@@ -73,7 +74,7 @@ public class ViewerFragment extends Fragment {
       // GUI element wiring ----------------------------------------------------
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
-      repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
+//      repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
       viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
       outer = (ImageView) rootView.findViewById(R.id.outer);
       inner = (ImageView) rootView.findViewById(R.id.inner);
@@ -129,7 +130,7 @@ public class ViewerFragment extends Fragment {
       comment.setOnClickListener(voteClick);
       Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();
       viewerCaption.setTypeface(tf);
-      repDisplay.setTypeface(tf);
+//      repDisplay.setTypeface(tf);
       RotateAnimation rotate = new RotateAnimation(0, 360,
             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       rotate.setRepeatCount(RotateAnimation.INFINITE);
@@ -137,7 +138,7 @@ public class ViewerFragment extends Fragment {
       rotate.setDuration(1000);
       outer.setAnimation(rotate);
       rotate.start();
-      new Downloader().execute();
+      downloader.execute();
       return rootView;
    }
 
@@ -161,9 +162,9 @@ public class ViewerFragment extends Fragment {
       setVoteButtonStates();
       String[] comments = new String[commentv.size()];
       viewerCaption.setText(imagePacket.getCaption());
-      repDisplay.setText(Integer.toString(imagePacket.getRep()));
+//      repDisplay.setText(Integer.toString(imagePacket.getRep()));
       viewerCaption.setVisibility(View.VISIBLE);
-      repDisplay.setVisibility(View.VISIBLE);
+//      repDisplay.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
 
@@ -317,6 +318,19 @@ public class ViewerFragment extends Fragment {
    }
 
    public void recycleImage() {
-      image.recycle();
+      if(image != null) {
+         image.recycle();
+      }
+   }
+   
+   public void cancelDownload() {
+      downloader.cancel(true);
+   }
+   
+   @Override
+   public void onDetach() {
+      // TODO Auto-generated method stub
+      downloader.cancel(true);
+      super.onDetach();
    }
 }

@@ -16,116 +16,158 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.fragments.ViewerFragment;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.BustrGrid;
-import com.bustr.utilities.BustrPageTransformer;
 import com.bustr.utilities.BustrViewerAdapter;
 
-public class ViewerActivity extends FragmentActivity {
+public class ViewerActivity extends FragmentActivity implements OnPageChangeListener {
 
-  private ViewPager pager;
-  private BustrViewerAdapter adapter;
+   @Override
+   protected void onDestroy() {
+      for(ViewerFragment vf : adapter.getFragments()) {
+         vf.cancelDownload();         
+         vf.recycleImage();
+      }
+      super.onDestroy();
+   }
 
-  private Socket socket;
-  private ObjectOutputStream output;
-  private ObjectInputStream input;
+   private static final String LOGTAG = "BUSTR";
+   private ViewPager pager;
+   private BustrViewerAdapter adapter;
 
-  private LocationManager lm;
+   private Socket socket;
+   private ObjectOutputStream output;
+   private ObjectInputStream input;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_viewer);
+   private LocationManager lm;
 
-    lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-        new LocationListener() {
-          @Override
-          public void onStatusChanged(String provider, int status, Bundle extras) {
-          }
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_viewer);
 
-          @Override
-          public void onProviderEnabled(String provider) {
-          }
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+            new LocationListener() {
+               @Override
+               public void onStatusChanged(String provider, int status,
+                     Bundle extras) {
+               }
 
-          @Override
-          public void onProviderDisabled(String provider) {
-          }
+               @Override
+               public void onProviderEnabled(String provider) {
+               }
 
-          @Override
-          public void onLocationChanged(Location location) {
-          }
-        });
-    // Wire GUI elements -----------------------------------------------------
-    pager = (ViewPager) findViewById(R.id.pager);
-    pager.setOffscreenPageLimit(50);
-//    pager.setPageTransformer(true, new BustrPageTransformer());
-    new PreparePager().execute();
-  }
+               @Override
+               public void onProviderDisabled(String provider) {
+               }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.viewer, menu);
-    return true;
-  }
+               @Override
+               public void onLocationChanged(Location location) {
+               }
+            });
+      // Wire GUI elements -----------------------------------------------------
+      pager = (ViewPager) findViewById(R.id.pager);
+      pager.setOffscreenPageLimit(50);
+      // pager.setPageTransformer(true, new BustrPageTransformer());
+      new PreparePager().execute();
+   }
 
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-    if (id == R.id.action_settings) {
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      // Inflate the menu; this adds items to the action bar if it is present.
+      getMenuInflater().inflate(R.menu.viewer, menu);
       return true;
-    }
-    return super.onOptionsItemSelected(item);
-  }
+   }
 
-  private class PreparePager extends AsyncTask<Void, Void, Vector<String>> {
-
-    private SignalPacket imageCountPacket;
-
-    @Override
-    protected Vector<String> doInBackground(Void... arg0) {
-      imageCountPacket = null;
-      try {
-        socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
-        output = new ObjectOutputStream(socket.getOutputStream());
-        output.flush();
-        input = new ObjectInputStream(socket.getInputStream());
-        output.writeObject(new SignalPacket(BustrSignal.IMAGE_LIST_REQUEST,
-            BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
-        imageCountPacket = (SignalPacket) input.readObject();
-      } catch (UnknownHostException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      // Handle action bar item clicks here. The action bar will
+      // automatically handle clicks on the Home/Up button, so long
+      // as you specify a parent activity in AndroidManifest.xml.
+      int id = item.getItemId();
+      if (id == R.id.action_settings) {
+         return true;
       }
-      if (imageCountPacket != null) {
-        return imageCountPacket.getImageList();
-      } else {
-        Toast.makeText(ViewerActivity.this, "imageCountPacket not received", Toast.LENGTH_LONG)
-            .show();
-        return new Vector<String>();
-      }
-    }
+      return super.onOptionsItemSelected(item);
+   }
 
-    @Override
-    protected void onPostExecute(Vector<String> result) {
-      super.onPostExecute(result);
-      adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
-      pager.setAdapter(adapter);
-      Toast.makeText(ViewerActivity.this, result.size() + " images found.",
-          Toast.LENGTH_LONG).show();
-    }
-  }
+   private class PreparePager extends AsyncTask<Void, Void, Vector<String>> {
+
+      private SignalPacket imageCountPacket;
+
+      @Override
+      protected Vector<String> doInBackground(Void... arg0) {
+         imageCountPacket = null;
+         try {
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            output = new ObjectOutputStream(socket.getOutputStream());
+            output.flush();
+            input = new ObjectInputStream(socket.getInputStream());
+            output.writeObject(new SignalPacket(BustrSignal.IMAGE_LIST_REQUEST,
+                  BustrGrid.gridLat(lm), BustrGrid.gridLon(lm)));
+            imageCountPacket = (SignalPacket) input.readObject();
+         } catch (UnknownHostException e) {
+            e.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         }
+         if (imageCountPacket != null) {
+            return imageCountPacket.getImageList();
+         }
+         else {
+            Toast.makeText(ViewerActivity.this,
+                  "imageCountPacket not received", Toast.LENGTH_LONG).show();
+            return new Vector<String>();
+         }
+      }
+
+      @Override
+      protected void onPostExecute(Vector<String> result) {
+         super.onPostExecute(result);
+         adapter = new BustrViewerAdapter(getSupportFragmentManager(), result);
+         pager.setAdapter(adapter);
+         Toast.makeText(ViewerActivity.this, result.size() + " images found.",
+               Toast.LENGTH_LONG).show();
+      }
+   }
+
+   @Override
+   public boolean onKeyDown(int keyCode, KeyEvent event) {
+      if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+         Log.e(LOGTAG, "Finishing...");
+         finish();
+      }
+      return super.onKeyDown(keyCode, event);
+   }
+
+   @Override
+   public void onPageScrollStateChanged(int arg0) {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void onPageScrolled(int arg0, float arg1, int arg2) {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void onPageSelected(int arg0) {
+      // TODO Auto-generated method stub
+      
+   }
 }
