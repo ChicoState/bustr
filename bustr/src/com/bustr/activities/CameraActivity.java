@@ -101,10 +101,8 @@ public class CameraActivity extends Activity {
    private String caption = "";
 
    // Boolean value to track when picture is taking
-   private boolean takingPicture = false;
-   
-   // Boolean value to track after picture is taken
-   private boolean pictureTaken = false;
+   private boolean takingPicture = false;  
+
 
    // GUI elements -------------------------------------------------------------
    private ToggleButton btn_flash;
@@ -198,8 +196,7 @@ public class CameraActivity extends Activity {
             if (mPreview.takingPicture == true) {
 
                Log.d(LOGTAG, "Picture has been taken");
-               mPreview.takingPicture = false;
-               pictureTaken = true;               
+               mPreview.takingPicture = false;             
 
                Log.d(LOGTAG, "Stopping preview");
                mCamera.stopPreview();
@@ -247,7 +244,6 @@ public class CameraActivity extends Activity {
                      else if (v.getId() == R.id.btn_discard) {
 
                         showPrePictureButtons();
-                        pictureTaken = false;
                         mCamera.startPreview();
                         mCamera.setPreviewCallback(previewCallback);
                      }
@@ -428,11 +424,11 @@ public class CameraActivity extends Activity {
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
             previewCallback);
       btn_flash.setChecked(false);
-      preview.addView(mPreview);
+      preview.addView(mPreview);            
+      showPrePictureButtons();
+      
       Log.d(LOGTAG, "Starting preview");
-      if(!pictureTaken) {
-         mCamera.startPreview();
-      }
+      mCamera.startPreview();
    }
 
    // Requests that user enable GPS service ------------------------------------

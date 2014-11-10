@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name='super_light_blue'>#EBFFFF</color>
+   <color name='super_light_blue_glass'>#50EBFFFF</color>
 	<color name='border_blue'>#01C6FF</color>
 	<color name="light_green">#C3F77E</color>
 </resources>

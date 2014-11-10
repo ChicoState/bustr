@@ -59,7 +59,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     /**
      * Default is set to false because that is how it was written
      */
-    private static final boolean DEFAULT_OVERLAY_FLAG = false;
+    private static final boolean DEFAULT_OVERLAY_FLAG = true;
     /**
      * Default attributes for layout
      */
@@ -115,7 +115,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     /**
      * Panel overlays the windows instead of putting it underneath it.
      */
-    private boolean mOverlayContent = DEFAULT_OVERLAY_FLAG;
+    private boolean mOverlayContent = DEFAULT_OVERLAY_FLAG; 
 
     /**
      * If provided, the panel can be dragged by only this view. Otherwise, the entire panel can be

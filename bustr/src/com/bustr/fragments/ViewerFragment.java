@@ -56,9 +56,9 @@ public class ViewerFragment extends Fragment {
    private ListView listView;
    private ImageView upvote, downvote, comment;
    private TextView viewerCaption;
-//   private TextView repDisplay;
+   // private TextView repDisplay;
    private ImageView viewerImage;
-   private ImageView outer, inner;   
+   private ImageView outer, inner;
 
    // Constructor --------------------------------------------------------------
    public ViewerFragment(String pImageName) {
@@ -75,7 +75,7 @@ public class ViewerFragment extends Fragment {
       // GUI element wiring ----------------------------------------------------
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
-//      repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
+      // repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
       viewerImage = (ImageView) rootView.findViewById(R.id.viewerImage);
       outer = (ImageView) rootView.findViewById(R.id.outer);
       inner = (ImageView) rootView.findViewById(R.id.inner);
@@ -87,37 +87,37 @@ public class ViewerFragment extends Fragment {
          public void onClick(View v) {
             if (v.getId() == R.id.upvote) {
                switch (voteState) {
-                  case NONE:                  
-                     new Voter(BustrSignal.REP_UPVOTE);
-                     voteState = VoteState.UP;
-                     break;
-                  case UP:
-                     new Voter(BustrSignal.REP_DOWNVOTE);
-                     voteState = VoteState.NONE;
-                     break;
-                  case DOWN:
-                     new Voter(BustrSignal.REP_UPVOTE);
-                     new Voter(BustrSignal.REP_UPVOTE);
-                     voteState = VoteState.UP;
-                     break;
+               case NONE:
+                  new Voter(BustrSignal.REP_UPVOTE);
+                  voteState = VoteState.UP;
+                  break;
+               case UP:
+                  new Voter(BustrSignal.REP_DOWNVOTE);
+                  voteState = VoteState.NONE;
+                  break;
+               case DOWN:
+                  new Voter(BustrSignal.REP_UPVOTE);
+                  new Voter(BustrSignal.REP_UPVOTE);
+                  voteState = VoteState.UP;
+                  break;
                }
                setVoteButtonStates();
             }
             else if (v.getId() == R.id.downvote) {
                switch (voteState) {
-                  case NONE:                  
-                     new Voter(BustrSignal.REP_DOWNVOTE);
-                     voteState = VoteState.DOWN;
-                     break;
-                  case UP:
-                     new Voter(BustrSignal.REP_DOWNVOTE);
-                     new Voter(BustrSignal.REP_DOWNVOTE);
-                     voteState = VoteState.DOWN;
-                     break;
-                  case DOWN:
-                     new Voter(BustrSignal.REP_UPVOTE);                  
-                     voteState = VoteState.NONE;
-                     break;
+               case NONE:
+                  new Voter(BustrSignal.REP_DOWNVOTE);
+                  voteState = VoteState.DOWN;
+                  break;
+               case UP:
+                  new Voter(BustrSignal.REP_DOWNVOTE);
+                  new Voter(BustrSignal.REP_DOWNVOTE);
+                  voteState = VoteState.DOWN;
+                  break;
+               case DOWN:
+                  new Voter(BustrSignal.REP_UPVOTE);
+                  voteState = VoteState.NONE;
+                  break;
                }
                setVoteButtonStates();
             }
@@ -131,7 +131,7 @@ public class ViewerFragment extends Fragment {
       comment.setOnClickListener(voteClick);
       Typeface tf = ResourceProvider.instance(rootView.getContext()).getFont();
       viewerCaption.setTypeface(tf);
-//      repDisplay.setTypeface(tf);
+      // repDisplay.setTypeface(tf);
       RotateAnimation rotate = new RotateAnimation(0, 360,
             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       rotate.setRepeatCount(RotateAnimation.INFINITE);
@@ -163,38 +163,41 @@ public class ViewerFragment extends Fragment {
       setVoteButtonStates();
       String[] comments = new String[commentv.size()];
       viewerCaption.setText(imagePacket.getCaption());
-//      repDisplay.setText(Integer.toString(imagePacket.getRep()));
+      // repDisplay.setText(Integer.toString(imagePacket.getRep()));
       viewerCaption.setVisibility(View.VISIBLE);
-//      repDisplay.setVisibility(View.VISIBLE);
+      // repDisplay.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-//
-//      if(image.getWidth() > image.getHeight()) {
-//         image = ResourceProvider.instance(getActivity()).rotateBmp(image);
-//      }
-      
+      //
+      // if(image.getWidth() > image.getHeight()) {
+      // image = ResourceProvider.instance(getActivity()).rotateBmp(image);
+      // }
+
       // ListView populating
       commentv.toArray(comments);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
             android.R.layout.simple_list_item_1, comments);
       listView.setAdapter(adapter);
       // Image rendering
-//      Matrix mtx = new Matrix();
-//      mtx.postRotate(90);
-//      float scale = (float) viewerImage.getMeasuredWidth() / image.getWidth();
-//      mtx.postScale(scale, scale);
-//      Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
-//            image.getHeight(), mtx, true);
+      // Matrix mtx = new Matrix();
+      // mtx.postRotate(90);
+      // float scale = (float) viewerImage.getMeasuredWidth() /
+      // image.getWidth();
+      // mtx.postScale(scale, scale);
+      // Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
+      // image.getHeight(), mtx, true);
       try {
-//         viewerImage.setImageBitmap(rotated);
+         // viewerImage.setImageBitmap(rotated);
          viewerImage.setScaleType(ScaleType.CENTER_CROP);
          viewerImage.setImageBitmap(image);
-//         float scaleFactor = (float)rootView.getMeasuredWidth() / (float)image.getWidth();         
-//         viewerImage.setScaleX((float)rootView.getMeasuredWidth() / (float)image.getScaledWidth(1));
-//         viewerImage.setScaleY(scaleFactor);
+         // float scaleFactor = (float)rootView.getMeasuredWidth() /
+         // (float)image.getWidth();
+         // viewerImage.setScaleX((float)rootView.getMeasuredWidth() /
+         // (float)image.getScaledWidth(1));
+         // viewerImage.setScaleY(scaleFactor);
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
-      }      
+      }
       outer.clearAnimation();
       inner.setVisibility(View.GONE);
       outer.setVisibility(View.GONE);
@@ -301,11 +304,9 @@ public class ViewerFragment extends Fragment {
       }
 
    }
-   
-   private void setVoteButtonStates()
-   {
-      switch(voteState)
-      {
+
+   private void setVoteButtonStates() {
+      switch (voteState) {
       case NONE:
          downvote.setImageResource(R.drawable.downcircular);
          upvote.setImageResource(R.drawable.upcircular);
@@ -322,15 +323,15 @@ public class ViewerFragment extends Fragment {
    }
 
    public void recycleImage() {
-      if(image != null) {
+      if (image != null) {
          image.recycle();
       }
    }
-   
+
    public void cancelDownload() {
       downloader.cancel(true);
    }
-   
+
    @Override
    public void onDetach() {
       // TODO Auto-generated method stub
