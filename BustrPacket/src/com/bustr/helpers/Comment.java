@@ -1,8 +1,10 @@
 package com.bustr.helpers;
 
+import java.io.Serializable;
 
 
-public class Comment {
+
+public class Comment implements Serializable{
    
    private String user;
    private String body;
