@@ -3,6 +3,9 @@ package com.bustr.utilities;
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -52,4 +55,10 @@ public class ResourceProvider {
       return bmp;
    }
 
+   public String getDate() {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      Calendar cal = Calendar.getInstance();
+      return dateFormat.format(cal.getTime());
+   }
+   
 }

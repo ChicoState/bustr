@@ -13,7 +13,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,7 +49,7 @@ public class ViewerFragment extends Fragment {
    private static final String LOGTAG = "BUSTR";
    private String imageName;
    private Bitmap image;
-   private String userComment;
+   private Comment userComment;
    Vector<Comment> commentv;
    private VoteState voteState;
    private Downloader downloader = new Downloader();
@@ -77,9 +76,9 @@ public class ViewerFragment extends Fragment {
       Log.d(LOGTAG, "Creating fragment");
       rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
             container, false);
-      sharedPrefs = PreferenceManager
-            .getDefaultSharedPreferences(rootView.getContext());
-      // GUI element wiring ----------------------------------------------------      
+      sharedPrefs = PreferenceManager.getDefaultSharedPreferences(rootView
+            .getContext());
+      // GUI element wiring ----------------------------------------------------
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
       // repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
@@ -155,7 +154,9 @@ public class ViewerFragment extends Fragment {
       AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
          @Override
          public void onClick(DialogInterface arg0, int arg1) {
-            userComment = captionInput.getText().toString();
+            userComment = new Comment(sharedPrefs.getString("username",
+                  "no_user"), captionInput.getText().toString(),
+                  ResourceProvider.instance(rootView.getContext()).getDate());
             new Voter(BustrSignal.NEW_COMMENT);
          }
       };
@@ -245,7 +246,7 @@ public class ViewerFragment extends Fragment {
          }
          Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT)
                .show();
-      }      
+      }
    }
 
    private class Downloader extends AsyncTask<Void, Void, ImagePacket> {
@@ -309,9 +310,9 @@ public class ViewerFragment extends Fragment {
          image.recycle();
       }
    }
-   
+
    private void refresh() {
-      // TODO: refresh comments and rep score      
+      // TODO: refresh comments and rep score
    }
 
    public void cancelDownload() {
