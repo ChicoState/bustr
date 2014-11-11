@@ -516,7 +516,7 @@ public class Server {
 				+ ".txt");
 		PrintWriter pal = new PrintWriter(fw);
 		try {
-			pal.printf("%s", ipacket.getCaption());
+			pal.printf("%s, %s", ipacket.getCaption(), ipacket.getUserName());
 			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] Comment file write failure.");
