@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bustr.R;
+import com.bustr.helpers.Comment;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
@@ -50,7 +51,7 @@ public class ViewerFragment extends Fragment {
    private String imageName;
    private Bitmap image;
    private String userComment;
-   Vector<String> commentv;
+   Vector<Comment> commentv;
    private VoteState voteState;
    private Downloader downloader = new Downloader();
    private ArrayAdapter<String> comments_adapter;
