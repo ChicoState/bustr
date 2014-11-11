@@ -28,6 +28,7 @@ import com.bustr.fragments.ViewerFragment;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 import com.bustr.utilities.BustrGrid;
+import com.bustr.utilities.BustrPageTransformer;
 import com.bustr.utilities.BustrViewerAdapter;
 
 public class ViewerActivity extends FragmentActivity implements OnPageChangeListener {
@@ -79,7 +80,7 @@ public class ViewerActivity extends FragmentActivity implements OnPageChangeList
       // Wire GUI elements -----------------------------------------------------
       pager = (ViewPager) findViewById(R.id.pager);
       pager.setOffscreenPageLimit(50);
-      // pager.setPageTransformer(true, new BustrPageTransformer());
+//       pager.setPageTransformer(true, new BustrPageTransformer());
       new PreparePager().execute();
    }
 

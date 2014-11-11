@@ -10,12 +10,14 @@ import java.util.Vector;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +53,8 @@ public class ViewerFragment extends Fragment {
    Vector<String> commentv;
    private VoteState voteState;
    private Downloader downloader = new Downloader();
+   private ArrayAdapter<String> comments_adapter;
+   private SharedPreferences sharedPrefs;
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
@@ -72,8 +76,9 @@ public class ViewerFragment extends Fragment {
       Log.d(LOGTAG, "Creating fragment");
       rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
             container, false);
-
-      // GUI element wiring ----------------------------------------------------
+      sharedPrefs = PreferenceManager
+            .getDefaultSharedPreferences(rootView.getContext());
+      // GUI element wiring ----------------------------------------------------      
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
       // repDisplay = (TextView) rootView.findViewById(R.id.repDisplay);
@@ -168,9 +173,9 @@ public class ViewerFragment extends Fragment {
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
       commentv.toArray(comments);
-      ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+      comments_adapter = new ArrayAdapter<String>(getActivity(),
             R.layout.comment_list_item, comments);
-      listView.setAdapter(adapter);
+      listView.setAdapter(comments_adapter);
 
       try {
          viewerImage.setScaleType(ScaleType.CENTER_CROP);
@@ -183,8 +188,8 @@ public class ViewerFragment extends Fragment {
       inner.setVisibility(View.GONE);
       outer.setVisibility(View.GONE);
       viewerImage.setVisibility(View.VISIBLE);
-      viewerImage.startAnimation(AnimationUtils.loadAnimation(rootView.getContext(),
-            android.R.anim.fade_in));
+      viewerImage.startAnimation(AnimationUtils.loadAnimation(
+            rootView.getContext(), android.R.anim.fade_in));
    }
 
    private class Voter extends AsyncTask<Void, Void, SignalPacket> {
@@ -207,6 +212,7 @@ public class ViewerFragment extends Fragment {
             input = new ObjectInputStream(socket.getInputStream());
             SignalPacket packet = new SignalPacket(signalType);
             packet.setImageName(imageName);
+            packet.setUser(sharedPrefs.getString("username", "no_user"));
             if (signalType == BustrSignal.NEW_COMMENT) {
                packet.setComment(userComment);
             }
@@ -231,22 +237,14 @@ public class ViewerFragment extends Fragment {
          String message = null;
          if (result.getSignal() == BustrSignal.SUCCESS) {
             message = "Success";
+            refresh();
          }
          else if (result.getSignal() == BustrSignal.FAILURE) {
             message = "Fail";
          }
          Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT)
                .show();
-         if (result.getSignal() == BustrSignal.SUCCESS) {
-            commentv.add(userComment);
-            String[] comments = new String[commentv.size()];
-            commentv.toArray(comments);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                  getActivity(), android.R.layout.simple_list_item_1, comments);
-            listView.setAdapter(adapter);
-
-         }
-      }
+      }      
    }
 
    private class Downloader extends AsyncTask<Void, Void, ImagePacket> {
@@ -309,6 +307,10 @@ public class ViewerFragment extends Fragment {
       if (image != null) {
          image.recycle();
       }
+   }
+   
+   private void refresh() {
+      // TODO: refresh comments and rep score      
    }
 
    public void cancelDownload() {
