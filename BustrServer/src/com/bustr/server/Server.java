@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
 
+import com.bustr.helpers.Comment;
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.ImagePacket.VoteState;
@@ -48,7 +49,7 @@ public class Server {
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String pathPrefix = "/home/bustr/Desktop/";
-	private static final float epsilon = 0.0001f;
+	private static final float epsilon = 0.0002f;
 	private BustrPacket packet;
 	private static Connection connection;
 	private static Statement stmt;
@@ -248,15 +249,10 @@ public class Server {
 
 	public static void handleNewComment(SignalPacket spacket,
 			ObjectOutputStream output) throws IOException {
-		String newComment = spacket.getComment();
-		if (newComment.length() == 0) {
-			sendFailure(output);
-			System.out.println("[-] Received an empty comment");
-			return;
-		}
-		String user = spacket.getUser();
+		Comment newComment = spacket.getComment();
+		
 		String imagePath = spacket.getImageName();
-		System.out.println("[+] Adding comment \"" + newComment + "\" to image="
+		System.out.println("[+] Adding comment \"" + newComment.getBody() + "\" to image="
 				+ imagePath);
 		File dir = new File(pathPrefix + "/comments");
 		if (!dir.exists())
@@ -264,7 +260,11 @@ public class Server {
 		FileWriter fw = new FileWriter("comments/"
 				+ imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			fw.append(newComment + ", " + user + System.getProperty("line.separator"));
+			String sql = "SELECT CURRENT_TIMESTAMP;";
+			stmt.executeQuery(sql);
+			rs.next();
+			String timestamp = rs.getString("CURRENT_TIMESTAMP");
+			fw.append(newComment.getUser() + "\n" + newComment.getTime() + "\n" + newComment.getBody() + "\n");
 		} catch (Exception e) {
 			System.out.println("[-] New comment write failure with comment "
 					+ newComment);
@@ -444,19 +444,22 @@ public class Server {
 				System.out.println("[-] Failed to retrieve image from "
 						+ imagePath);
 			}
-
+			Vector<Comment> commentVect = null;
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						commentPath)));
-				caption = br.readLine();
-				outMessages = new Vector<String>();
-				// String s = br.readLine();
-				// outMessages.add(s);
-				String s = br.readLine();
-				for (; s != null; s = br.readLine()) {
-					outMessages.add(s);
-					System.out.println("[+] Adding comment=\"" + s
-							+ "\" to the image");
+				
+				String user = br.readLine();
+				String time = br.readLine();
+				String body = br.readLine();
+				for (; body != null; body = br.readLine()) {
+					Comment c = new Comment(user, time, body);
+					commentVect.add(c);
+					System.out.println("[+] Adding comment:" + c.getBody() + "\n");
+					//System.out.println("[+] Adding comment=\"" + c.toString()
+					//		+ "\" to the image");
+					user = br.readLine();
+					time = br.readLine();
 				}
 				br.close();
 			} catch (Exception e) {
@@ -473,7 +476,7 @@ public class Server {
 				outpacket.setVoteState(VoteState.NONE);
 				
 				if (outMessages != null)
-					outpacket.setMessages(outMessages);
+					outpacket.setMessages(commentVect);
 				else
 					System.out.println("[-] Failed to add messages");
 				System.out.println("   Writing out ImagePacket to user");
@@ -516,7 +519,11 @@ public class Server {
 				+ ".txt");
 		PrintWriter pal = new PrintWriter(fw);
 		try {
-			pal.printf("%s, %s", ipacket.getCaption(), ipacket.getUserName());
+			String sql = "SELECT CURRENT_TIMESTAMP;";
+			stmt.executeQuery(sql);
+			rs.next();
+			String timestamp = rs.getString("CURRENT_TIMESTAMP");
+			pal.printf("%s\n%s\n%s", ipacket.getUserName(), timestamp, ipacket.getCaption());
 			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] Comment file write failure.");
