@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
@@ -163,38 +164,18 @@ public class ViewerFragment extends Fragment {
       setVoteButtonStates();
       String[] comments = new String[commentv.size()];
       viewerCaption.setText(imagePacket.getCaption());
-      // repDisplay.setText(Integer.toString(imagePacket.getRep()));
       viewerCaption.setVisibility(View.VISIBLE);
-      // repDisplay.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      //
-      // if(image.getWidth() > image.getHeight()) {
-      // image = ResourceProvider.instance(getActivity()).rotateBmp(image);
-      // }
-
-      // ListView populating
       commentv.toArray(comments);
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-            android.R.layout.simple_list_item_1, comments);
+            R.layout.comment_list_item, comments);
       listView.setAdapter(adapter);
-      // Image rendering
-      // Matrix mtx = new Matrix();
-      // mtx.postRotate(90);
-      // float scale = (float) viewerImage.getMeasuredWidth() /
-      // image.getWidth();
-      // mtx.postScale(scale, scale);
-      // Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(),
-      // image.getHeight(), mtx, true);
+
       try {
-         // viewerImage.setImageBitmap(rotated);
          viewerImage.setScaleType(ScaleType.CENTER_CROP);
          viewerImage.setImageBitmap(image);
-         // float scaleFactor = (float)rootView.getMeasuredWidth() /
-         // (float)image.getWidth();
-         // viewerImage.setScaleX((float)rootView.getMeasuredWidth() /
-         // (float)image.getScaledWidth(1));
-         // viewerImage.setScaleY(scaleFactor);
+
       } catch (Exception e) {
          Log.e(LOGTAG, e.toString());
       }
@@ -202,6 +183,8 @@ public class ViewerFragment extends Fragment {
       inner.setVisibility(View.GONE);
       outer.setVisibility(View.GONE);
       viewerImage.setVisibility(View.VISIBLE);
+      viewerImage.startAnimation(AnimationUtils.loadAnimation(rootView.getContext(),
+            android.R.anim.fade_in));
    }
 
    private class Voter extends AsyncTask<Void, Void, SignalPacket> {
@@ -308,16 +291,16 @@ public class ViewerFragment extends Fragment {
    private void setVoteButtonStates() {
       switch (voteState) {
       case NONE:
-         downvote.setImageResource(R.drawable.downcircular);
-         upvote.setImageResource(R.drawable.upcircular);
+         downvote.setImageResource(R.drawable.upvote);
+         upvote.setImageResource(R.drawable.upvote);
          break;
       case UP:
-         downvote.setImageResource(R.drawable.downcircular);
+         downvote.setImageResource(R.drawable.upvote);
          upvote.setImageResource(R.drawable.upcircular2);
          break;
       case DOWN:
-         downvote.setImageResource(R.drawable.downcircular2);
-         upvote.setImageResource(R.drawable.upcircular);
+         downvote.setImageResource(R.drawable.upcircular2);
+         upvote.setImageResource(R.drawable.upvote);
          break;
       }
    }

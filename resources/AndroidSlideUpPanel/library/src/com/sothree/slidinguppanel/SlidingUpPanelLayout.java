@@ -30,7 +30,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     /**
      * Default peeking out panel height
      */
-    private static final int DEFAULT_PANEL_HEIGHT = 55; // dp;
+    private static final int DEFAULT_PANEL_HEIGHT = 43; // dp;
 
     /**
      * Default anchor point height

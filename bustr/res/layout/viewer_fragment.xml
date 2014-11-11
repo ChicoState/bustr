@@ -22,7 +22,7 @@
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/viewerImage"            
+            android:layout_below="@+id/viewerImage"
             android:textSize="25sp"
             android:visibility="gone" />
 
@@ -45,42 +45,47 @@
             android:visibility="visible" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <RelativeLayout        
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/super_light_blue_glass"
+        android:layout_height="wrap_content"        
         android:gravity="center"
-        android:paddingTop="5dp" >
+         >
 
-        <ImageView
-            android:id="@+id/upvote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/upcircular" />
+        <RelativeLayout
+            android:id="@+id/viewer_buttons"
+            android:padding="4dp"            
+            android:layout_width="match_parent"
+            android:background="@color/border_blue_glass"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
 
-        <ImageView
-            android:id="@+id/comment"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/commentsbutton" />
+            <ImageView
+                android:id="@+id/upvote"
+                style="@style/ui_button"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/upvote" />
 
-        <ImageView
-            android:id="@+id/downvote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/downcircular" />
+            <ImageView
+                android:id="@+id/comment"
+                style="@style/ui_button"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/comment" />
+
+            <ImageView
+                android:id="@+id/downvote"
+                style="@style/ui_button"
+                android:layout_alignParentLeft="true"
+                android:rotation="180"
+                android:src="@drawable/upvote" />
+            
+        </RelativeLayout>
 
         <ListView
             android:id="@+id/comment_list"
+            android:background="@color/glass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/comment" >
+            android:layout_below="@id/viewer_buttons" >
         </ListView>
     </RelativeLayout>
 
