@@ -14,6 +14,21 @@ public class Comment {
       this.body = body;      
    }
    
+   public String getUser()
+   {
+	   return user;
+   }
+   
+   public String getBody()
+   {
+	   return body;
+   }
+   
+   public String getTime()
+   {
+	   return time;
+   }
+   
    @Override
    public String toString() {
       return user + "@" + time + ": " + body;
