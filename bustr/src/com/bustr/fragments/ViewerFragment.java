@@ -155,8 +155,8 @@ public class ViewerFragment extends Fragment {
          @Override
          public void onClick(DialogInterface arg0, int arg1) {
             userComment = new Comment(sharedPrefs.getString("username",
-                  "no_user"), captionInput.getText().toString(),
-                  ResourceProvider.instance(rootView.getContext()).getDate());
+                  "no_user"), ResourceProvider.instance(rootView.getContext())
+                  .getDate(), captionInput.getText().toString());
             new Voter(BustrSignal.NEW_COMMENT);
          }
       };

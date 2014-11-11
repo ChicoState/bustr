@@ -1,9 +1,15 @@
 package com.bustr.helpers;
 
+import java.io.Serializable;
 
-public class Comment{
 
-	private String user;
+public class Comment implements Serializable {
+
+	/**
+    * 
+    */
+   private static final long serialVersionUID = -258046443489747928L;
+   private String user;
 	private String body;
 	private String time;
 

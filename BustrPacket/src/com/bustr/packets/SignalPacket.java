@@ -9,11 +9,12 @@ public class SignalPacket extends BustrPacket {
 	/**
     * 
     */
+   private static final long serialVersionUID = -1054509650801243361L;
+
 	public enum BustrSignal {
 		FAILURE, SUCCESS, IMAGE_LIST_REQUEST, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_LIST, NEW_USER, USER_AUTH, NEW_COMMENT;
 	}
 
-	private static final long serialVersionUID = 1L;
 	private BustrSignal signal;
 	private float lat, lng;
 	private String imageName;
