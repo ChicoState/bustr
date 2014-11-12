@@ -30,7 +30,11 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
       View comment_view = inflater.inflate(R.layout.comment_list_item, parent,
             false);
       TextView body = (TextView)comment_view.findViewById(R.id.comment_body);
+      TextView name = (TextView)comment_view.findViewById(R.id.commenter_name);
+      TextView date = (TextView)comment_view.findViewById(R.id.comment_date);
       body.setText(comments.get(position).getBody());
+      name.setText(comments.get(position).getUser() + ":");
+      date.setText(comments.get(position).getTime());      
       return comment_view;
    }
 
