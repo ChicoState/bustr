@@ -247,7 +247,7 @@ public class Server {
 		}
 	}
 
-	public static void handleNewComment(SignalPacket spacket,
+	public void handleNewComment(SignalPacket spacket,
 			ObjectOutputStream output) throws IOException {
 		Comment newComment = spacket.getComment();
 		
@@ -260,10 +260,8 @@ public class Server {
 		FileWriter fw = new FileWriter("comments/"
 				+ imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			String sql = "SELECT CURRENT_TIMESTAMP;";
-			stmt.executeQuery(sql);
-			rs.next();
-			String timestamp = rs.getString("CURRENT_TIMESTAMP");
+			
+			String timestamp = getCurrentDateTime();
 			fw.append(newComment.getUser() + "\n" + newComment.getTime() + "\n" + newComment.getBody() + "\n");
 		} catch (Exception e) {
 			System.out.println("[-] New comment write failure with comment "
@@ -285,7 +283,6 @@ public class Server {
 		String sql = "SELECT * FROM users WHERE userId=\"" + username
 				+ "\" and userPass=\"" + password + "\";";
 		try {
-
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
 			System.out.println("[-] Failed to execute sql stmt " + sql);
@@ -444,7 +441,7 @@ public class Server {
 				System.out.println("[-] Failed to retrieve image from "
 						+ imagePath);
 			}
-			Vector<Comment> commentVect = null;
+			Vector<Comment> commentVect = new Vector<Comment>();
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						commentPath)));
@@ -452,18 +449,21 @@ public class Server {
 				String user = br.readLine();
 				String time = br.readLine();
 				String body = br.readLine();
-				for (; body != null; body = br.readLine()) {
-					Comment c = new Comment(user, time, body);
+				Comment c = new Comment(user, time, body);
+				commentVect.add(c);
+				System.out.println("[+] Adding comment:" + c.getBody() + "\n");
+				
+				user = br.readLine();
+				for (; user != null; user = br.readLine()) {
+					time = br.readLine();
+					body = br.readLine();
+					c = new Comment(user, time, body);
 					commentVect.add(c);
 					System.out.println("[+] Adding comment:" + c.getBody() + "\n");
-					//System.out.println("[+] Adding comment=\"" + c.toString()
-					//		+ "\" to the image");
-					user = br.readLine();
-					time = br.readLine();
 				}
 				br.close();
 			} catch (Exception e) {
-				System.out.println("[-] Failed to retrice comment file from "
+				System.out.println("[-] Failed to retrieve comment file from "
 						+ commentPath);
 				e.printStackTrace();
 			}
@@ -475,7 +475,7 @@ public class Server {
 				// TODO: Set actual vote state here
 				outpacket.setVoteState(VoteState.NONE);
 				
-				if (outMessages != null)
+				if (commentVect != null)
 					outpacket.setMessages(commentVect);
 				else
 					System.out.println("[-] Failed to add messages");
@@ -519,10 +519,8 @@ public class Server {
 				+ ".txt");
 		PrintWriter pal = new PrintWriter(fw);
 		try {
-			String sql = "SELECT CURRENT_TIMESTAMP;";
-			stmt.executeQuery(sql);
-			rs.next();
-			String timestamp = rs.getString("CURRENT_TIMESTAMP");
+			String timestamp = getCurrentDateTime();
+			System.out.println("   New image at time " + timestamp);
 			pal.printf("%s\n%s\n%s", ipacket.getUserName(), timestamp, ipacket.getCaption());
 			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
