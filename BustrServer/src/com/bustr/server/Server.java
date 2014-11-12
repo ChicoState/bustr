@@ -218,6 +218,10 @@ public class Server {
 						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
 							System.out.println("[+] IMAGE LIST REQUEST");
 							handleImageListRequest(spacket, output);
+						} else if (spacket.getSignal() == BustrSignal.TOP_PIC)
+						{
+							System.out.println("[+] TOP PIC REQUEST");
+							handleTopPic(spacket, output);
 						} else {
 							System.out.println("[-] Unrecognized signal type");
 							sendFailure(output);
@@ -421,6 +425,70 @@ public class Server {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private void handleTopPic(SignalPacket spacket,
+			ObjectOutputStream output) throws SQLException, IOException {
+		float big_epsilon = 1.0f;
+		String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
+				+ Float.toString(spacket.getLat() - big_epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLat() + big_epsilon)
+				+ ", 4) AND lng BETWEEN ROUND("
+				+ Float.toString(spacket.getLng() - big_epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLng() + big_epsilon)
+				+ ",4) ORDER BY rep DESC;";
+		
+		ImagePacket outpacket = null;
+		String imagePath = "default";
+		System.out.println("   Sending stmt to db");
+		System.out.println("       " + sql);
+		try {
+			rs = stmt.executeQuery(sql);
+		} catch (Exception e) {
+			System.out.println("   [-] Failure when executing query: " + sql);
+			e.printStackTrace();
+		}
+
+		if (rs.next()) {
+			String commentPath = rs.getString("commentPath");
+			imagePath = rs.getString("imagePath");
+			String userName = rs.getString("userName");
+			Float lat = rs.getFloat("Lat");
+			Float lng = rs.getFloat("Lng");
+			int rep = rs.getInt("rep");
+			String caption = rs.getString("caption");
+			byte[] data = null;
+			try {
+				data = extractBytes(imagePath);
+			} catch (Exception e) {
+				System.out.println("[-] Failed to retrieve image from "
+						+ imagePath);
+			}
+
+			try {
+				outpacket = new ImagePacket(userName, data, lat, lng, caption,
+						rep, imagePath);
+				
+				// TODO: Set actual vote state here
+				outpacket.setVoteState(VoteState.NONE);
+				System.out.println("   Writing out ImagePacket to user");
+				System.out
+						.println("   -------------------------------------------");
+				System.out.println("   ###  " + userName + "  ###  "
+						+ lat.toString() + ", " + lng.toString() + "  ###  "
+						+ caption);
+				output.writeObject(outpacket);
+				System.out.println("   Done!\n");
+			} catch (Exception e) {
+				System.out.println("   [-] Failed to send ImagePacket");
+				e.printStackTrace();
+			}
+		} else {
+			System.out
+					.println("[-] Failed to send image with name" + imagePath);
+		}
 	}
 
 	private void handleImageRequest(SignalPacket spacket,
