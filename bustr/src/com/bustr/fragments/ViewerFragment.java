@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -27,7 +27,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -41,6 +40,7 @@ import com.bustr.packets.ImagePacket;
 import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.CommentsAdapter;
 import com.bustr.utilities.ResourceProvider;
 
 public class ViewerFragment extends Fragment {
@@ -50,10 +50,10 @@ public class ViewerFragment extends Fragment {
    private String imageName;
    private Bitmap image;
    private Comment userComment;
-   Vector<Comment> commentv;
+   ArrayList<Comment> commentv;
    private VoteState voteState;
    private Downloader downloader = new Downloader();
-   private ArrayAdapter<String> comments_adapter;
+   private CommentsAdapter comments_adapter;
    private SharedPreferences sharedPrefs;
 
    // GUI elements -------------------------------------------------------------
@@ -168,15 +168,11 @@ public class ViewerFragment extends Fragment {
    public void setImage(ImagePacket imagePacket) {
       commentv = imagePacket.getMessages();
       voteState = imagePacket.getVoteState();
-      setVoteButtonStates();
-      String[] comments = new String[commentv.size()];
       viewerCaption.setText(imagePacket.getCaption());
       viewerCaption.setVisibility(View.VISIBLE);
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
-      commentv.toArray(comments);
-      comments_adapter = new ArrayAdapter<String>(getActivity(),
-            R.layout.comment_list_item, comments);
+      comments_adapter = new CommentsAdapter(rootView.getContext(), commentv);
       listView.setAdapter(comments_adapter);
 
       try {

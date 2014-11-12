@@ -1,5 +1,6 @@
 package com.bustr.packets;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import com.bustr.helpers.Comment;
@@ -9,7 +10,7 @@ public class ImagePacket extends BustrPacket {
    public enum VoteState { NONE, UP, DOWN };
    
 	private static final long serialVersionUID = 1L;
-	private Vector<Comment> messages;
+	private ArrayList<Comment> messages;
 	private String userName;
 	private String imageName;
 	private byte[] data;
@@ -35,11 +36,11 @@ public class ImagePacket extends BustrPacket {
 	}
 
 
-	public Vector<Comment> getMessages() {
+	public ArrayList<Comment> getMessages() {
 		return messages;
 	}
 
-	public void setMessages(Vector<Comment> messages) {
+	public void setMessages(ArrayList<Comment> messages) {
 		this.messages = messages;
 	}
 
@@ -50,7 +51,7 @@ public class ImagePacket extends BustrPacket {
 		lat = pLat;
 		lng = pLng;
 		caption = pCaption;
-		messages = new Vector<Comment>();
+		messages = new ArrayList<Comment>();
 	}
 
 	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
