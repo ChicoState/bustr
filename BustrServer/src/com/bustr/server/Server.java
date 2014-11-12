@@ -24,12 +24,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
@@ -309,7 +311,21 @@ public class Server {
 			ClassNotFoundException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
-		String sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
+		String sql;
+		/*
+		DatabaseMetaData dmd = connection.getMetaData();
+		rs = dmd.getTables(null, null, username, null);
+		if(rs.next())
+		{
+			sendFailure(output);
+			return false;
+		} else {
+			sql = "CREATE TABLE " + username 
+					+ " (image_name VARCHAR(255) not null, "
+					+ "vote_status VARCHAR(255);";
+		}
+		*/
+		sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
 		rs = stmt.executeQuery(sql);
 		if (rs.next()) {
 			sendFailure(output);
@@ -441,7 +457,7 @@ public class Server {
 				System.out.println("[-] Failed to retrieve image from "
 						+ imagePath);
 			}
-			Vector<Comment> commentVect = new Vector<Comment>();
+			ArrayList<Comment> commentVect = new ArrayList<Comment>();
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						commentPath)));
