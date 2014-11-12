@@ -19,6 +19,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,8 +61,8 @@ public class MainActivity extends Activity implements OnClickListener {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
-      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);     
+      
       // Log onCreate event for life-cycle debugging
       Log.d(LOGTAG, "OnCreate()");
 
@@ -82,7 +84,9 @@ public class MainActivity extends Activity implements OnClickListener {
       button1.setOnClickListener(this);
       button3.setOnClickListener(this);
       
-      new BgGetter().execute();
+      if(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+         new BgGetter().execute();
+      }
    }
 
    // onClick event handler ----------------------------------------------------
@@ -99,6 +103,7 @@ public class MainActivity extends Activity implements OnClickListener {
       }
 
    }
+
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
