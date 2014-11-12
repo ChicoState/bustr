@@ -56,7 +56,7 @@ public class ResourceProvider {
    }
 
    public String getDate() {
-      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+      DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
       Calendar cal = Calendar.getInstance();
       return dateFormat.format(cal.getTime());
    }
