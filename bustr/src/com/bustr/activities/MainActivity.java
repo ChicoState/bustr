@@ -1,5 +1,13 @@
 package com.bustr.activities;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
@@ -8,28 +16,41 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bustr.R;
+import com.bustr.packets.ImagePacket;
+import com.bustr.packets.SignalPacket;
+import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.ResourceProvider;
 
 public class MainActivity extends Activity implements OnClickListener {
 
    // Private fields -----------------------------------------------------------
    private static final String LOGTAG = "BUSTR";
+   private LocationManager lm;
+   private Bitmap bgImage;
 
    // GUI Components -----------------------------------------------------------
    private Button button1, button2, button3;
    private TextView banner;
+   private ImageView background;
    Typeface fontopo;
 
    // OnCreate -----------------------------------------------------------------
@@ -37,6 +58,8 @@ public class MainActivity extends Activity implements OnClickListener {
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
+
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
       // Log onCreate event for life-cycle debugging
       Log.d(LOGTAG, "OnCreate()");
@@ -46,6 +69,7 @@ public class MainActivity extends Activity implements OnClickListener {
       button1 = (Button) findViewById(R.id.button1);
       button2 = (Button) findViewById(R.id.button2);
       button3 = (Button) findViewById(R.id.button3);
+      background = (ImageView) findViewById(R.id.main_bg_img);
 
       // Load type-face resources and apply
       fontopo = ResourceProvider.instance(getBaseContext()).getFont();
@@ -56,8 +80,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
       // Register views that listen for clicks
       button1.setOnClickListener(this);
-      button2.setOnClickListener(this);
       button3.setOnClickListener(this);
+      
+      new BgGetter().execute();
    }
 
    // onClick event handler ----------------------------------------------------
@@ -67,45 +92,6 @@ public class MainActivity extends Activity implements OnClickListener {
       switch (view.getId()) {
       case R.id.button1:
          startActivity(new Intent(this, CameraActivity.class));
-         break;
-      case R.id.button2:
-         int picsNum = 10;
-         String contentText = String.format("There are %s picture here",
-               picsNum);
-         Notification.Builder notifiBuilder = new Notification.Builder(this)
-               .setSmallIcon(R.drawable.bustr_logo)
-               .setContentTitle("New Location!").setContentText(contentText)
-               .setAutoCancel(true);
-
-         // Creates an explicit intent for an Activity in your app
-         Intent resultIntent = new Intent(this, MainActivity.class);
-
-         // This ensures that navigating backward from the Activity leads out of
-         // your application to the Home screen.
-         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-         // Adds the back stack for the Intent (but not the Intent itself)
-         stackBuilder.addParentStack(MainActivity.class);
-         // Adds the Intent that starts the Activity to the top of the stack
-         stackBuilder.addNextIntent(resultIntent);
-         final PendingIntent resultPendingIntent = stackBuilder
-               .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-         notifiBuilder.setContentIntent(resultPendingIntent);
-         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-         // 1033 allows you to update the notification later on.
-         mNotificationManager.notify(1033, notifiBuilder.build());
-
-         // Spin off a thread that will shoot that notification out if @ the
-         // Bear
-         new Thread(new Runnable() {
-            public void run() {
-
-               LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-               lm.addProximityAlert(39.804, -121.895, 0.001f, 10,
-                     resultPendingIntent);
-
-            }
-         }).start();
-
          break;
       case R.id.button3:
          startActivity(new Intent(MainActivity.this, ViewerActivity.class));
@@ -133,4 +119,50 @@ public class MainActivity extends Activity implements OnClickListener {
       }
       return super.onOptionsItemSelected(item);
    }
+
+   private class BgGetter extends AsyncTask<Void, Void, ImagePacket> {
+
+      private Socket socket;
+      private ObjectInputStream input;
+      private ObjectOutputStream output;
+
+      @Override
+      protected ImagePacket doInBackground(Void... arg0) {
+         try {
+            socket = new Socket(InetAddress.getByName("50.173.32.127"), 8000);
+            output = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
+            SignalPacket imgReq = new SignalPacket(BustrSignal.TOP_PIC);
+            imgReq.setLat(BustrGrid.gridLat(lm));
+            imgReq.setLng(BustrGrid.gridLon(lm));
+            output.writeObject(imgReq);
+            ImagePacket imagePacket = (ImagePacket) input.readObject();
+            output.close();
+            input.close();
+            socket.close();
+            return imagePacket;
+         } catch (UnknownHostException e) {
+            e.printStackTrace();
+         } catch (IOException e) {
+            Log.e(LOGTAG, "You dropped the connection!!!");
+            e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         }
+         return null;
+      }
+
+      @Override
+      protected void onPostExecute(ImagePacket result) {
+         super.onPostExecute(result);
+         bgImage = BitmapFactory.decodeByteArray(result.getData(), 0,
+               result.getData().length);
+         background.setImageBitmap(bgImage);
+         background.setVisibility(View.VISIBLE);
+         background.startAnimation(AnimationUtils.loadAnimation(
+               MainActivity.this, android.R.anim.fade_in));
+      }
+
+   }
+
 }

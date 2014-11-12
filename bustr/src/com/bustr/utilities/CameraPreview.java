@@ -1,17 +1,10 @@
 package com.bustr.utilities;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,7 +18,6 @@ implements SurfaceHolder.Callback {
     // Private fields ----------------------------------------------------------
     private SurfaceHolder mHolder;
     private Camera mCamera;
-    private Context context;
     private PreviewCallback previewCallback;
     
     public boolean takingPicture = false;
@@ -33,7 +25,6 @@ implements SurfaceHolder.Callback {
     @SuppressWarnings("deprecation")
     public CameraPreview(Context context, Camera camera, boolean pSC, PreviewCallback pbc) {
         super(context);
-        this.context = context;
         previewCallback = pbc;
         mCamera = camera;        
         mHolder = getHolder();
