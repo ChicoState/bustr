@@ -25,17 +25,32 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
 
    @Override
    public View getView(int position, View convertView, ViewGroup parent) {
+
       LayoutInflater inflater = (LayoutInflater) context
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      View comment_view = inflater.inflate(R.layout.comment_list_item, parent,
-            false);
-      TextView body = (TextView)comment_view.findViewById(R.id.comment_body);
-      TextView name = (TextView)comment_view.findViewById(R.id.commenter_name);
-      TextView date = (TextView)comment_view.findViewById(R.id.comment_date);
-      body.setText(comments.get(position).getBody());
-      name.setText(comments.get(position).getUser() + ":");
-      date.setText(comments.get(position).getTime());      
-      return comment_view;
+      Comment c = comments.get(position);
+      if (position == 0) {
+         View caption_view = inflater.inflate(R.layout.caption, parent, false);
+         TextView caption = (TextView) caption_view.findViewById(R.id.caption);
+         TextView details = (TextView) caption_view.findViewById(R.id.details);
+         caption.setTypeface(ResourceProvider.instance(getContext()).getFont());
+         caption.setText(c.getBody());
+         details.setText("by " + c.getUser() + " on " + c.getTime());
+         return caption_view;
+      } else {
+         View comment_view = inflater.inflate(R.layout.comment_list_item,
+               parent, false);
+         TextView body = (TextView) comment_view
+               .findViewById(R.id.comment_body);
+         TextView name = (TextView) comment_view
+               .findViewById(R.id.commenter_name);
+         TextView date = (TextView) comment_view
+               .findViewById(R.id.comment_date);
+         body.setText(comments.get(position).getBody());
+         name.setText(comments.get(position).getUser() + ":");
+         date.setText(comments.get(position).getTime());
+         return comment_view;
+      }
    }
 
 }
