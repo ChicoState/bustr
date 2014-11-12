@@ -1,25 +1,28 @@
 package com.bustr.packets;
 
+import java.util.ArrayList;
 import java.util.Vector;
+
+import com.bustr.helpers.Comment;
 
 public class ImagePacket extends BustrPacket {
 
-	/**
-    * 
-    */
+   public enum VoteState { NONE, UP, DOWN };
+   
 	private static final long serialVersionUID = 1L;
-	private Vector<String> messages;
+	private ArrayList<Comment> messages;
 	private String userName;
 	private String imageName;
 	private byte[] data;
 	private float lat, lng;
 	private String caption; 
 	private int rep = 0;
+	private VoteState voteState = VoteState.NONE;
 
 	
-	public void addMessage(String s)
+	public void addMessage(Comment c)
 	{
-		messages.add(s);
+		messages.add(c);
 	}
 	
 	
@@ -33,11 +36,11 @@ public class ImagePacket extends BustrPacket {
 	}
 
 
-	public Vector<String> getMessages() {
+	public ArrayList<Comment> getMessages() {
 		return messages;
 	}
 
-	public void setMessages(Vector<String> messages) {
+	public void setMessages(ArrayList<Comment> messages) {
 		this.messages = messages;
 	}
 
@@ -48,7 +51,7 @@ public class ImagePacket extends BustrPacket {
 		lat = pLat;
 		lng = pLng;
 		caption = pCaption;
-		messages = new Vector<String>();
+		messages = new ArrayList<Comment>();
 	}
 
 	public ImagePacket(String pName, byte[] pData, float pLat, float pLng,
@@ -100,4 +103,11 @@ public class ImagePacket extends BustrPacket {
 	   return imageName;
 	}
 
+   public VoteState getVoteState() {
+      return voteState;
+   }
+
+   public void setVoteState(VoteState voteState) {
+      this.voteState = voteState;
+   }
 }

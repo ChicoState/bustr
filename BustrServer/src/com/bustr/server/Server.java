@@ -24,18 +24,22 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
 
+import com.bustr.helpers.Comment;
 import com.bustr.packets.BustrPacket;
 import com.bustr.packets.ImagePacket;
+import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
 
@@ -47,7 +51,7 @@ public class Server {
 	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/bustr";
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
 	private static final String pathPrefix = "/home/bustr/Desktop/";
-	private static final float epsilon = 0.0001f;
+	private static final float epsilon = 0.0002f;
 	private BustrPacket packet;
 	private static Connection connection;
 	private static Statement stmt;
@@ -214,6 +218,10 @@ public class Server {
 						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
 							System.out.println("[+] IMAGE LIST REQUEST");
 							handleImageListRequest(spacket, output);
+						} else if (spacket.getSignal() == BustrSignal.TOP_PIC)
+						{
+							System.out.println("[+] TOP PIC REQUEST");
+							handleTopPic(spacket, output);
 						} else {
 							System.out.println("[-] Unrecognized signal type");
 							sendFailure(output);
@@ -245,17 +253,12 @@ public class Server {
 		}
 	}
 
-	public static void handleNewComment(SignalPacket spacket,
+	public void handleNewComment(SignalPacket spacket,
 			ObjectOutputStream output) throws IOException {
-		String newComment = spacket.getComment();
-		if (newComment.length() == 0) {
-			sendFailure(output);
-			System.out.println("[-] Received an empty comment");
-			return;
-		}
-		String user = spacket.getUser();
+		Comment newComment = spacket.getComment();
+		
 		String imagePath = spacket.getImageName();
-		System.out.println("[+] Adding comment \"" + newComment + "\" to image="
+		System.out.println("[+] Adding comment \"" + newComment.getBody() + "\" to image="
 				+ imagePath);
 		File dir = new File(pathPrefix + "/comments");
 		if (!dir.exists())
@@ -263,7 +266,9 @@ public class Server {
 		FileWriter fw = new FileWriter("comments/"
 				+ imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			fw.append(newComment + ", " + user + System.getProperty("line.separator"));
+			
+			String timestamp = getCurrentDateTime();
+			fw.append(newComment.getUser() + "\n" + newComment.getTime() + "\n" + newComment.getBody() + "\n");
 		} catch (Exception e) {
 			System.out.println("[-] New comment write failure with comment "
 					+ newComment);
@@ -284,7 +289,6 @@ public class Server {
 		String sql = "SELECT * FROM users WHERE userId=\"" + username
 				+ "\" and userPass=\"" + password + "\";";
 		try {
-
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
 			System.out.println("[-] Failed to execute sql stmt " + sql);
@@ -311,7 +315,21 @@ public class Server {
 			ClassNotFoundException {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
-		String sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
+		String sql;
+		/*
+		DatabaseMetaData dmd = connection.getMetaData();
+		rs = dmd.getTables(null, null, username, null);
+		if(rs.next())
+		{
+			sendFailure(output);
+			return false;
+		} else {
+			sql = "CREATE TABLE " + username 
+					+ " (image_name VARCHAR(255) not null, "
+					+ "vote_status VARCHAR(255);";
+		}
+		*/
+		sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
 		rs = stmt.executeQuery(sql);
 		if (rs.next()) {
 			sendFailure(output);
@@ -408,6 +426,70 @@ public class Server {
 		}
 
 	}
+	
+	private void handleTopPic(SignalPacket spacket,
+			ObjectOutputStream output) throws SQLException, IOException {
+		float big_epsilon = 1.0f;
+		String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
+				+ Float.toString(spacket.getLat() - big_epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLat() + big_epsilon)
+				+ ", 4) AND lng BETWEEN ROUND("
+				+ Float.toString(spacket.getLng() - big_epsilon)
+				+ ", 4) AND ROUND("
+				+ Float.toString(spacket.getLng() + big_epsilon)
+				+ ",4) ORDER BY rep DESC;";
+		
+		ImagePacket outpacket = null;
+		String imagePath = "default";
+		System.out.println("   Sending stmt to db");
+		System.out.println("       " + sql);
+		try {
+			rs = stmt.executeQuery(sql);
+		} catch (Exception e) {
+			System.out.println("   [-] Failure when executing query: " + sql);
+			e.printStackTrace();
+		}
+
+		if (rs.next()) {
+			String commentPath = rs.getString("commentPath");
+			imagePath = rs.getString("imagePath");
+			String userName = rs.getString("userName");
+			Float lat = rs.getFloat("Lat");
+			Float lng = rs.getFloat("Lng");
+			int rep = rs.getInt("rep");
+			String caption = rs.getString("caption");
+			byte[] data = null;
+			try {
+				data = extractBytes(imagePath);
+			} catch (Exception e) {
+				System.out.println("[-] Failed to retrieve image from "
+						+ imagePath);
+			}
+
+			try {
+				outpacket = new ImagePacket(userName, data, lat, lng, caption,
+						rep, imagePath);
+				
+				// TODO: Set actual vote state here
+				outpacket.setVoteState(VoteState.NONE);
+				System.out.println("   Writing out ImagePacket to user");
+				System.out
+						.println("   -------------------------------------------");
+				System.out.println("   ###  " + userName + "  ###  "
+						+ lat.toString() + ", " + lng.toString() + "  ###  "
+						+ caption);
+				output.writeObject(outpacket);
+				System.out.println("   Done!\n");
+			} catch (Exception e) {
+				System.out.println("   [-] Failed to send ImagePacket");
+				e.printStackTrace();
+			}
+		} else {
+			System.out
+					.println("[-] Failed to send image with name" + imagePath);
+		}
+	}
 
 	private void handleImageRequest(SignalPacket spacket,
 			ObjectOutputStream output) throws SQLException, IOException {
@@ -443,23 +525,29 @@ public class Server {
 				System.out.println("[-] Failed to retrieve image from "
 						+ imagePath);
 			}
-
+			ArrayList<Comment> commentVect = new ArrayList<Comment>();
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						commentPath)));
-				caption = br.readLine();
-				outMessages = new Vector<String>();
-				// String s = br.readLine();
-				// outMessages.add(s);
-				String s = br.readLine();
-				for (; s != null; s = br.readLine()) {
-					outMessages.add(s);
-					System.out.println("[+] Adding comment=\"" + s
-							+ "\" to the image");
+				
+				String user = br.readLine();
+				String time = br.readLine();
+				String body = br.readLine();
+				Comment c = new Comment(user, time, body);
+				commentVect.add(c);
+				System.out.println("[+] Adding comment:" + c.getBody() + "\n");
+				
+				user = br.readLine();
+				for (; user != null; user = br.readLine()) {
+					time = br.readLine();
+					body = br.readLine();
+					c = new Comment(user, time, body);
+					commentVect.add(c);
+					System.out.println("[+] Adding comment:" + c.getBody() + "\n");
 				}
 				br.close();
 			} catch (Exception e) {
-				System.out.println("[-] Failed to retrice comment file from "
+				System.out.println("[-] Failed to retrieve comment file from "
 						+ commentPath);
 				e.printStackTrace();
 			}
@@ -467,8 +555,12 @@ public class Server {
 			try {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
 						rep, imagePath);
-				if (outMessages != null)
-					outpacket.setMessages(outMessages);
+				
+				// TODO: Set actual vote state here
+				outpacket.setVoteState(VoteState.NONE);
+				
+				if (commentVect != null)
+					outpacket.setMessages(commentVect);
 				else
 					System.out.println("[-] Failed to add messages");
 				System.out.println("   Writing out ImagePacket to user");
@@ -511,7 +603,9 @@ public class Server {
 				+ ".txt");
 		PrintWriter pal = new PrintWriter(fw);
 		try {
-			pal.printf("%s", ipacket.getCaption());
+			String timestamp = getCurrentDateTime();
+			System.out.println("   New image at time " + timestamp);
+			pal.printf("%s\n%s\n%s", ipacket.getUserName(), timestamp, ipacket.getCaption());
 			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] Comment file write failure.");
@@ -524,8 +618,8 @@ public class Server {
 		System.out.println("[+] Caption  = "+ ipacket.getCaption() + "\n");
 		
 		String sql = "INSERT INTO imageData VALUES ( \""
-				+ ipacket.getUserName() + "\", ROUND(" + ipacket.getLat()
-				+ ",4), ROUND(" + ipacket.getLng() + ",4), " + "\"uploads/"
+				+ ipacket.getUserName() + "\", " + ipacket.getLat()
+				+ ", " + ipacket.getLng() + ", " + "\"uploads/"
 				+ imageNum + ".jpg\", 0," + "\"comments/" + imageNum
 				+ ".txt\", \"" + ipacket.getCaption() + "\", "
 				+ "CURRENT_TIMESTAMP );";

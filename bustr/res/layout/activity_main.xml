@@ -3,9 +3,17 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/super_light_blue"    
+    android:background="@color/super_light_blue"
     tools:context="com.bustr.activities.MainActivity"
     tools:ignore="MergeRootFrame" >
+
+    <ImageView
+        android:id="@+id/main_bg_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:alpha=".75"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -20,37 +28,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />                   
-        
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
         <Button
             android:id="@+id/button1"
             style="@style/Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Upload" />
-        
+
         <Button
             android:id="@+id/button2"
             style="@style/Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notify" />
-        
+
         <Button
             android:id="@+id/button3"
             style="@style/Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Download" />
-        
     </LinearLayout>
-    
+
     <TextView
-            style="@style/ShadowText"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Developer Build" />
+        style="@style/ShadowText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Developer Build" />
 
 </RelativeLayout>

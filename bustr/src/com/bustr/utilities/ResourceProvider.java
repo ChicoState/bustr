@@ -1,9 +1,15 @@
 package com.bustr.utilities;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 
 public class ResourceProvider {
@@ -41,4 +47,18 @@ public class ResourceProvider {
       return new InetSocketAddress(server, port);
    }
 
+   public Bitmap rotateBmp(Bitmap bmp) {
+      Matrix mtx = new Matrix();
+      mtx.postRotate(90);
+      bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+            bmp.getHeight(), mtx, true);
+      return bmp;
+   }
+
+   public String getDate() {
+      DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+      Calendar cal = Calendar.getInstance();
+      return dateFormat.format(cal.getTime());
+   }
+   
 }

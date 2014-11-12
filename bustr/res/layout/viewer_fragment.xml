@@ -1,33 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/lib/com.sothree.slidinguppanel"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="bottom"
-    sothree:panelHeight="68dp"
-    sothree:shadowHeight="4dp" >
+    android:background="@color/super_light_blue"
+    android:gravity="bottom" >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="3dp"
-        android:background="#FFFFFF"
-        android:gravity="center" >
-
-        <ProgressBar
-            android:id="@+id/viewerProgress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:visibility="visible" />
+        android:background="@color/super_light_blue" >
 
         <ImageView
             android:id="@+id/viewerImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_alignParentTop="true"
             android:visibility="invisible" />
 
         <TextView
@@ -35,63 +22,71 @@
             style="@style/ShadowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/viewerImage"
-            android:layout_centerHorizontal="true"
-            android:paddingBottom="5dp"
-            android:paddingTop="10dp"
-            android:text="test"
+            android:layout_below="@+id/viewerImage"
             android:textSize="25sp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/repDisplay"
-            style="@style/ShadowText"
+        <ImageView
+            android:id="@+id/outer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/viewerCaption"
-            android:layout_centerHorizontal="true"
-            android:padding="5dp"
-            android:visibility="invisible" />
+            android:layout_centerInParent="true"
+            android:alpha=".5"
+            android:src="@drawable/outer"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/inner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:alpha=".5"
+            android:src="@drawable/inner"
+            android:visibility="visible" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <RelativeLayout        
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center|bottom" >
+        android:layout_height="wrap_content"        
+        android:gravity="center"
+         >
+
+        <RelativeLayout
+            android:id="@+id/viewer_buttons"
+            android:padding="4dp"            
+            android:layout_width="match_parent"
+            android:background="@color/border_blue_glass"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/upvote"
+                style="@style/ui_button"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/upvote" />
+
+            <ImageView
+                android:id="@+id/comment"
+                style="@style/ui_button"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/comment" />
+
+            <ImageView
+                android:id="@+id/downvote"
+                style="@style/ui_button"
+                android:layout_alignParentLeft="true"
+                android:rotation="180"
+                android:src="@drawable/upvote" />
+            
+        </RelativeLayout>
 
         <ListView
             android:id="@+id/comment_list"
+            android:background="@color/glass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="60dp" >
+            android:layout_below="@id/viewer_buttons" >
         </ListView>
-
-        <ImageView
-            android:id="@+id/upvote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/button_wrapper"
-            android:src="@drawable/upcircular" />
-
-        <ImageView
-            android:id="@+id/comment"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/button_wrapper"
-            android:src="@drawable/commentsbutton" />
-
-        <ImageView
-            android:id="@+id/downvote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:background="@drawable/button_wrapper"
-            android:src="@drawable/downcircular" />
     </RelativeLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

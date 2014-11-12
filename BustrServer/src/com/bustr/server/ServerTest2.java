@@ -149,8 +149,8 @@ public class ServerTest2 {
 					sock.getOutputStream());
 			ObjectInputStream input = new ObjectInputStream(
 					sock.getInputStream());
-			SignalPacket spacket = new SignalPacket(comment, imagePath);
-			output.writeObject(spacket);
+			//SignalPacket spacket = new SignalPacket(comment, imagePath);
+			//output.writeObject(spacket);
 			BustrPacket res;
 			while ((res = (BustrPacket) input.readObject()) != null) {
 

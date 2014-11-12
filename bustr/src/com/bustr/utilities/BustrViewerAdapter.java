@@ -37,9 +37,19 @@ public class BustrViewerAdapter extends FragmentStatePagerAdapter {
    } 
 
    @Override
-   public void destroyItem(ViewGroup container, int position, Object object) {      
-      super.destroyItem(container, position, object);
-      Log.d("BUSTR", "Destroying fragment " + position);
-      fragments[position].recycleImage();
+   public void destroyItem(ViewGroup container, int position, Object object) {
+      try {
+         Log.d("BUSTR", "Destroying fragment " + position);
+         if(fragments[position] != null) {
+            fragments[position].recycleImage();
+         }
+         super.destroyItem(container, position, object);
+      } catch(Exception e) {
+         Log.e("BUSTR", e.toString());
+      }
+   }
+   
+   public ViewerFragment[] getFragments() {
+      return fragments;
    }
 }

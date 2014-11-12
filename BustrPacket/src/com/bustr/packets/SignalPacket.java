@@ -2,28 +2,31 @@ package com.bustr.packets;
 
 import java.util.Vector;
 
+import com.bustr.helpers.Comment;
+
 public class SignalPacket extends BustrPacket {
 
 	/**
     * 
     */
+   private static final long serialVersionUID = -1054509650801243361L;
+
 	public enum BustrSignal {
-		FAILURE, SUCCESS, IMAGE_LIST_REQUEST, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_LIST, NEW_USER, USER_AUTH, NEW_COMMENT;
+		FAILURE, SUCCESS, IMAGE_LIST_REQUEST, IMAGE_REQUEST, REP_UPVOTE, REP_DOWNVOTE, IMAGE_LIST, NEW_USER, USER_AUTH, NEW_COMMENT, TOP_PIC;
 	}
 
-	private static final long serialVersionUID = 1L;
 	private BustrSignal signal;
 	private float lat, lng;
 	private String imageName;
 	private String user, pass;
 	private Vector<String> imageList;
-	private String comment;
+	private Comment comment;
 
-	public String getComment() {
+	public Comment getComment() {
 		return comment;
 	}
 
-	public void setComment(String comment) {
+	public void setComment(Comment comment) {
 		this.comment = comment;
 	}
 
@@ -79,7 +82,7 @@ public class SignalPacket extends BustrPacket {
 		signal = pSignal;
 	}
 
-	public SignalPacket(String newComment, String pImagePath) {
+	public SignalPacket(Comment newComment, String pImagePath) {
 		signal = BustrSignal.NEW_COMMENT;
 		comment = newComment;
 		imageName = pImagePath;
