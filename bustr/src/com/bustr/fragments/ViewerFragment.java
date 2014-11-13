@@ -151,7 +151,8 @@ public class ViewerFragment extends Fragment {
 
    private void getCommentFromUser() {
 
-      final BustrDialog commentDialog = new BustrDialog(rootView.getContext(), R.layout.bustr_input_dialog_view);
+      final BustrDialog commentDialog = new BustrDialog(rootView.getContext(),
+            R.layout.bustr_input_dialog_view);
       OnClickListener listener = new OnClickListener() {
          @Override
          public void onClick(View arg0) {
