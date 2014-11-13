@@ -11,44 +11,51 @@
         android:id="@+id/main_bg_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:alpha=".75"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/banner1"
+            android:id="@+id/btn_upload"
             style="@style/Banner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Button
-            android:id="@+id/button1"
-            style="@style/Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_weight=".4"
+            android:gravity="center"
+            android:background="@drawable/main_btn_shape"
+            android:layout_margin="10dp"
             android:text="Upload" />
 
-        <Button
-            android:id="@+id/button2"
-            style="@style/Button"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/logo_banner"
+            style="@style/Banner"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notify" />
+            android:layout_weight=".2"
+            android:text="@string/app_name"
+            android:gravity="center"
+            android:background="@drawable/main_btn_shape"
+            android:layout_margin="10dp"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <Button
-            android:id="@+id/button3"
-            style="@style/Button"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/btn_viewer"
+            style="@style/Banner"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight=".4"
+            android:gravity="center"
+            android:background="@drawable/main_btn_shape"
+            android:layout_margin="10dp"
             android:text="Download" />
     </LinearLayout>
 

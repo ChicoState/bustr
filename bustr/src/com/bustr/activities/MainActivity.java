@@ -42,8 +42,7 @@ public class MainActivity extends Activity implements OnClickListener {
    private Bitmap bgImage;
 
    // GUI Components -----------------------------------------------------------
-   private Button button1, button2, button3;
-   private TextView banner;
+   private TextView btn_upload, btn_viewer, banner;
    private ImageView background;
    Typeface fontopo;
 
@@ -59,22 +58,20 @@ public class MainActivity extends Activity implements OnClickListener {
       Log.d(LOGTAG, "OnCreate()");
 
       // GUI Component wiring
-      banner = (TextView) findViewById(R.id.banner1);
-      button1 = (Button) findViewById(R.id.button1);
-      button2 = (Button) findViewById(R.id.button2);
-      button3 = (Button) findViewById(R.id.button3);
+      btn_upload = (TextView) findViewById(R.id.btn_upload);
+      btn_viewer = (TextView) findViewById(R.id.btn_viewer);
+      banner = (TextView) findViewById(R.id.logo_banner);      
       background = (ImageView) findViewById(R.id.main_bg_img);
 
       // Load type-face resources and apply
       fontopo = ResourceProvider.instance(getBaseContext()).getFont();
       banner.setTypeface(fontopo);
-      button1.setTypeface(fontopo);
-      button2.setTypeface(fontopo);
-      button3.setTypeface(fontopo);
+      btn_upload.setTypeface(fontopo);
+      btn_viewer.setTypeface(fontopo);      
 
       // Register views that listen for clicks
-      button1.setOnClickListener(this);
-      button3.setOnClickListener(this);
+      btn_upload.setOnClickListener(this);
+      btn_viewer.setOnClickListener(this);
       
       if(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
          new BgGetter().execute();
@@ -86,10 +83,10 @@ public class MainActivity extends Activity implements OnClickListener {
    @Override
    public void onClick(View view) {
       switch (view.getId()) {
-      case R.id.button1:
+      case R.id.btn_upload:
          startActivity(new Intent(this, CameraActivity.class));
          break;
-      case R.id.button3:
+      case R.id.btn_viewer:
          startActivity(new Intent(MainActivity.this, ViewerActivity.class));
          break;
       }
