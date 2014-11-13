@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -55,6 +57,7 @@ public class ViewerFragment extends Fragment {
    private Downloader downloader = new Downloader();
    private CommentsAdapter comments_adapter;
    private SharedPreferences sharedPrefs;
+   Vibrator vib;
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
@@ -77,7 +80,9 @@ public class ViewerFragment extends Fragment {
       rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
             container, false);
       sharedPrefs = PreferenceManager.getDefaultSharedPreferences(rootView
-            .getContext());
+            .getContext());      
+      vib = (Vibrator) rootView.getContext().getSystemService(
+            Context.VIBRATOR_SERVICE);
       // GUI element wiring ----------------------------------------------------
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
@@ -99,7 +104,7 @@ public class ViewerFragment extends Fragment {
                   break;
                case UP:
                   new Voter(BustrSignal.REP_DOWNVOTE);
-                  voteState = VoteState.NONE;
+                  voteState = VoteState.NONE;                  
                   break;
                case DOWN:
                   new Voter(BustrSignal.REP_UPVOTE);
@@ -107,6 +112,7 @@ public class ViewerFragment extends Fragment {
                   voteState = VoteState.UP;
                   break;
                }
+               vib.vibrate(60);
                setVoteButtonStates();
             }
             else if (v.getId() == R.id.downvote) {
@@ -125,6 +131,7 @@ public class ViewerFragment extends Fragment {
                   voteState = VoteState.NONE;
                   break;
                }
+               vib.vibrate(60);
                setVoteButtonStates();
             }
             else if (v.getId() == R.id.comment) {
