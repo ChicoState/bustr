@@ -33,6 +33,7 @@
             android:gravity="center"
             android:background="@drawable/main_btn_shape"
             android:layout_margin="10dp"
+            android:textColor="@color/super_light_blue"
             android:text="Upload" />
 
         <TextView
@@ -56,6 +57,7 @@
             android:gravity="center"
             android:background="@drawable/main_btn_shape"
             android:layout_margin="10dp"
+            android:textColor="@color/super_light_blue"
             android:text="Download" />
     </LinearLayout>
 
