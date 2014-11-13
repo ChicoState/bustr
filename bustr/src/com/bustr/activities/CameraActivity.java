@@ -10,9 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,9 +27,7 @@ import android.graphics.Typeface;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
-import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.location.Location;
 import android.location.LocationListener;
@@ -56,6 +52,7 @@ import com.bustr.R;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrDialog;
 import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
@@ -101,8 +98,7 @@ public class CameraActivity extends Activity {
    private String caption = "";
 
    // Boolean value to track when picture is taking
-   private boolean takingPicture = false;  
-
+   private boolean takingPicture = false;
 
    // GUI elements -------------------------------------------------------------
    private ToggleButton btn_flash;
@@ -196,7 +192,7 @@ public class CameraActivity extends Activity {
             if (mPreview.takingPicture == true) {
 
                Log.d(LOGTAG, "Picture has been taken");
-               mPreview.takingPicture = false;             
+               mPreview.takingPicture = false;
 
                Log.d(LOGTAG, "Stopping preview");
                mCamera.stopPreview();
@@ -424,27 +420,32 @@ public class CameraActivity extends Activity {
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
             previewCallback);
       btn_flash.setChecked(false);
-      preview.addView(mPreview);            
+      preview.addView(mPreview);
       showPrePictureButtons();
-      
+
       Log.d(LOGTAG, "Starting preview");
       mCamera.startPreview();
    }
 
    // Requests that user enable GPS service ------------------------------------
-   private void promptEnableGPS() {
-      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+   private void promptEnableGPS() {      
+      final BustrDialog GpsDialog = 
+            new BustrDialog(CameraActivity.this, 
+                  R.layout.bustr_alert_layout_view);
+      GpsDialog.setCustomTitle("Enable GPS");
+      GpsDialog.setAlertMessage("Please enable GPS to continue using Bustr.");
+      GpsDialog.setCancelable(false);
+      OnClickListener listener = new OnClickListener() {
          @Override
-         public void onClick(DialogInterface dialog, int which) {
+         public void onClick(View v) {
             Intent gpsOptionsIntent = new Intent(
                   android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(gpsOptionsIntent);
+            GpsDialog.dismiss();
          }
       };
-      new AlertDialog.Builder(this).setTitle("GPS Required")
-            .setMessage("Please enable GPS location")
-            .setNeutralButton("Ok", listener).setCancelable(false)
-            .setIcon(android.R.drawable.ic_dialog_alert).show();
+      GpsDialog.setButtonListener(listener);
+      GpsDialog.show();      
    }
 
    // Prompt user to provide image caption -------------------------------------

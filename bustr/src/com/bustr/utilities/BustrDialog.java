@@ -16,18 +16,21 @@ public class BustrDialog extends Dialog {
    private TextView title_view;
    private TextView ok_button;
    private  android.view.View.OnClickListener listener;
-   private String title;
+   private String title = "!";
+   private String message;
+   private int layout;
    
-   public BustrDialog(Context c) {
+   public BustrDialog(Context c, int layout) {
       super(c);
       this.context = c;
+      this.layout = layout;
    }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       requestWindowFeature(Window.FEATURE_NO_TITLE);
-      setContentView(R.layout.bustr_dialog_view);
+      setContentView(layout);
       getWindow().setBackgroundDrawable(
             new ColorDrawable(android.graphics.Color.TRANSPARENT));
       
@@ -38,6 +41,10 @@ public class BustrDialog extends Dialog {
       title_view.setTypeface(ResourceProvider.instance(context).getFont());
       ok_button.setTypeface(ResourceProvider.instance(context).getFont());
       ok_button.setOnClickListener(listener);
+      if(layout == R.layout.bustr_alert_layout_view) {
+         TextView messageView = (TextView) findViewById(R.id.alert_message);
+         messageView.setText(message);
+      }
    }
    
    public void setCustomTitle(String pTitle) {
@@ -48,4 +55,9 @@ public class BustrDialog extends Dialog {
          android.view.View.OnClickListener listener) {
       this.listener = listener;      
    }   
+   
+   // Only if layout is bustr_alert_dialog_view!
+   public void setAlertMessage(String pMessage) {
+      this.message = pMessage;
+   }
 }
