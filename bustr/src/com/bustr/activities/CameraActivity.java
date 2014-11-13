@@ -290,8 +290,9 @@ public class CameraActivity extends Activity {
       OnClickListener flip_flash = new OnClickListener() {
          @Override
          public void onClick(View v) {
-            if (v.getId() == R.id.btn_flip)
-               switchCamera();
+            if (v.getId() == R.id.btn_flip) {
+               switchCamera();               
+            }
             else if (v.getId() == R.id.btn_flash) {
                flashEnabled = flashEnabled ? false : true;
                btn_flash.setImageDrawable(getResources().getDrawable(
@@ -369,7 +370,7 @@ public class CameraActivity extends Activity {
    }
 
    // Toggles active camera and saves to shared preferences --------------------
-   public void switchCamera() {
+   public void switchCamera() {      
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();

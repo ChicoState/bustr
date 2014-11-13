@@ -80,7 +80,7 @@ public class ViewerFragment extends Fragment {
       rootView = (ViewGroup) inflater.inflate(R.layout.viewer_fragment,
             container, false);
       sharedPrefs = PreferenceManager.getDefaultSharedPreferences(rootView
-            .getContext());      
+            .getContext());
       vib = (Vibrator) rootView.getContext().getSystemService(
             Context.VIBRATOR_SERVICE);
       // GUI element wiring ----------------------------------------------------
@@ -104,7 +104,7 @@ public class ViewerFragment extends Fragment {
                   break;
                case UP:
                   new Voter(BustrSignal.REP_DOWNVOTE);
-                  voteState = VoteState.NONE;                  
+                  voteState = VoteState.NONE;
                   break;
                case DOWN:
                   new Voter(BustrSignal.REP_UPVOTE);
@@ -189,6 +189,9 @@ public class ViewerFragment extends Fragment {
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
       comments_adapter = new CommentsAdapter(rootView.getContext(), commentv);
+      listView.setDivider(getResources().getDrawable(
+            android.R.drawable.divider_horizontal_dim_dark));
+      listView.setDividerHeight(1);
       listView.setAdapter(comments_adapter);
 
       try {

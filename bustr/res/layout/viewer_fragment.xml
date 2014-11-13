@@ -80,7 +80,7 @@
         </RelativeLayout>
 
         <ListView
-            android:id="@+id/comment_list"
+            android:id="@+id/comment_list"            
             android:background="@color/glass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
