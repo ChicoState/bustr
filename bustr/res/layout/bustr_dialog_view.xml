@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/dialog_title"
+        style="@style/ShadowText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_top"
+        android:padding="5dp"
+        android:textColor="@color/super_light_blue"
+        android:textSize="20sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_below="@id/dialog_title"
+        android:background="@drawable/dialog_bottom" >
+
+        <EditText
+            android:id="@+id/comment_input"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:lines="3"            
+            android:singleLine="false"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/dialog_ok"
+            style="@style/ShadowText"
+            android:textSize="20sp"            
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/comment_input"
+            android:background="@drawable/text_button"
+            android:text="OK"
+            android:textColor="@color/super_light_blue" />
+    </RelativeLayout>
+
+</RelativeLayout>

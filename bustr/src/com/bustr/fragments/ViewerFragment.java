@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -40,6 +39,7 @@ import com.bustr.packets.ImagePacket;
 import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrDialog;
 import com.bustr.utilities.CommentsAdapter;
 import com.bustr.utilities.ResourceProvider;
 
@@ -150,19 +150,27 @@ public class ViewerFragment extends Fragment {
    }
 
    private void getCommentFromUser() {
-      final EditText captionInput = new EditText(rootView.getContext());
-      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+
+      final BustrDialog commentDialog = new BustrDialog(rootView.getContext());
+      OnClickListener listener = new OnClickListener() {
          @Override
-         public void onClick(DialogInterface arg0, int arg1) {
+         public void onClick(View arg0) {
             userComment = new Comment(sharedPrefs.getString("username",
                   "no_user"), ResourceProvider.instance(rootView.getContext())
-                  .getDate(), captionInput.getText().toString());
+                  .getDate(),
+                  ((EditText) commentDialog.findViewById(R.id.comment_input))
+                        .getText().toString());
             new Voter(BustrSignal.NEW_COMMENT);
+            commentDialog.dismiss();
          }
       };
-      new AlertDialog.Builder(rootView.getContext()).setTitle("Comment")
-            .setView(captionInput).setNeutralButton("Ok", listener)
-            .setIcon(android.R.drawable.ic_input_get).show();
+      commentDialog.setCustomTitle("Comment");
+      commentDialog.setButtonListener(listener);
+      commentDialog.show();
+      //
+      // new AlertDialog.Builder(rootView.getContext()).setTitle("Comment")
+      // .setView(captionInput).setNeutralButton("Ok", listener)
+      // .setIcon(android.R.drawable.ic_input_get).show();
    }
 
    public void setImage(ImagePacket imagePacket) {

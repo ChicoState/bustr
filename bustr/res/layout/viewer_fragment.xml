@@ -1,8 +1,7 @@
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/lib/com.sothree.slidinguppanel"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/super_light_blue"
+    android:layout_height="match_parent"    
     android:gravity="bottom" >
 
     <RelativeLayout
@@ -53,9 +52,9 @@
 
         <RelativeLayout
             android:id="@+id/viewer_buttons"
+            android:background="@color/border_blue_glass_extra"
             android:padding="4dp"            
             android:layout_width="match_parent"
-            android:background="@color/border_blue_glass"
             android:layout_height="wrap_content"
             android:gravity="center" >
 
