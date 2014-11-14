@@ -23,7 +23,7 @@ public class BustrDialog extends Dialog {
    public BustrDialog(Context c, int layout) {
       super(c);
       this.context = c;
-      this.layout = layout;
+      this.layout = layout;      
    }
 
    @Override

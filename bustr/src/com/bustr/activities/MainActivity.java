@@ -52,28 +52,28 @@ public class MainActivity extends Activity implements OnClickListener {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
-      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);     
-      
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
       // Log onCreate event for life-cycle debugging
       Log.d(LOGTAG, "OnCreate()");
 
       // GUI Component wiring
       btn_upload = (TextView) findViewById(R.id.btn_upload);
       btn_viewer = (TextView) findViewById(R.id.btn_viewer);
-      banner = (TextView) findViewById(R.id.logo_banner);      
+      banner = (TextView) findViewById(R.id.logo_banner);
       background = (ImageView) findViewById(R.id.main_bg_img);
 
       // Load type-face resources and apply
       fontopo = ResourceProvider.instance(getBaseContext()).getFont();
       banner.setTypeface(fontopo);
       btn_upload.setTypeface(fontopo);
-      btn_viewer.setTypeface(fontopo);      
+      btn_viewer.setTypeface(fontopo);
 
       // Register views that listen for clicks
       btn_upload.setOnClickListener(this);
       btn_viewer.setOnClickListener(this);
-      
-      if(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+
+      if (lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
          new BgGetter().execute();
       }
    }
@@ -92,7 +92,6 @@ public class MainActivity extends Activity implements OnClickListener {
       }
 
    }
-
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
@@ -149,12 +148,14 @@ public class MainActivity extends Activity implements OnClickListener {
       @Override
       protected void onPostExecute(ImagePacket result) {
          super.onPostExecute(result);
-         bgImage = BitmapFactory.decodeByteArray(result.getData(), 0,
-               result.getData().length);
-         background.setImageBitmap(bgImage);
-         background.setVisibility(View.VISIBLE);
-         background.startAnimation(AnimationUtils.loadAnimation(
-               MainActivity.this, android.R.anim.fade_in));
+         if (result != null) {
+            bgImage = BitmapFactory.decodeByteArray(result.getData(), 0,
+                  result.getData().length);
+            background.setImageBitmap(bgImage);
+            background.setVisibility(View.VISIBLE);
+            background.startAnimation(AnimationUtils.loadAnimation(
+                  MainActivity.this, android.R.anim.fade_in));
+         }
       }
 
    }
