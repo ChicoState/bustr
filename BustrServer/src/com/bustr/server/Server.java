@@ -63,7 +63,7 @@ public class Server {
 		for (int i = 0; new File("uploads/" + i + ".jpg").isFile(); i++) {
 			imageNum = i + 1;
 		}
-		System.out.println("[=============================]");
+		System.out.println("[======================]");
 		System.out.println("[===Welcome to Bustr Server!==]");
 		System.out.println("[==We have " + imageNum + " images on file!==]\n");
 
@@ -218,8 +218,7 @@ public class Server {
 						} else if (spacket.getSignal() == BustrSignal.IMAGE_LIST_REQUEST) {
 							System.out.println("[+] IMAGE LIST REQUEST");
 							handleImageListRequest(spacket, output);
-						} else if (spacket.getSignal() == BustrSignal.TOP_PIC)
-						{
+						} else if (spacket.getSignal() == BustrSignal.TOP_PIC) {
 							System.out.println("[+] TOP PIC REQUEST");
 							handleTopPic(spacket, output);
 						} else {
@@ -253,22 +252,23 @@ public class Server {
 		}
 	}
 
-	public void handleNewComment(SignalPacket spacket,
-			ObjectOutputStream output) throws IOException {
+	public void handleNewComment(SignalPacket spacket, ObjectOutputStream output)
+			throws IOException {
 		Comment newComment = spacket.getComment();
-		
+
 		String imagePath = spacket.getImageName();
-		System.out.println("[+] Adding comment \"" + newComment.getBody() + "\" to image="
-				+ imagePath);
+		System.out.println("[+] Adding comment \"" + newComment.getBody()
+				+ "\" to image=" + imagePath);
 		File dir = new File(pathPrefix + "/comments");
 		if (!dir.exists())
 			dir.mkdir();
 		FileWriter fw = new FileWriter("comments/"
 				+ imagePath.substring(7, imagePath.length() - 3) + "txt", true);
 		try {
-			
+
 			String timestamp = getCurrentDateTime();
-			fw.append(newComment.getUser() + "\n" + newComment.getTime() + "\n" + newComment.getBody() + "\n");
+			fw.append(newComment.getUser() + "\n" + newComment.getTime() + "\n"
+					+ newComment.getBody() + "\n");
 		} catch (Exception e) {
 			System.out.println("[-] New comment write failure with comment "
 					+ newComment);
@@ -286,8 +286,17 @@ public class Server {
 		String password = spacket.getPass();
 		System.out.println("[+] User Auth where userId=" + username
 				+ " and password=" + password);
-		String sql = "SELECT * FROM users WHERE userId=\"" + username
-				+ "\" and userPass=\"" + password + "\";";
+
+		DatabaseMetaData dmd = connection.getMetaData();
+		rs = dmd.getTables(null, null, username, null);
+		if (!rs.next()) {
+			sendFailure(output);
+			System.out.println("[-] User " + username + " has no table entry");
+			return false;
+		}
+
+		String sql = "SELECT * FROM " + username
+				+ " WHERE image_name=\"password\";";
 		try {
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
@@ -297,11 +306,10 @@ public class Server {
 			return false;
 		}
 		Boolean valid = false;
-		for (; rs.next();) {
-			valid = (rs.getString("userId").equals(username) && rs.getString(
-					"userPass").equals(password));
-			System.out.println("[+] Found userID=" + rs.getString("userId")
-					+ ", password=" + rs.getString("userPass"));
+		if (rs.next()) {
+			valid = rs.getString("vote_status").equals(password);
+			System.out.println("[+] Found userID=" + username + ", password="
+					+ rs.getString("vote_status"));
 		}
 		if (valid)
 			sendSuccess(output);
@@ -316,28 +324,18 @@ public class Server {
 		String username = spacket.getUser();
 		String password = spacket.getPass();
 		String sql;
-		/*
+
 		DatabaseMetaData dmd = connection.getMetaData();
 		rs = dmd.getTables(null, null, username, null);
-		if(rs.next())
-		{
-			sendFailure(output);
-			return false;
-		} else {
-			sql = "CREATE TABLE " + username 
-					+ " (image_name VARCHAR(255) not null, "
-					+ "vote_status VARCHAR(255);";
-		}
-		*/
-		sql = "SELECT * FROM users WHERE userId=\"" + username + "\";";
-		rs = stmt.executeQuery(sql);
 		if (rs.next()) {
 			sendFailure(output);
+			System.out.println("[-] User " + username
+					+ "attempted to create duplicate");
 			return false;
 		}
-		sql = "INSERT INTO users VALUES ( \"" + username + "\", \"" + password
-				+ "\" );";
-
+		sql = "CREATE TABLE " + username
+				+ " (image_name VARCHAR(255) not null, "
+				+ "vote_status VARCHAR(255);";
 		try {
 			stmt.execute(sql);
 		} catch (Exception e) {
@@ -347,7 +345,8 @@ public class Server {
 			sendFailure(output);
 			return false;
 		}
-		connection.close();
+		sql = "INSERT INTO " + username + " VALUES (\"password\"," + "\""
+				+ password + "\");";
 		sendSuccess(output);
 		return true;
 	}
@@ -364,6 +363,26 @@ public class Server {
 			System.out.println("   [-] Failed to execute query: " + sql);
 			sendFailure(output);
 			e.printStackTrace();
+		}
+		sql = "SELECT * FROM " + spacket.getUser() + " WHERE image_name=\""
+				+ spacket.getImageName() + "\";";
+		try {
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				sql = "UPDATE " + spacket.getUser()
+						+ " SET vote_status=\"down\" WHERE image_name=\""
+						+ spacket.getImageName() + "\";";
+				stmt.executeUpdate(sql);
+			} else {
+				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
+						+ spacket.getImageName() + "\", \"" + "\"down\");";
+				stmt.execute(sql);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			sendFailure(output);
+			return;
 		}
 		sendSuccess(output);
 	}
@@ -382,6 +401,27 @@ public class Server {
 			sendFailure(output);
 			e.printStackTrace();
 		}
+		sql = "SELECT * FROM " + spacket.getUser() + " WHERE image_name=\""
+				+ spacket.getImageName() + "\";";
+		try {
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				sql = "UPDATE " + spacket.getUser()
+						+ " SET vote_status=\"up\" WHERE image_name=\""
+						+ spacket.getImageName() + "\";";
+				stmt.executeUpdate(sql);
+			} else {
+				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
+						+ spacket.getImageName() + "\", \"" + "\"up\");";
+				stmt.execute(sql);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			sendFailure(output);
+			return;
+		}
+		sendSuccess(output);
 
 	}
 
@@ -426,9 +466,9 @@ public class Server {
 		}
 
 	}
-	
-	private void handleTopPic(SignalPacket spacket,
-			ObjectOutputStream output) throws SQLException, IOException {
+
+	private void handleTopPic(SignalPacket spacket, ObjectOutputStream output)
+			throws SQLException, IOException {
 		float big_epsilon = 1.0f;
 		String sql = "SELECT * FROM imageData WHERE lat BETWEEN ROUND("
 				+ Float.toString(spacket.getLat() - big_epsilon)
@@ -439,7 +479,7 @@ public class Server {
 				+ ", 4) AND ROUND("
 				+ Float.toString(spacket.getLng() + big_epsilon)
 				+ ",4) ORDER BY rep DESC;";
-		
+
 		ImagePacket outpacket = null;
 		String imagePath = "default";
 		System.out.println("   Sending stmt to db");
@@ -470,7 +510,7 @@ public class Server {
 			try {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
 						rep, imagePath);
-				
+
 				// TODO: Set actual vote state here
 				outpacket.setVoteState(VoteState.NONE);
 				System.out.println("   Writing out ImagePacket to user");
@@ -529,21 +569,22 @@ public class Server {
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(
 						commentPath)));
-				
+
 				String user = br.readLine();
 				String time = br.readLine();
 				String body = br.readLine();
 				Comment c = new Comment(user, time, body);
 				commentVect.add(c);
 				System.out.println("[+] Adding comment:" + c.getBody() + "\n");
-				
+
 				user = br.readLine();
 				for (; user != null; user = br.readLine()) {
 					time = br.readLine();
 					body = br.readLine();
 					c = new Comment(user, time, body);
 					commentVect.add(c);
-					System.out.println("[+] Adding comment:" + c.getBody() + "\n");
+					System.out.println("[+] Adding comment:" + c.getBody()
+							+ "\n");
 				}
 				br.close();
 			} catch (Exception e) {
@@ -555,10 +596,21 @@ public class Server {
 			try {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
 						rep, imagePath);
+
+				sql = "SELECT * FROM " + spacket.getUser()
+						+ " WHERE image_name=\"" + spacket.getImageName() + "\";";
+				rs = stmt.executeQuery(sql);
+				String vote = rs.getString("vote_status");
+				if(vote.equals("up")){
+					outpacket.setVoteState(VoteState.UP);
+				} else if(vote.equals("down")){
+					outpacket.setVoteState(VoteState.DOWN);
+				} else {
+					outpacket.setVoteState(VoteState.NONE);
+				}
+			
 				
-				// TODO: Set actual vote state here
-				outpacket.setVoteState(VoteState.NONE);
-				
+
 				if (commentVect != null)
 					outpacket.setMessages(commentVect);
 				else
@@ -605,7 +657,8 @@ public class Server {
 		try {
 			String timestamp = getCurrentDateTime();
 			System.out.println("   New image at time " + timestamp);
-			pal.printf("%s\n%s\n%s", ipacket.getUserName(), timestamp, ipacket.getCaption());
+			pal.printf("%s\n%s\n%s", ipacket.getUserName(), timestamp,
+					ipacket.getCaption());
 			fw.append(System.getProperty("line.separator"));
 		} catch (Exception e) {
 			System.out.println("[-] Comment file write failure.");
@@ -614,15 +667,14 @@ public class Server {
 		fw.close();
 		pal.close();
 		System.out.println("[+] Got a new image! ");
-		System.out.println("[+] Username = "+ ipacket.getUserName());
-		System.out.println("[+] Caption  = "+ ipacket.getCaption() + "\n");
-		
+		System.out.println("[+] Username = " + ipacket.getUserName());
+		System.out.println("[+] Caption  = " + ipacket.getCaption() + "\n");
+
 		String sql = "INSERT INTO imageData VALUES ( \""
-				+ ipacket.getUserName() + "\", " + ipacket.getLat()
-				+ ", " + ipacket.getLng() + ", " + "\"uploads/"
-				+ imageNum + ".jpg\", 0," + "\"comments/" + imageNum
-				+ ".txt\", \"" + ipacket.getCaption() + "\", "
-				+ "CURRENT_TIMESTAMP );";
+				+ ipacket.getUserName() + "\", " + ipacket.getLat() + ", "
+				+ ipacket.getLng() + ", " + "\"uploads/" + imageNum
+				+ ".jpg\", 0," + "\"comments/" + imageNum + ".txt\", \""
+				+ ipacket.getCaption() + "\", " + "CURRENT_TIMESTAMP );";
 
 		try {
 			stmt.executeUpdate(sql);
