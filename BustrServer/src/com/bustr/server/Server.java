@@ -597,8 +597,19 @@ public class Server {
 				outpacket = new ImagePacket(userName, data, lat, lng, caption,
 						rep, imagePath);
 
-				// TODO: Set actual vote state here
-				outpacket.setVoteState(VoteState.NONE);
+				sql = "SELECT * FROM " + spacket.getUser()
+						+ " WHERE image_name=\"" + spacket.getImageName() + "\";";
+				rs = stmt.executeQuery(sql);
+				String vote = rs.getString("vote_status");
+				if(vote.equals("up")){
+					outpacket.setVoteState(VoteState.UP);
+				} else if(vote.equals("down")){
+					outpacket.setVoteState(VoteState.DOWN);
+				} else {
+					outpacket.setVoteState(VoteState.NONE);
+				}
+			
+				
 
 				if (commentVect != null)
 					outpacket.setMessages(commentVect);
