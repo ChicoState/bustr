@@ -286,8 +286,17 @@ public class Server {
 		String password = spacket.getPass();
 		System.out.println("[+] User Auth where userId=" + username
 				+ " and password=" + password);
-		String sql = "SELECT * FROM users WHERE userId=\"" + username
-				+ "\" and userPass=\"" + password + "\";";
+
+		DatabaseMetaData dmd = connection.getMetaData();
+		rs = dmd.getTables(null, null, username, null);
+		if (!rs.next()) {
+			sendFailure(output);
+			System.out.println("[-] User " + username + " has no table entry");
+			return false;
+		}
+
+		String sql = "SELECT * FROM " + username
+				+ " WHERE image_name=\"password\";";
 		try {
 			rs = stmt.executeQuery(sql);
 		} catch (Exception e) {
@@ -297,11 +306,10 @@ public class Server {
 			return false;
 		}
 		Boolean valid = false;
-		for (; rs.next();) {
-			valid = (rs.getString("userId").equals(username) && rs.getString(
-					"userPass").equals(password));
-			System.out.println("[+] Found userID=" + rs.getString("userId")
-					+ ", password=" + rs.getString("userPass"));
+		if (rs.next()) {
+			valid = rs.getString("vote_status").equals(password);
+			System.out.println("[+] Found userID=" + username + ", password="
+					+ rs.getString("vote_status"));
 		}
 		if (valid)
 			sendSuccess(output);
@@ -356,6 +364,26 @@ public class Server {
 			sendFailure(output);
 			e.printStackTrace();
 		}
+		sql = "SELECT * FROM " + spacket.getUser() + " WHERE image_name=\""
+				+ spacket.getImageName() + "\";";
+		try {
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				sql = "UPDATE " + spacket.getUser()
+						+ " SET vote_status=\"down\" WHERE image_name=\""
+						+ spacket.getImageName() + "\";";
+				stmt.executeUpdate(sql);
+			} else {
+				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
+						+ spacket.getImageName() + "\", \"" + "\"down\");";
+				stmt.execute(sql);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			sendFailure(output);
+			return;
+		}
 		sendSuccess(output);
 	}
 
@@ -373,6 +401,27 @@ public class Server {
 			sendFailure(output);
 			e.printStackTrace();
 		}
+		sql = "SELECT * FROM " + spacket.getUser() + " WHERE image_name=\""
+				+ spacket.getImageName() + "\";";
+		try {
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				sql = "UPDATE " + spacket.getUser()
+						+ " SET vote_status=\"up\" WHERE image_name=\""
+						+ spacket.getImageName() + "\";";
+				stmt.executeUpdate(sql);
+			} else {
+				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
+						+ spacket.getImageName() + "\", \"" + "\"up\");";
+				stmt.execute(sql);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			sendFailure(output);
+			return;
+		}
+		sendSuccess(output);
 
 	}
 
