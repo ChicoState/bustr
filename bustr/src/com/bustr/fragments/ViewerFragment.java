@@ -64,8 +64,9 @@ public class ViewerFragment extends Fragment {
    private ListView listView;
    private ImageView upvote, downvote, comment;
    private TextView viewerCaption;
+   
    // private TextView repDisplay;
-   private ImageView viewerImage;
+   private ImageView viewerImage;   
    private ImageView outer, inner;
 
    // Constructor --------------------------------------------------------------

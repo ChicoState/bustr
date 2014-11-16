@@ -17,13 +17,13 @@ import android.graphics.Typeface;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -82,6 +82,10 @@ public class MainActivity extends Activity implements OnClickListener {
    @SuppressLint("InlinedApi")
    @Override
    public void onClick(View view) {
+      Vibrator vib = (Vibrator) getBaseContext().getSystemService(
+            Context.VIBRATOR_SERVICE);
+      vib.vibrate(60);
+      view.setSelected(true);
       switch (view.getId()) {
       case R.id.btn_upload:
          startActivity(new Intent(this, CameraActivity.class));
@@ -89,8 +93,14 @@ public class MainActivity extends Activity implements OnClickListener {
       case R.id.btn_viewer:
          startActivity(new Intent(MainActivity.this, ViewerActivity.class));
          break;
-      }
+      }      
+   }
 
+   @Override
+   protected void onResume() {
+      super.onResume();
+      btn_upload.setSelected(false);
+      btn_viewer.setSelected(false);
    }
 
    @Override

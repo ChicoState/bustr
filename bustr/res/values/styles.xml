@@ -50,5 +50,14 @@
         <item name="android:background">@drawable/viewer_background</item>
     </style>
 
+    <style name="act_main_button" parent="Banner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/main_button_selector</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:textColor">@color/super_light_blue</item>
+    </style>   
+ 
     
 </resources>

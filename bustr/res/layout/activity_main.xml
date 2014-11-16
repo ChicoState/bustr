@@ -10,8 +10,7 @@
     <ImageView
         android:id="@+id/main_bg_img"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha=".75"
+        android:layout_height="match_parent"        
         android:scaleType="centerCrop"
         android:visibility="gone" />
 
@@ -26,40 +25,25 @@
 
         <TextView
             android:id="@+id/btn_upload"
-            style="@style/Banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/act_main_button"
             android:layout_weight=".4"
             android:gravity="center"
-            android:background="@drawable/main_btn_shape"
-            android:layout_margin="10dp"
-            android:textColor="@color/super_light_blue"
-            android:text="Upload" />
+            android:text="Post" />
 
         <TextView
             android:id="@+id/logo_banner"
-            style="@style/Banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/act_main_button"
             android:layout_weight=".2"
             android:text="@string/app_name"
-            android:gravity="center"
-            android:background="@drawable/main_btn_shape"
-            android:layout_margin="10dp"
-            android:textSize="75sp"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textColor="@android:color/white"
+            android:textSize="75sp"/>
 
         <TextView
             android:id="@+id/btn_viewer"
-            style="@style/Banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/act_main_button"
             android:layout_weight=".4"
             android:gravity="center"
-            android:background="@drawable/main_btn_shape"
-            android:layout_margin="10dp"
-            android:textColor="@color/super_light_blue"
-            android:text="Download" />
+            android:text="View" />
     </LinearLayout>
 
     <TextView
