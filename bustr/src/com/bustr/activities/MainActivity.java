@@ -44,6 +44,8 @@ public class MainActivity extends Activity implements OnClickListener {
    // GUI Components -----------------------------------------------------------
    private TextView btn_upload, btn_viewer, banner;
    private ImageView background;
+
+   // Resources
    Typeface fontopo;
 
    // OnCreate -----------------------------------------------------------------
