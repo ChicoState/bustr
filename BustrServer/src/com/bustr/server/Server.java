@@ -372,10 +372,12 @@ public class Server {
 				sql = "UPDATE " + spacket.getUser()
 						+ " SET vote_status=\"down\" WHERE image_name=\""
 						+ spacket.getImageName() + "\";";
+				System.out.println("[+] Executing querry\n " + sql);
 				stmt.executeUpdate(sql);
 			} else {
 				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
 						+ spacket.getImageName() + "\", \"" + "\"down\");";
+				System.out.println("[+] Executing querry\n " + sql);
 				stmt.execute(sql);
 			}
 
@@ -409,10 +411,12 @@ public class Server {
 				sql = "UPDATE " + spacket.getUser()
 						+ " SET vote_status=\"up\" WHERE image_name=\""
 						+ spacket.getImageName() + "\";";
+				System.out.println("[+] Executing querry\n " + sql);
 				stmt.executeUpdate(sql);
 			} else {
 				sql = "INSERT INTO " + spacket.getUser() + " VALUES (\""
 						+ spacket.getImageName() + "\", \"" + "\"up\");";
+				System.out.println("[+] Executing querry\n " + sql);
 				stmt.execute(sql);
 			}
 
@@ -599,6 +603,7 @@ public class Server {
 
 				sql = "SELECT * FROM " + spacket.getUser()
 						+ " WHERE image_name=\"" + spacket.getImageName() + "\";";
+				System.out.println("[+] Executing querry\n " + sql);
 				rs = stmt.executeQuery(sql);
 				String vote = rs.getString("vote_status");
 				if(vote.equals("up")){
