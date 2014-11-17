@@ -3,6 +3,7 @@ package com.bustr.activities;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -113,8 +114,9 @@ public class NewAccountActivity extends Activity {
             SignalPacket new_user = new SignalPacket(BustrSignal.NEW_USER);
             new_user.setUser(username.getText().toString());
             MessageDigest md = MessageDigest.getInstance("MD5");
-            String pass_hash = new String(md.digest(
-                  password1.getText().toString().getBytes("UTF-8")));
+            String pass_hash = new BigInteger(1, md.digest()).toString(16); 
+                  //String(md.digest(
+                  //password1.getText().toString().getBytes("UTF-8")));
             new_user.setPass(pass_hash);
             Log.d(LOGTAG, "Login attempt: User: " + new_user.getUser()
                   + ", Pass: " + new_user.getPass());

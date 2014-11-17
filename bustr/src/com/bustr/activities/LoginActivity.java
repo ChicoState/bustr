@@ -119,6 +119,8 @@ public class LoginActivity extends Activity {
             user_login.setUser(username.getText().toString());
             MessageDigest md = MessageDigest.getInstance("MD5");
             String hash_pass = new BigInteger(1, md.digest()).toString(16); 
+                  //new String(md.digest(password.getText()
+                  //.toString().getBytes("UTF-8")));
             user_login.setPass(hash_pass);
             Log.d(LOGTAG, "Login attempt: User: " + user_login.getUser()
                   + ", Pass: " + user_login.getPass());
