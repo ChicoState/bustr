@@ -3,8 +3,11 @@ package com.bustr.activities;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -56,7 +59,7 @@ public class LoginActivity extends Activity {
       banner = (TextView) findViewById(R.id.banner1);
       sign_in = (Button) findViewById(R.id.sign_in);
       sign_up = (Button) findViewById(R.id.sign_up);
-      
+
       // Setup typeface --------------------------------------------------------
       Typeface tf = ResourceProvider.instance(LoginActivity.this).getFont();
       banner.setTypeface(tf);
@@ -69,8 +72,7 @@ public class LoginActivity extends Activity {
          public void onClick(View v) {
             if (v.getId() == R.id.sign_in) {
                new AttemptLogin().execute();
-            }
-            else if (v.getId() == R.id.sign_up) {
+            } else if (v.getId() == R.id.sign_up) {
                startActivity(new Intent(LoginActivity.this,
                      NewAccountActivity.class));
                finish();
@@ -115,7 +117,9 @@ public class LoginActivity extends Activity {
             input = new ObjectInputStream(socket.getInputStream());
             SignalPacket user_login = new SignalPacket(BustrSignal.USER_AUTH);
             user_login.setUser(username.getText().toString());
-            user_login.setPass(password.getText().toString());
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            String hash_pass = new BigInteger(1, md.digest()).toString(16); 
+            user_login.setPass(hash_pass);
             Log.d(LOGTAG, "Login attempt: User: " + user_login.getUser()
                   + ", Pass: " + user_login.getPass());
             output.writeObject(user_login);
@@ -128,6 +132,8 @@ public class LoginActivity extends Activity {
          } catch (IOException ioe) {
             ioe.printStackTrace();
          } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
          }
          return null;
@@ -150,8 +156,7 @@ public class LoginActivity extends Activity {
             }
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
-         }
-         else {
+         } else {
             Toast.makeText(LoginActivity.this, "Login Failed",
                   Toast.LENGTH_SHORT).show();
          }

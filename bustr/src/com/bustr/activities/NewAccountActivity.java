@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -48,25 +50,27 @@ public class NewAccountActivity extends Activity {
       sharedPrefs = PreferenceManager
             .getDefaultSharedPreferences(getBaseContext());
       editor = sharedPrefs.edit();
-      
+
       // Wire GUI components ---------------------------------------------------
       banner = (TextView) findViewById(R.id.banner2);
       username = (EditText) findViewById(R.id.new_username);
       password1 = (EditText) findViewById(R.id.new_password1);
       password2 = (EditText) findViewById(R.id.new_password2);
-      create = (Button)findViewById(R.id.create_account);
+      create = (Button) findViewById(R.id.create_account);
 
-      create.setOnClickListener(new OnClickListener() {         
+      create.setOnClickListener(new OnClickListener() {
          @Override
-         public void onClick(View v) {            
-            if(password1.getText().toString().equals(password2.getText().toString())) {
+         public void onClick(View v) {
+            if (password1.getText().toString()
+                  .equals(password2.getText().toString())) {
                new CreateAccount().execute();
             } else {
-               Toast.makeText(NewAccountActivity.this, "Password mismatch", Toast.LENGTH_SHORT).show();
+               Toast.makeText(NewAccountActivity.this, "Password mismatch",
+                     Toast.LENGTH_SHORT).show();
             }
          }
       });
-      
+
       // Setup typeface --------------------------------------------------------
       Typeface tf = ResourceProvider.instance(NewAccountActivity.this)
             .getFont();
@@ -108,7 +112,10 @@ public class NewAccountActivity extends Activity {
             input = new ObjectInputStream(socket.getInputStream());
             SignalPacket new_user = new SignalPacket(BustrSignal.NEW_USER);
             new_user.setUser(username.getText().toString());
-            new_user.setPass(password1.getText().toString());
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            String pass_hash = new String(md.digest(
+                  password1.getText().toString().getBytes("UTF-8")));
+            new_user.setPass(pass_hash);
             Log.d(LOGTAG, "Login attempt: User: " + new_user.getUser()
                   + ", Pass: " + new_user.getPass());
             output.writeObject(new_user);
@@ -122,6 +129,8 @@ public class NewAccountActivity extends Activity {
          } catch (IOException e) {
             e.printStackTrace();
          } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
          }
          return null;
@@ -144,8 +153,7 @@ public class NewAccountActivity extends Activity {
             startActivity(new Intent(NewAccountActivity.this,
                   MainActivity.class));
             finish();
-         }
-         else if (result == BustrSignal.FAILURE) {
+         } else if (result == BustrSignal.FAILURE) {
             Toast.makeText(NewAccountActivity.this, "Login Failed",
                   Toast.LENGTH_SHORT).show();
          }
