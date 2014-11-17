@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
+import android.view.animation.ScaleAnimation;
 
 public class ResourceProvider {
 
@@ -59,6 +60,15 @@ public class ResourceProvider {
       DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
       Calendar cal = Calendar.getInstance();
       return dateFormat.format(cal.getTime());
+   }
+   
+   public ScaleAnimation pulse(int pDuration, float pX, float pY) {
+      ScaleAnimation pulse = new ScaleAnimation(1.0f, 1.25f, 1.0f, 1.25f, pX,
+            pY);
+      pulse.setRepeatCount(ScaleAnimation.INFINITE);
+      pulse.setRepeatMode(ScaleAnimation.REVERSE);
+      pulse.setDuration(pDuration);
+      return pulse;
    }
    
 }

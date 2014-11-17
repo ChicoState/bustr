@@ -7,31 +7,23 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -50,9 +42,10 @@ public class MainActivity extends Activity implements OnClickListener {
    private Bitmap bgImage;
 
    // GUI Components -----------------------------------------------------------
-   private Button button1, button2, button3;
-   private TextView banner;
+   private TextView btn_upload, btn_viewer, banner;
    private ImageView background;
+
+   // Resources
    Typeface fontopo;
 
    // OnCreate -----------------------------------------------------------------
@@ -61,30 +54,28 @@ public class MainActivity extends Activity implements OnClickListener {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
-      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);     
-      
+      lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
       // Log onCreate event for life-cycle debugging
       Log.d(LOGTAG, "OnCreate()");
 
       // GUI Component wiring
-      banner = (TextView) findViewById(R.id.banner1);
-      button1 = (Button) findViewById(R.id.button1);
-      button2 = (Button) findViewById(R.id.button2);
-      button3 = (Button) findViewById(R.id.button3);
+      btn_upload = (TextView) findViewById(R.id.btn_upload);
+      btn_viewer = (TextView) findViewById(R.id.btn_viewer);
+      banner = (TextView) findViewById(R.id.logo_banner);
       background = (ImageView) findViewById(R.id.main_bg_img);
 
       // Load type-face resources and apply
       fontopo = ResourceProvider.instance(getBaseContext()).getFont();
       banner.setTypeface(fontopo);
-      button1.setTypeface(fontopo);
-      button2.setTypeface(fontopo);
-      button3.setTypeface(fontopo);
+      btn_upload.setTypeface(fontopo);
+      btn_viewer.setTypeface(fontopo);
 
       // Register views that listen for clicks
-      button1.setOnClickListener(this);
-      button3.setOnClickListener(this);
-      
-      if(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+      btn_upload.setOnClickListener(this);
+      btn_viewer.setOnClickListener(this);
+
+      if (lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
          new BgGetter().execute();
       }
    }
@@ -93,17 +84,26 @@ public class MainActivity extends Activity implements OnClickListener {
    @SuppressLint("InlinedApi")
    @Override
    public void onClick(View view) {
+      Vibrator vib = (Vibrator) getBaseContext().getSystemService(
+            Context.VIBRATOR_SERVICE);
+      vib.vibrate(60);
+      view.setSelected(true);
       switch (view.getId()) {
-      case R.id.button1:
+      case R.id.btn_upload:
          startActivity(new Intent(this, CameraActivity.class));
          break;
-      case R.id.button3:
+      case R.id.btn_viewer:
          startActivity(new Intent(MainActivity.this, ViewerActivity.class));
          break;
-      }
-
+      }      
    }
 
+   @Override
+   protected void onResume() {
+      super.onResume();
+      btn_upload.setSelected(false);
+      btn_viewer.setSelected(false);
+   }
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
@@ -160,12 +160,14 @@ public class MainActivity extends Activity implements OnClickListener {
       @Override
       protected void onPostExecute(ImagePacket result) {
          super.onPostExecute(result);
-         bgImage = BitmapFactory.decodeByteArray(result.getData(), 0,
-               result.getData().length);
-         background.setImageBitmap(bgImage);
-         background.setVisibility(View.VISIBLE);
-         background.startAnimation(AnimationUtils.loadAnimation(
-               MainActivity.this, android.R.anim.fade_in));
+         if (result != null) {
+            bgImage = BitmapFactory.decodeByteArray(result.getData(), 0,
+                  result.getData().length);
+            background.setImageBitmap(bgImage);
+            background.setVisibility(View.VISIBLE);
+            background.startAnimation(AnimationUtils.loadAnimation(
+                  MainActivity.this, android.R.anim.fade_in));
+         }
       }
 
    }

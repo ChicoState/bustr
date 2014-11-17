@@ -22,7 +22,7 @@
 
     <style name="Banner" parent="AppBaseTheme">
         <item name="android:padding">15dp</item>
-        <item name="android:textSize">80sp</item>
+        <item name="android:textSize">60sp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:shadowColor">#000000</item>
         <item name="android:shadowRadius">12</item>
@@ -44,11 +44,20 @@
     
     <style name="ui_button">
         <item name="android:layout_width">35dp</item>
-        <item name="android:alpha">.5</item>
+        <item name="android:alpha">.6</item>
         <item name="android:layout_height">35dp</item>        
         <item name="android:padding">4dp</item>
         <item name="android:background">@drawable/viewer_background</item>
     </style>
 
+    <style name="act_main_button" parent="Banner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/main_button_selector</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:textColor">@color/super_light_blue</item>
+    </style>   
+ 
     
 </resources>

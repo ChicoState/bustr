@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -40,6 +41,7 @@ import com.bustr.packets.ImagePacket;
 import com.bustr.packets.ImagePacket.VoteState;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrDialog;
 import com.bustr.utilities.CommentsAdapter;
 import com.bustr.utilities.ResourceProvider;
 
@@ -55,14 +57,16 @@ public class ViewerFragment extends Fragment {
    private Downloader downloader = new Downloader();
    private CommentsAdapter comments_adapter;
    private SharedPreferences sharedPrefs;
+   Vibrator vib;
 
    // GUI elements -------------------------------------------------------------
    private ViewGroup rootView = null;
    private ListView listView;
    private ImageView upvote, downvote, comment;
    private TextView viewerCaption;
+   
    // private TextView repDisplay;
-   private ImageView viewerImage;
+   private ImageView viewerImage;   
    private ImageView outer, inner;
 
    // Constructor --------------------------------------------------------------
@@ -78,6 +82,8 @@ public class ViewerFragment extends Fragment {
             container, false);
       sharedPrefs = PreferenceManager.getDefaultSharedPreferences(rootView
             .getContext());
+      vib = (Vibrator) rootView.getContext().getSystemService(
+            Context.VIBRATOR_SERVICE);
       // GUI element wiring ----------------------------------------------------
       listView = (ListView) rootView.findViewById(R.id.comment_list);
       viewerCaption = (TextView) rootView.findViewById(R.id.viewerCaption);
@@ -107,6 +113,7 @@ public class ViewerFragment extends Fragment {
                   voteState = VoteState.UP;
                   break;
                }
+               vib.vibrate(60);
                setVoteButtonStates();
             }
             else if (v.getId() == R.id.downvote) {
@@ -125,6 +132,7 @@ public class ViewerFragment extends Fragment {
                   voteState = VoteState.NONE;
                   break;
                }
+               vib.vibrate(60);
                setVoteButtonStates();
             }
             else if (v.getId() == R.id.comment) {
@@ -150,19 +158,28 @@ public class ViewerFragment extends Fragment {
    }
 
    private void getCommentFromUser() {
-      final EditText captionInput = new EditText(rootView.getContext());
-      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+
+      final BustrDialog commentDialog = new BustrDialog(rootView.getContext(),
+            R.layout.bustr_input_dialog_view);
+      OnClickListener listener = new OnClickListener() {
          @Override
-         public void onClick(DialogInterface arg0, int arg1) {
+         public void onClick(View arg0) {
             userComment = new Comment(sharedPrefs.getString("username",
                   "no_user"), ResourceProvider.instance(rootView.getContext())
-                  .getDate(), captionInput.getText().toString());
+                  .getDate(),
+                  ((EditText) commentDialog.findViewById(R.id.comment_input))
+                        .getText().toString());
             new Voter(BustrSignal.NEW_COMMENT);
+            commentDialog.dismiss();
          }
       };
-      new AlertDialog.Builder(rootView.getContext()).setTitle("Comment")
-            .setView(captionInput).setNeutralButton("Ok", listener)
-            .setIcon(android.R.drawable.ic_input_get).show();
+      commentDialog.setCustomTitle("Comment");
+      commentDialog.setButtonListener(listener);
+      commentDialog.show();
+      //
+      // new AlertDialog.Builder(rootView.getContext()).setTitle("Comment")
+      // .setView(captionInput).setNeutralButton("Ok", listener)
+      // .setIcon(android.R.drawable.ic_input_get).show();
    }
 
    public void setImage(ImagePacket imagePacket) {
@@ -173,6 +190,9 @@ public class ViewerFragment extends Fragment {
       image = BitmapFactory.decodeByteArray(imagePacket.getData(), 0,
             imagePacket.getData().length);
       comments_adapter = new CommentsAdapter(rootView.getContext(), commentv);
+      listView.setDivider(getResources().getDrawable(
+            android.R.drawable.divider_horizontal_dim_dark));
+      listView.setDividerHeight(1);
       listView.setAdapter(comments_adapter);
 
       try {

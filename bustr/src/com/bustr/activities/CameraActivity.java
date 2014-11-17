@@ -10,14 +10,10 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -29,9 +25,7 @@ import android.graphics.Typeface;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
-import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.location.Location;
 import android.location.LocationListener;
@@ -45,17 +39,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.bustr.R;
 import com.bustr.packets.ImagePacket;
 import com.bustr.packets.SignalPacket;
 import com.bustr.packets.SignalPacket.BustrSignal;
+import com.bustr.utilities.BustrDialog;
 import com.bustr.utilities.BustrGrid;
 import com.bustr.utilities.CameraPreview;
 import com.bustr.utilities.ResourceProvider;
@@ -97,15 +92,14 @@ public class CameraActivity extends Activity {
    // Location Manager service
    LocationManager lm;
 
-   // Caption to be attached to the image
-   private String caption = "";
-
    // Boolean value to track when picture is taking
-   private boolean takingPicture = false;  
+   private boolean takingPicture = false;
 
+   // Stores flash enabled/disabled
+   private boolean flashEnabled = false;
 
    // GUI elements -------------------------------------------------------------
-   private ToggleButton btn_flash;
+   private ImageView btn_flash;
    private ImageView btn_snap;
    private ImageView btn_flip;
    private ImageView btn_save;
@@ -113,6 +107,7 @@ public class CameraActivity extends Activity {
    private ImageView btn_discard;
    private ProgressBar progress;
    private FrameLayout container;
+   private FrameLayout preview;
 
    // Initializes camera instance and location manager -------------------------
    @Override
@@ -165,9 +160,10 @@ public class CameraActivity extends Activity {
       btn_flip = (ImageView) findViewById(R.id.btn_flip);
       btn_keep = (ImageView) findViewById(R.id.btn_keep);
       btn_discard = (ImageView) findViewById(R.id.btn_discard);
-      btn_flash = (ToggleButton) findViewById(R.id.btn_flash);
+      btn_flash = (ImageView) findViewById(R.id.btn_flash);
       btn_save = (ImageView) findViewById(R.id.btn_save);
       progress = (ProgressBar) findViewById(R.id.uploadProgress);
+      preview = (FrameLayout) findViewById(R.id.camera_preview);
       container = (FrameLayout) findViewById(R.id.container);
       if (camFront && camBack) {
          btn_flip.setVisibility(View.VISIBLE);
@@ -179,9 +175,6 @@ public class CameraActivity extends Activity {
          public void onAutoFocus(boolean focused, Camera pCam) {
             Log.d(LOGTAG, "Auto focus callback");
             if (takingPicture && focused == true) {
-
-               // mCamera.takePicture(shutterCallback, null,
-               // pictureCallbackJPG);
                mPreview.takingPicture = true;
                takingPicture = false;
             }
@@ -196,10 +189,17 @@ public class CameraActivity extends Activity {
             if (mPreview.takingPicture == true) {
 
                Log.d(LOGTAG, "Picture has been taken");
-               mPreview.takingPicture = false;             
+               mPreview.takingPicture = false;
 
                Log.d(LOGTAG, "Stopping preview");
+               mPreview.animate();
                mCamera.stopPreview();
+               if (flashEnabled) {
+
+                  Camera.Parameters p = mCamera.getParameters();
+                  p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                  mCamera.setParameters(p);                  
+               }
 
                Size previewSize = camera.getParameters().getPreviewSize();
                Log.d(LOGTAG, "[PREVIEW-SIZE] h: " + previewSize.height
@@ -263,7 +263,6 @@ public class CameraActivity extends Activity {
                btn_discard.setOnClickListener(listener);
                Log.d(LOGTAG, "h: " + bmp.getHeight() + "w: " + bmp.getWidth());
             }
-            Log.d(LOGTAG, "Preview Callback");
          }
       };
 
@@ -272,7 +271,7 @@ public class CameraActivity extends Activity {
          @Override
          public void onClick(View v) {
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-               if (btn_flash.isChecked()) {
+               if (flashEnabled) {
                   Camera.Parameters params = mCamera.getParameters();
                   params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                   // params.setRotation(90);
@@ -287,13 +286,24 @@ public class CameraActivity extends Activity {
          }
       });
 
-      // Setup flip button -----------------------------------------------------
-      btn_flip.setOnClickListener(new OnClickListener() {
+      // Setup flip/flash buttons ----------------------------------------------
+      OnClickListener flip_flash = new OnClickListener() {
          @Override
          public void onClick(View v) {
-            switchCamera();
+            if (v.getId() == R.id.btn_flip) {
+               switchCamera();               
+            }
+            else if (v.getId() == R.id.btn_flash) {
+               flashEnabled = flashEnabled ? false : true;
+               btn_flash.setImageDrawable(getResources().getDrawable(
+                     flashEnabled ? R.drawable.yellowflashglow
+                           : R.drawable.flash));
+               Log.d(LOGTAG, "Flash enabled: " + flashEnabled);
+            }
          }
-      });
+      };
+      btn_flip.setOnClickListener(flip_flash);
+      btn_flash.setOnClickListener(flip_flash);
 
       // Verify GPS service is enabled -----------------------------------------
       if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -307,8 +317,12 @@ public class CameraActivity extends Activity {
       // Grid location of image
       private float lat, lng;
 
-      // Calculates grid dimensions
-      public Uploader() {
+      // Image caption from user
+      private String caption;
+
+      // Cosntrcutor (Calculates grid dimensions)
+      public Uploader(String pCaption) {
+         caption = pCaption;
          progress.setVisibility(View.VISIBLE);
          lat = BustrGrid.gridLat(lm);
          lng = BustrGrid.gridLon(lm);
@@ -356,7 +370,7 @@ public class CameraActivity extends Activity {
    }
 
    // Toggles active camera and saves to shared preferences --------------------
-   public void switchCamera() {
+   public void switchCamera() {      
       if (cam == Camera.CameraInfo.CAMERA_FACING_BACK) {
          prefEditor.putInt("camera", Camera.CameraInfo.CAMERA_FACING_FRONT)
                .commit();
@@ -418,48 +432,67 @@ public class CameraActivity extends Activity {
    protected void onResume() {
       super.onResume();
       Log.d(LOGTAG, "OnResume");
-      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
       Log.d(LOGTAG, "Opening camera");
       mCamera = Camera.open(cam);
       mPreview = new CameraPreview(this, mCamera, !(camFront && camBack),
             previewCallback);
-      btn_flash.setChecked(false);
-      preview.addView(mPreview);            
+      flashEnabled = false;
+      preview.addView(mPreview);
       showPrePictureButtons();
-      
+
       Log.d(LOGTAG, "Starting preview");
       mCamera.startPreview();
    }
 
    // Requests that user enable GPS service ------------------------------------
    private void promptEnableGPS() {
-      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+      final BustrDialog GpsDialog = new BustrDialog(CameraActivity.this,
+            R.layout.bustr_alert_layout_view);
+      GpsDialog.setCustomTitle("Enable GPS");
+      GpsDialog.setAlertMessage("Please enable GPS to continue using Bustr.");
+      GpsDialog.setCancelable(false);
+      OnClickListener listener = new OnClickListener() {
          @Override
-         public void onClick(DialogInterface dialog, int which) {
+         public void onClick(View v) {
             Intent gpsOptionsIntent = new Intent(
                   android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(gpsOptionsIntent);
+            GpsDialog.dismiss();
          }
       };
-      new AlertDialog.Builder(this).setTitle("GPS Required")
-            .setMessage("Please enable GPS location")
-            .setNeutralButton("Ok", listener).setCancelable(false)
-            .setIcon(android.R.drawable.ic_dialog_alert).show();
+      GpsDialog.setButtonListener(listener);
+      GpsDialog.show();
    }
 
    // Prompt user to provide image caption -------------------------------------
    private void getCaptionFromUser() {
-      final EditText captionInput = new EditText(this);
-      AlertDialog.OnClickListener listener = new AlertDialog.OnClickListener() {
+
+      final BustrDialog captionDialog = new BustrDialog(CameraActivity.this,
+            R.layout.bustr_input_dialog_view);
+      OnClickListener listener = new OnClickListener() {
          @Override
-         public void onClick(DialogInterface arg0, int arg1) {
-            caption = captionInput.getText().toString();
-            new Uploader().execute();
+         public void onClick(View v) {
+            String caption = ((EditText) captionDialog
+                  .findViewById(R.id.comment_input)).getText().toString();
+            new Uploader(caption).execute();
+            captionDialog.dismiss();
          }
       };
-      new AlertDialog.Builder(this).setTitle("Add a caption?")
-            .setView(captionInput).setNeutralButton("Ok", listener)
-            .setIcon(android.R.drawable.ic_input_get).show();
+      captionDialog.setCustomTitle("Add a Caption");
+      captionDialog.setButtonListener(listener);
+      captionDialog.show();
+
+      // final EditText captionInput = new EditText(this);
+      // AlertDialog.OnClickListener listener = new
+      // AlertDialog.OnClickListener() {
+      // @Override
+      // public void onClick(DialogInterface arg0, int arg1) {
+      // caption = captionInput.getText().toString();
+      // }
+      // };
+      // new AlertDialog.Builder(this).setTitle("Add a caption?")
+      // .setView(captionInput).setNeutralButton("Ok", listener)
+      // .setIcon(android.R.drawable.ic_input_get).show();
    }
 
    private void saveLocalCopy(byte[] bytes) throws FileNotFoundException,

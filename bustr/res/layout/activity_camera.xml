@@ -25,55 +25,55 @@
         android:visibility="gone" />
 
     <ImageView
+        android:id="@+id/btn_flash"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="left|bottom"
+        android:padding="16dp"
+        android:src="@drawable/flash" />
+
+    <ImageView
         android:id="@+id/btn_snap"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center|bottom"        
-        android:src = "@drawable/snap_button"
-        android:padding="10dp"/>
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center|bottom"
+        android:padding="4dp"
+        android:src="@drawable/snap_button" />
 
     <ImageView
         android:id="@+id/btn_flip"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="right|bottom"
+        android:padding="16dp"
         android:src="@drawable/switchcamera"
-        android:padding="10dp"
         android:visibility="gone" />
 
-
     <ImageView
-        android:id="@+id/btn_keep"        
+        android:id="@+id/btn_keep"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:src="@drawable/thumbsup" 
         android:layout_gravity="right|bottom"
-        android:padding="10dp"
-        android:visibility="gone"/>
+        android:padding="16dp"
+        android:src="@drawable/save"
+        android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/btn_discard"        
+        android:id="@+id/btn_discard"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:src="@drawable/thumbsdown" 
         android:layout_gravity="left|bottom"
-        android:padding="10dp"
-        android:visibility="gone"/>
-
-    <ToggleButton
-        android:id="@+id/btn_flash"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:text="Flash" />
+        android:padding="16dp"
+        android:src="@drawable/delete"
+        android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/btn_save"        
+        android:id="@+id/btn_save"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:src="@drawable/savebutton" 
         android:layout_gravity="center|bottom"
-        android:padding="10dp"
-        android:visibility="gone"/>
+        android:padding="16dp"
+        android:src="@drawable/folder"
+        android:visibility="gone" />
 
 </FrameLayout>

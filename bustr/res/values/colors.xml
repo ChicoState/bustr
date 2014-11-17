@@ -2,8 +2,10 @@
 <resources>
 	<color name='super_light_blue'>#EBFFFF</color>
    <color name='super_light_blue_glass'>#C0EBFFFF</color>
+   <color name='super_light_blue_glass2'>#70EBFFFF</color>
    <color name='glass'>#A0000000</color>
 	<color name='border_blue'>#3399FF</color>
-   <color name='border_blue_glass'>#903399FF</color>
+   <color name='border_blue_glass'>#803399FF</color>
+   <color name='border_blue_glass_extra'>#A03399FF</color>
 	<color name="light_green">#C3F77E</color>
 </resources>

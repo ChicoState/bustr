@@ -10,46 +10,40 @@
     <ImageView
         android:id="@+id/main_bg_img"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:alpha=".6"
-        android:scaleType="centerCrop" />
+        android:layout_height="match_parent"        
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/banner1"
-            style="@style/Banner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/btn_upload"
+            style="@style/act_main_button"
+            android:layout_weight=".4"
+            android:gravity="center"
+            android:text="Post" />
+
+        <TextView
+            android:id="@+id/logo_banner"
+            style="@style/act_main_button"
+            android:layout_weight=".2"
             android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textColor="@android:color/white"
+            android:textSize="75sp"/>
 
-        <Button
-            android:id="@+id/button1"
-            style="@style/Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upload" />
-
-        <Button
-            android:id="@+id/button2"
-            style="@style/Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Notify" />
-
-        <Button
-            android:id="@+id/button3"
-            style="@style/Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Download" />
+        <TextView
+            android:id="@+id/btn_viewer"
+            style="@style/act_main_button"
+            android:layout_weight=".4"
+            android:gravity="center"
+            android:text="View" />
     </LinearLayout>
 
     <TextView
