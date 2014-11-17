@@ -1,4 +1,5 @@
 Purpose:
+Pull Request - Add details for how to build project, how to deploy project, how to deploy webserver, how to test
 
 Our application Bustr is a way to share images and text on the android mobile
  platform, using the phones built in GPS to allow geocaching and location
